@@ -29,3 +29,6 @@ desktop.ini
 
 # pnpm
 .pnpm-debug.log
+
+# Local AI assistant instructions and config
+CLAUDE.md
