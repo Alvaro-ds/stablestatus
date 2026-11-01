@@ -1,0 +1,13 @@
+# Default: normalise to LF in the repository
+* text=auto eol=lf
+
+# CSV fixtures must be stored byte-for-byte (BOM + CRLF preserved)
+tests/fixtures/**/*.csv binary
+
+# Markdown and text files get LF
+*.md text eol=lf
+*.ts text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
