@@ -20,7 +20,8 @@ published by the European Securities and Markets Authority (ESMA).
 > other intellectual property rights infringements nor for any damages caused to
 > third parties.
 
-- Source: https://www.esma.europa.eu/databases-library/registers-and-data/mica-register
+- Source: https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica
+  (section "Interim MiCA Register")
 - ESMA Legal Notice: https://www.esma.europa.eu/legal-notice
 
 The ESMA name, abbreviation, and logo are protected marks. **No ESMA logo or

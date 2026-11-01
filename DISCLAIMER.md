@@ -28,8 +28,8 @@ Regulation (EU) 2023/1114 (MiCA). StableStatus does not:
 Regulatory status can change. Always verify the current authorisation status of
 any issuer or token against:
 
-- The **official ESMA Interim MiCA Register**:
-  https://www.esma.europa.eu/databases-library/registers-and-data/mica-register
+- The **official ESMA Interim MiCA Register** (section "Interim MiCA Register"):
+  https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica
 - The relevant **National Competent Authority (NCA)** register in the applicable
   EU member state (e.g. AMF for France, AFM for the Netherlands, BaFin for
   Germany, CNMV for Spain).
