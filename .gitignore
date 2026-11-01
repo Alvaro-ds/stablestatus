@@ -32,3 +32,5 @@ desktop.ini
 
 # Local AI assistant instructions and config
 CLAUDE.md
+.claude/settings.local.json
+.superpowers/
