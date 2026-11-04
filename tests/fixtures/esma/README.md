@@ -6,9 +6,10 @@ preserve the original BOM and CRLF line endings required by the parser tests.
 
 ## Files
 
-| File | Source URL | Downloaded | SHA-256 |
-|------|-----------|-----------|---------|
-| `EMTWP_2026-10-30.csv` | https://www.esma.europa.eu/sites/default/files/2024-12/EMTWP.csv | 2026-10-30 | `f7fb1c594f0374dc16171ac15d4f5db773bf84b1b495e6b3640bdc2a718a4484` |
+| File | Source URL | Downloaded | SHA-256 | Notes |
+|------|-----------|-----------|---------|-------|
+| `EMTWP_2026-10-30.csv` | https://www.esma.europa.eu/sites/default/files/2024-12/EMTWP.csv | 2026-10-30 | `f7fb1c594f0374dc16171ac15d4f5db773bf84b1b495e6b3640bdc2a718a4484` | 50 data rows, 25 issuers |
+| `ARTZZ_2026-11-04.csv` | https://www.esma.europa.eu/sites/default/files/2024-12/ARTZZ.csv | 2026-11-04 | `fa1ef4da123e3d49642c69f90a81a88f6c2cc2a0b9471b2108e4dfc635ca7c67` | Header only (no ART issuers yet); uses LF not CRLF |
 
 ## Encoding
 
