@@ -11,15 +11,23 @@ export class HtmlResponseError extends Error {
   }
 }
 
+export class HttpError extends Error {
+  constructor(
+    url: string,
+    public readonly status: number,
+  ) {
+    super(`HTTP ${status} from ${url}`);
+    this.name = "HttpError";
+  }
+}
+
 export class FetchError extends Error {
   constructor(
     url: string,
     public readonly attempts: number,
     cause?: unknown,
   ) {
-    super(
-      `Failed to fetch ${url} after ${attempts} attempt(s)`,
-    );
+    super(`Failed to fetch ${url} after ${attempts} attempt(s)`);
     this.name = "FetchError";
     if (cause instanceof Error) this.cause = cause;
   }
@@ -39,16 +47,13 @@ function defaultSleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function attemptFetch(
-  url: string,
-  fetchFn: FetchFn,
-): Promise<Buffer> {
+async function attemptFetch(url: string, fetchFn: FetchFn): Promise<Buffer> {
   const response = await fetchFn(url, {
     headers: { "User-Agent": USER_AGENT },
   });
 
   if (!response.ok) {
-    throw new FetchError(url, 1);
+    throw new HttpError(url, response.status);
   }
 
   const contentType = response.headers.get("content-type") ?? "";
@@ -60,11 +65,20 @@ async function attemptFetch(
   const buf = Buffer.from(arrayBuffer);
 
   const preview = buf.slice(0, 15).toString("ascii");
-  if (preview.trimStart().startsWith("<!DOCTYPE") || preview.trimStart().startsWith("<html")) {
+  if (
+    preview.trimStart().startsWith("<!DOCTYPE") ||
+    preview.trimStart().startsWith("<html")
+  ) {
     throw new HtmlResponseError(url, "body starts with HTML tag");
   }
 
   return buf;
+}
+
+function isRetryable(err: unknown): boolean {
+  if (err instanceof HtmlResponseError) return false;
+  if (err instanceof HttpError) return err.status >= 500;
+  return true;
 }
 
 export async function fetchEsmaCsv(
@@ -82,7 +96,7 @@ export async function fetchEsmaCsv(
     try {
       return await attemptFetch(url, fetchFn);
     } catch (err) {
-      if (err instanceof HtmlResponseError) throw err;
+      if (!isRetryable(err)) throw err;
 
       lastError = err;
 

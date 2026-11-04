@@ -97,12 +97,12 @@ describe("storeCsv", () => {
   it("does not overwrite if hash unchanged (idempotent)", () => {
     storeCsv(CONTENT_A, dir, "2026-11-01", "EMTWP.csv");
     const pathA = join(dir, "2026-11-01", "EMTWP.csv");
-    const mtimeBefore = readFileSync(pathA);
+    const contentBefore = readFileSync(pathA);
 
     storeCsv(CONTENT_A, dir, "2026-11-04", "EMTWP.csv");
     const pathB = join(dir, "2026-11-04", "EMTWP.csv");
     expect(existsSync(pathB)).toBe(false);
-    expect(readFileSync(pathA)).toEqual(mtimeBefore);
+    expect(readFileSync(pathA)).toEqual(contentBefore);
   });
 });
 

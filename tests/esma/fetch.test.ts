@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fetchEsmaCsv, HtmlResponseError, FetchError } from "../../src/esma/fetch.js";
+import { fetchEsmaCsv, HtmlResponseError, FetchError, HttpError } from "../../src/esma/fetch.js";
 import { ESMA_URLS } from "../../src/esma/constants.js";
 
 describe("ESMA_URLS", () => {
@@ -110,13 +110,53 @@ describe("fetchEsmaCsv", () => {
     ).rejects.toThrow(FetchError);
   });
 
-  it("applies exponential backoff between retries", async () => {
+  it("throws HttpError on non-200 HTTP status", async () => {
+    const mockFetch = vi.fn().mockResolvedValue(
+      new Response("Not Found", { status: 404 }),
+    );
+
+    await expect(
+      fetchEsmaCsv(ESMA_URLS.EMTWP, { fetch: mockFetch, delayMs: 0 }),
+    ).rejects.toThrow(HttpError);
+  });
+
+  it("does not retry on 4xx client error", async () => {
+    const mockFetch = vi.fn().mockResolvedValue(
+      new Response("Forbidden", { status: 403 }),
+    );
+
+    await expect(
+      fetchEsmaCsv(ESMA_URLS.EMTWP, { fetch: mockFetch, delayMs: 0 }),
+    ).rejects.toThrow(HttpError);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("retries on 5xx server error", async () => {
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response("Server Error", { status: 503 }))
+      .mockResolvedValueOnce(new Response("Server Error", { status: 503 }))
+      .mockResolvedValueOnce(
+        new Response(CSV_CONTENT, {
+          status: 200,
+          headers: { "content-type": "text/csv" },
+        }),
+      );
+
+    const result = await fetchEsmaCsv(ESMA_URLS.EMTWP, {
+      fetch: mockFetch,
+      delayMs: 0,
+    });
+    expect(mockFetch).toHaveBeenCalledTimes(3);
+    expect(result).toBeInstanceOf(Buffer);
+  });
+
+  it("applies exponential backoff with correct absolute delays", async () => {
     const delays: number[] = [];
     const mockSleep = vi.fn((ms: number) => {
       delays.push(ms);
       return Promise.resolve();
     });
-
     const mockFetch = vi
       .fn()
       .mockRejectedValueOnce(new Error("fail"))
@@ -131,19 +171,9 @@ describe("fetchEsmaCsv", () => {
     await fetchEsmaCsv(ESMA_URLS.EMTWP, {
       fetch: mockFetch,
       sleep: mockSleep,
+      delayMs: 10,
     });
 
-    expect(delays).toHaveLength(2);
-    expect(delays[1]!).toBeGreaterThan(delays[0]!);
-  });
-
-  it("throws FetchError on non-200 HTTP status", async () => {
-    const mockFetch = vi.fn().mockResolvedValue(
-      new Response("Not Found", { status: 404 }),
-    );
-
-    await expect(
-      fetchEsmaCsv(ESMA_URLS.EMTWP, { fetch: mockFetch, delayMs: 0 }),
-    ).rejects.toThrow(FetchError);
+    expect(delays).toEqual([10, 20]);
   });
 });

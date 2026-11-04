@@ -35,20 +35,12 @@ export interface ParseResult {
   artNonEmpty: boolean;
 }
 
-function stripBom(text: string): string {
-  return text.startsWith(BOM) ? text.slice(1) : text;
+interface RecordWithInfo {
+  record: string[];
+  info: { bytes: number };
 }
 
-function rowHash(fields: Record<string, string>): string {
-  return createHash("sha256")
-    .update(JSON.stringify(fields))
-    .digest("hex");
-}
-
-function validateHeader(
-  actual: string[],
-  fileType: FileType,
-): void {
+function validateHeader(actual: string[], fileType: FileType): void {
   const expected = COLUMNS_BY_TYPE[fileType];
   const expectedSet = new Set(expected);
   const actualSet = new Set(actual);
@@ -73,17 +65,19 @@ function validateHeader(
 }
 
 export function parseEsmaCsv(buf: Buffer, fileType: FileType): ParseResult {
-  const text = stripBom(buf.toString("utf8"));
+  const text = buf.toString("utf8").replace(new RegExp(`^${BOM}`), "");
+  const textBuf = Buffer.from(text, "utf8");
 
-  const records: string[][] = parse(text, {
+  const rawRecords = parse(text, {
     relax_quotes: false,
     skip_empty_lines: true,
-  }) as string[][];
+    info: true,
+  }) as unknown as RecordWithInfo[];
 
-  if (records.length === 0) {
+  if (rawRecords.length === 0) {
     throw new EsmaSchemaChangedError(
       fileType,
-      COLUMNS_BY_TYPE[fileType] as unknown as string[],
+      [...COLUMNS_BY_TYPE[fileType]],
       [],
       false,
       COLUMNS_BY_TYPE[fileType],
@@ -91,19 +85,22 @@ export function parseEsmaCsv(buf: Buffer, fileType: FileType): ParseResult {
     );
   }
 
-  const header = records[0]!;
+  const header = rawRecords[0]!.record;
   validateHeader(header, fileType);
 
-  const dataRecords = records.slice(1);
+  const rows: ParsedRow[] = rawRecords.slice(1).map((item, idx) => {
+    const prevBytes = rawRecords[idx]!.info.bytes;
+    const currBytes = item.info.bytes;
+    const rawRowBytes = textBuf.slice(prevBytes, currBytes);
 
-  const rows: ParsedRow[] = dataRecords.map((record, idx) => {
     const fields: Record<string, string> = {};
     for (let i = 0; i < header.length; i++) {
-      fields[header[i]!] = record[i] ?? "";
+      fields[header[i]!] = item.record[i] ?? "";
     }
+
     return {
       rowIndex: idx + 1,
-      rowSha256: rowHash(fields),
+      rowSha256: createHash("sha256").update(rawRowBytes).digest("hex"),
       fields,
     };
   });

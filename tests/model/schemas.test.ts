@@ -65,6 +65,24 @@ describe("ProvenanceSchema", () => {
   });
 });
 
+describe("ProvenanceSchema — UTC enforcement", () => {
+  it("rejects fetchedAt with timezone offset (non-UTC)", () => {
+    const result = ProvenanceSchema.safeParse({
+      ...VALID_PROVENANCE,
+      fetchedAt: "2026-11-04T10:00:00+02:00",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts fetchedAt with Z (UTC)", () => {
+    const result = ProvenanceSchema.safeParse({
+      ...VALID_PROVENANCE,
+      fetchedAt: "2026-11-04T10:00:00Z",
+    });
+    expect(result.success).toBe(true);
+  });
+});
+
 describe("SourceSnapshotSchema", () => {
   it("parses valid snapshot", () => {
     const result = SourceSnapshotSchema.safeParse(VALID_SNAPSHOT);
