@@ -27,7 +27,7 @@ chain by chain, whether each token is covered by a valid MiCA authorisation.
 
 ## Why the ESMA Register Is Not Enough
 
-The [ESMA interim MiCA register](https://www.esma.europa.eu/databases-library/registers-and-data/mica-register)
+The [ESMA interim MiCA register](https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica)
 is the primary source of authorisation data, but it does not map to on-chain
 contracts. Four gaps make it insufficient on its own:
 
@@ -75,7 +75,7 @@ Each contract address carries one of four trust levels:
 
 | Source | Used for |
 |--------|---------|
-| [ESMA Interim MiCA Register](https://www.esma.europa.eu/databases-library/registers-and-data/mica-register) | Authorisation status, issuer LEI, white papers, DTI codes |
+| [ESMA Interim MiCA Register](https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica) | Authorisation status, issuer LEI, white papers, DTI codes |
 | [DTI Foundation](https://dtif.org) | Digital Token Identifier codes |
 | Public blockchain RPC / explorers | Contract addresses, on-chain verification |
 | Issuer official sources | Address confirmation for `verified` level |
