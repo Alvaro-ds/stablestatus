@@ -4,6 +4,9 @@
 # CSV fixtures must be stored byte-for-byte (BOM + CRLF preserved)
 tests/fixtures/**/*.csv binary
 
+# Raw ESMA downloads must also be stored byte-for-byte
+data/raw/**/*.csv binary
+
 # Markdown and text files get LF
 *.md text eol=lf
 *.ts text eol=lf
