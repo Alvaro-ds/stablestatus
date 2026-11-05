@@ -10,3 +10,4 @@ export const USER_AGENT =
 
 export const FETCH_MAX_ATTEMPTS = 3;
 export const FETCH_BASE_DELAY_MS = 1_000;
+export const FETCH_TIMEOUT_MS = 30_000;

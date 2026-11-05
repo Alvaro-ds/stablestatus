@@ -151,6 +151,73 @@ describe("fetchEsmaCsv", () => {
     expect(result).toBeInstanceOf(Buffer);
   });
 
+  it("retries on 429 Too Many Requests", async () => {
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response("Too Many Requests", { status: 429 }))
+      .mockResolvedValueOnce(new Response("Too Many Requests", { status: 429 }))
+      .mockResolvedValueOnce(
+        new Response(CSV_CONTENT, {
+          status: 200,
+          headers: { "content-type": "text/csv" },
+        }),
+      );
+
+    const result = await fetchEsmaCsv(ESMA_URLS.EMTWP, {
+      fetch: mockFetch,
+      delayMs: 0,
+    });
+    expect(mockFetch).toHaveBeenCalledTimes(3);
+    expect(result).toBeInstanceOf(Buffer);
+  });
+
+  it("throws HtmlResponseError for text/html content-type even when body is not HTML", async () => {
+    const mockFetch = vi.fn().mockResolvedValueOnce(
+      new Response(CSV_CONTENT, {
+        status: 200,
+        headers: { "content-type": "text/html; charset=utf-8" },
+      }),
+    );
+
+    await expect(
+      fetchEsmaCsv(ESMA_URLS.EMTWP, { fetch: mockFetch }),
+    ).rejects.toThrow(HtmlResponseError);
+  });
+
+  it("detects HTML body case-insensitively", async () => {
+    const mixedCaseHtml = "<!doctype html><html></html>";
+    const mockFetch = vi.fn().mockResolvedValueOnce(
+      new Response(mixedCaseHtml, {
+        status: 200,
+        headers: { "content-type": "text/csv" },
+      }),
+    );
+
+    await expect(
+      fetchEsmaCsv(ESMA_URLS.EMTWP, { fetch: mockFetch }),
+    ).rejects.toThrow(HtmlResponseError);
+  });
+
+  it("throws FetchError when fetch times out", async () => {
+    const mockFetch = vi.fn((_url: string, init?: RequestInit) => {
+      return new Promise<Response>((_, reject) => {
+        init?.signal?.addEventListener("abort", () => {
+          reject(new DOMException("Timeout", "TimeoutError"));
+        });
+      });
+    });
+
+    await expect(
+      fetchEsmaCsv(ESMA_URLS.EMTWP, {
+        fetch: mockFetch,
+        timeoutMs: 1,
+        delayMs: 0,
+        maxAttempts: 1,
+      }),
+    ).rejects.toThrow(FetchError);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
   it("applies exponential backoff with correct absolute delays", async () => {
     const delays: number[] = [];
     const mockSleep = vi.fn((ms: number) => {

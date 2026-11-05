@@ -2,6 +2,7 @@ import {
   USER_AGENT,
   FETCH_MAX_ATTEMPTS,
   FETCH_BASE_DELAY_MS,
+  FETCH_TIMEOUT_MS,
 } from "./constants.js";
 
 export class HtmlResponseError extends Error {
@@ -41,15 +42,21 @@ export interface FetchOptions {
   sleep?: SleepFn;
   delayMs?: number;
   maxAttempts?: number;
+  timeoutMs?: number;
 }
 
 function defaultSleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function attemptFetch(url: string, fetchFn: FetchFn): Promise<Buffer> {
+async function attemptFetch(
+  url: string,
+  fetchFn: FetchFn,
+  timeoutMs: number,
+): Promise<Buffer> {
   const response = await fetchFn(url, {
     headers: { "User-Agent": USER_AGENT },
+    signal: AbortSignal.timeout(timeoutMs),
   });
 
   if (!response.ok) {
@@ -57,18 +64,15 @@ async function attemptFetch(url: string, fetchFn: FetchFn): Promise<Buffer> {
   }
 
   const contentType = response.headers.get("content-type") ?? "";
-  if (contentType.includes("text/html")) {
+  if (contentType.toLowerCase().includes("text/html")) {
     throw new HtmlResponseError(url, `content-type: ${contentType}`);
   }
 
   const arrayBuffer = await response.arrayBuffer();
   const buf = Buffer.from(arrayBuffer);
 
-  const preview = buf.slice(0, 15).toString("ascii");
-  if (
-    preview.trimStart().startsWith("<!DOCTYPE") ||
-    preview.trimStart().startsWith("<html")
-  ) {
+  const preview = buf.subarray(0, 15).toString("ascii").trimStart().toLowerCase();
+  if (preview.startsWith("<!doctype") || preview.startsWith("<html")) {
     throw new HtmlResponseError(url, "body starts with HTML tag");
   }
 
@@ -77,7 +81,7 @@ async function attemptFetch(url: string, fetchFn: FetchFn): Promise<Buffer> {
 
 function isRetryable(err: unknown): boolean {
   if (err instanceof HtmlResponseError) return false;
-  if (err instanceof HttpError) return err.status >= 500;
+  if (err instanceof HttpError) return err.status === 429 || err.status >= 500;
   return true;
 }
 
@@ -89,19 +93,20 @@ export async function fetchEsmaCsv(
   const sleepFn = options.sleep ?? defaultSleep;
   const baseDelay = options.delayMs ?? FETCH_BASE_DELAY_MS;
   const maxAttempts = options.maxAttempts ?? FETCH_MAX_ATTEMPTS;
+  const timeoutMs = options.timeoutMs ?? FETCH_TIMEOUT_MS;
 
   let lastError: unknown;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
-      return await attemptFetch(url, fetchFn);
+      return await attemptFetch(url, fetchFn, timeoutMs);
     } catch (err) {
       if (!isRetryable(err)) throw err;
 
       lastError = err;
 
       if (attempt < maxAttempts - 1) {
-        await sleepFn(baseDelay * Math.pow(2, attempt));
+        await sleepFn(baseDelay * 2 ** attempt);
       }
     }
   }

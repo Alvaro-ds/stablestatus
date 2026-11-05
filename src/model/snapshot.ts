@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const SourceSnapshotSchema = z.object({
-  url: z.string().url(),
-  fetchedAt: z.string().datetime({ offset: false }),
-  sha256: z.string().min(1),
+  url: z.url(),
+  fetchedAt: z.iso.datetime(),
+  sha256: z.string().regex(/^[0-9a-f]{64}$/),
   sizeBytes: z.number().int().min(0),
   rowCount: z.number().int().min(0),
 });

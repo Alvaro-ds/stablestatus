@@ -155,3 +155,39 @@ describe("writeManifest", () => {
     expect(manifest.files).toHaveLength(1);
   });
 });
+
+describe("storeCsv — path safety", () => {
+  let dir: string;
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), "stablestatus-test-"));
+  });
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("throws on invalid date format", () => {
+    expect(() => storeCsv(CONTENT_A, dir, "not-a-date", "EMTWP.csv")).toThrow(
+      /Invalid date format/,
+    );
+  });
+
+  it("throws on date with path traversal", () => {
+    expect(() =>
+      storeCsv(CONTENT_A, dir, "../../etc", "EMTWP.csv"),
+    ).toThrow(/Invalid date format/);
+  });
+
+  it("throws on disallowed filename", () => {
+    expect(() =>
+      storeCsv(CONTENT_A, dir, "2026-11-04", "evil.csv"),
+    ).toThrow(/Unexpected filename/);
+  });
+
+  it("accepts valid date and filename", () => {
+    expect(() =>
+      storeCsv(CONTENT_A, dir, "2026-11-04", "EMTWP.csv"),
+    ).not.toThrow();
+  });
+});
