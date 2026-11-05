@@ -1,21 +1,26 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, readFileSync, existsSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import {
-  computeSha256,
-  shouldStoreCsv,
-  writeManifest,
-  storeCsv,
-} from "../../src/esma/store.js";
+
+import { computeSha256, shouldStoreCsv, storeCsv, writeManifest } from "../../src/esma/store.js";
 import type { SourceSnapshot } from "../../src/model/index.js";
+
+// ---------------------------------------------------------------------------
+// Test fixtures
+// ---------------------------------------------------------------------------
 
 const CONTENT_A = Buffer.from("col1,col2\r\nval1,val2\r\n", "utf8");
 const CONTENT_B = Buffer.from("col1,col2\r\nval1,val3\r\n", "utf8");
 
+// ---------------------------------------------------------------------------
+// computeSha256
+// ---------------------------------------------------------------------------
+
 describe("computeSha256", () => {
   it("returns lowercase hex sha256 of buffer", () => {
     const hash = computeSha256(CONTENT_A);
+
     expect(hash).toMatch(/^[0-9a-f]{64}$/);
   });
 
@@ -25,9 +30,14 @@ describe("computeSha256", () => {
 
   it("returns identical hash for identical content", () => {
     const copy = Buffer.from(CONTENT_A);
+
     expect(computeSha256(CONTENT_A)).toBe(computeSha256(copy));
   });
 });
+
+// ---------------------------------------------------------------------------
+// shouldStoreCsv
+// ---------------------------------------------------------------------------
 
 describe("shouldStoreCsv", () => {
   let dir: string;
@@ -41,34 +51,31 @@ describe("shouldStoreCsv", () => {
   });
 
   it("returns true when no previous file exists", () => {
-    const result = shouldStoreCsv(
-      computeSha256(CONTENT_A),
-      dir,
-      "EMTWP.csv",
-    );
+    const result = shouldStoreCsv(computeSha256(CONTENT_A), dir, "EMTWP.csv");
+
     expect(result).toBe(true);
   });
 
   it("returns false when file with same hash already exists", () => {
     storeCsv(CONTENT_A, dir, "2026-11-01", "EMTWP.csv");
-    const result = shouldStoreCsv(
-      computeSha256(CONTENT_A),
-      dir,
-      "EMTWP.csv",
-    );
+
+    const result = shouldStoreCsv(computeSha256(CONTENT_A), dir, "EMTWP.csv");
+
     expect(result).toBe(false);
   });
 
   it("returns true when content has changed", () => {
     storeCsv(CONTENT_A, dir, "2026-11-01", "EMTWP.csv");
-    const result = shouldStoreCsv(
-      computeSha256(CONTENT_B),
-      dir,
-      "EMTWP.csv",
-    );
+
+    const result = shouldStoreCsv(computeSha256(CONTENT_B), dir, "EMTWP.csv");
+
     expect(result).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// storeCsv
+// ---------------------------------------------------------------------------
 
 describe("storeCsv", () => {
   let dir: string;
@@ -83,13 +90,16 @@ describe("storeCsv", () => {
 
   it("writes CSV to date-namespaced directory", () => {
     storeCsv(CONTENT_A, dir, "2026-11-04", "EMTWP.csv");
+
     const written = readFileSync(join(dir, "2026-11-04", "EMTWP.csv"));
     expect(written).toEqual(CONTENT_A);
   });
 
   it("preserves exact bytes (BOM and CRLF)", () => {
     const withBom = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), CONTENT_A]);
+
     storeCsv(withBom, dir, "2026-11-04", "EMTWP.csv");
+
     const written = readFileSync(join(dir, "2026-11-04", "EMTWP.csv"));
     expect(written.slice(0, 3)).toEqual(Buffer.from([0xef, 0xbb, 0xbf]));
   });
@@ -100,11 +110,16 @@ describe("storeCsv", () => {
     const contentBefore = readFileSync(pathA);
 
     storeCsv(CONTENT_A, dir, "2026-11-04", "EMTWP.csv");
+
     const pathB = join(dir, "2026-11-04", "EMTWP.csv");
     expect(existsSync(pathB)).toBe(false);
     expect(readFileSync(pathA)).toEqual(contentBefore);
   });
 });
+
+// ---------------------------------------------------------------------------
+// writeManifest
+// ---------------------------------------------------------------------------
 
 describe("writeManifest", () => {
   let dir: string;
@@ -150,11 +165,14 @@ describe("writeManifest", () => {
     writeManifest(dir, "2026-11-04", [snapshot]);
     writeManifest(dir, "2026-11-04", [snapshot]);
 
-    const manifestPath = join(dir, "2026-11-04", "manifest.json");
-    const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    const manifest = JSON.parse(readFileSync(join(dir, "2026-11-04", "manifest.json"), "utf8"));
     expect(manifest.files).toHaveLength(1);
   });
 });
+
+// ---------------------------------------------------------------------------
+// storeCsv — path safety
+// ---------------------------------------------------------------------------
 
 describe("storeCsv — path safety", () => {
   let dir: string;
@@ -169,25 +187,19 @@ describe("storeCsv — path safety", () => {
 
   it("throws on invalid date format", () => {
     expect(() => storeCsv(CONTENT_A, dir, "not-a-date", "EMTWP.csv")).toThrow(
-      /Invalid date format/,
+      /Invalid date format/
     );
   });
 
   it("throws on date with path traversal", () => {
-    expect(() =>
-      storeCsv(CONTENT_A, dir, "../../etc", "EMTWP.csv"),
-    ).toThrow(/Invalid date format/);
+    expect(() => storeCsv(CONTENT_A, dir, "../../etc", "EMTWP.csv")).toThrow(/Invalid date format/);
   });
 
   it("throws on disallowed filename", () => {
-    expect(() =>
-      storeCsv(CONTENT_A, dir, "2026-11-04", "evil.csv"),
-    ).toThrow(/Unexpected filename/);
+    expect(() => storeCsv(CONTENT_A, dir, "2026-11-04", "evil.csv")).toThrow(/Unexpected filename/);
   });
 
   it("accepts valid date and filename", () => {
-    expect(() =>
-      storeCsv(CONTENT_A, dir, "2026-11-04", "EMTWP.csv"),
-    ).not.toThrow();
+    expect(() => storeCsv(CONTENT_A, dir, "2026-11-04", "EMTWP.csv")).not.toThrow();
   });
 });

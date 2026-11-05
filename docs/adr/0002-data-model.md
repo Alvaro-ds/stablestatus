@@ -8,8 +8,8 @@
 
 ## Context
 
-Phase 1 must answer, every day and with sources: *"Is this issuer and its white
-paper authorised under MiCA today, and since when?"*. The source is ESMA's
+Phase 1 must answer, every day and with sources: _"Is this issuer and its white
+paper authorised under MiCA today, and since when?"_. The source is ESMA's
 interim MiCA register (`EMTWP.csv` and `ARTZZ.csv`).
 
 What the data looks like (download of 2026-10-31):
@@ -41,11 +41,11 @@ This model underpins blocks B2–B7. Changing it later is expensive, so it is fi
 
 ### D1. Units and identity keys
 
-| Entity | Represents | Key | Why |
-|---|---|---|---|
-| `Issuer` | Authorised legal entity | `lei` (20 chars, ISO 17442) | Stable, global, links to GLEIF and national registers. **Never** the name (typos) or the ticker (copyable) |
-| `WhitePaper` | One ESMA row: a white paper, or an authorisation without one | `wpKey = lei + ":" + wpUrlNormalized`; without a white paper, `lei + ":EMT_NO_WP"` | The only key that identifies every row, including the 28 without a DTI |
-| `SourceSnapshot` | One ESMA file as downloaded at a given time | `sha256` of the content | Proves exactly what the source said |
+| Entity           | Represents                                                   | Key                                                                                | Why                                                                                                        |
+| ---------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `Issuer`         | Authorised legal entity                                      | `lei` (20 chars, ISO 17442)                                                        | Stable, global, links to GLEIF and national registers. **Never** the name (typos) or the ticker (copyable) |
+| `WhitePaper`     | One ESMA row: a white paper, or an authorisation without one | `wpKey = lei + ":" + wpUrlNormalized`; without a white paper, `lei + ":EMT_NO_WP"` | The only key that identifies every row, including the 28 without a DTI                                     |
+| `SourceSnapshot` | One ESMA file as downloaded at a given time                  | `sha256` of the content                                                            | Proves exactly what the source said                                                                        |
 
 **There is no `Token` entity in Phase 1.** DTIs are stored as a list on the
 `WhitePaper` (`dtis[]` and `ffg`), because:
@@ -78,11 +78,11 @@ Every `Issuer` and `WhitePaper` carries a `provenance` object:
 ```ts
 // src/model/provenance.ts (shape only; real code is written in B2)
 provenance: {
-  sourceUrl: string;      // exact CSV URL on esma.europa.eu
-  fetchedAt: string;      // ISO 8601 UTC, e.g. "2026-11-16T05:12:03Z"
+  sourceUrl: string; // exact CSV URL on esma.europa.eu
+  fetchedAt: string; // ISO 8601 UTC, e.g. "2026-11-16T05:12:03Z"
   snapshotSha256: string; // hash of the whole file
-  rowIndex: number;       // row in the original CSV (1 = first data row)
-  rowSha256: string;      // hash of the raw row, before normalisation
+  rowIndex: number; // row in the original CSV (1 = first data row)
+  rowSha256: string; // hash of the raw row, before normalisation
 }
 ```
 
@@ -99,12 +99,12 @@ with the same provenance shape, and never alters ESMA data.
 
 Status is **computed** from dates, not copied from any field:
 
-| `registerStatus` | Rule | Change severity |
-|---|---|---|
-| `authorised` | Has an authorisation date and no end date, or a future end date | — |
-| `authorisation_date_missing` | Listed but without an authorisation date (the 3 Quantoz rows) | Warning |
-| `withdrawn` | Has an end date that has been reached | **Critical** |
-| `delisted` | Was in the register and disappeared without an end date | **Critical** |
+| `registerStatus`             | Rule                                                            | Change severity |
+| ---------------------------- | --------------------------------------------------------------- | --------------- |
+| `authorised`                 | Has an authorisation date and no end date, or a future end date | —               |
+| `authorisation_date_missing` | Listed but without an authorisation date (the 3 Quantoz rows)   | Warning         |
+| `withdrawn`                  | Has an end date that has been reached                           | **Critical**    |
+| `delisted`                   | Was in the register and disappeared without an end date         | **Critical**    |
 
 The issuer's status is derived from its white papers.
 
@@ -115,15 +115,15 @@ states it explicitly.
 
 ### D4. Normalisation rules (implemented in B3)
 
-| Field | Rule |
-|---|---|
-| Dates | `dd/mm/yyyy` → `YYYY-MM-DD`. Empty is `null`, never `""` |
-| DTI | Extract with `/\b[0-9A-Z]{9}\b/g` (do not split on `\|`), dedupe and sort. `n/a` → `[]` |
-| DTI vs FFG | If an `ae_DTI_FFG` value also appears in `ae_DTI` on the same row, or vice versa, apply the known fix (GR8.money case) and flag `quality: ["dti_ffg_swapped"]` |
-| Authority | Keep the original in `authorityRaw` and a canonical `authorityCode` (e.g. `NL-DNB`, `DE-BAFIN`, `FR-ACPR`) from an alias table in `src/normalize/authorities.ts`. An unknown alias **does not break ingestion**, but is flagged as a warning |
-| `wp_url` | Trim and lowercase the host. `EMT_NO_WP` and `EMT_CRIN` become `wpType` with `wpUrl: null` |
-| Duplicates | Rows with the same `rowSha256` after trimming are merged into one, flagged `quality: ["duplicate_row"]` |
-| Ticker | Stored only as `tickerHint`, extracted from `wp_comments` by rules. **Not a key and not verified data.** No DTIF tickers in public data until its licence is clarified |
+| Field      | Rule                                                                                                                                                                                                                                         |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dates      | `dd/mm/yyyy` → `YYYY-MM-DD`. Empty is `null`, never `""`                                                                                                                                                                                     |
+| DTI        | Extract with `/\b[0-9A-Z]{9}\b/g` (do not split on `\|`), dedupe and sort. `n/a` → `[]`                                                                                                                                                      |
+| DTI vs FFG | If an `ae_DTI_FFG` value also appears in `ae_DTI` on the same row, or vice versa, apply the known fix (GR8.money case) and flag `quality: ["dti_ffg_swapped"]`                                                                               |
+| Authority  | Keep the original in `authorityRaw` and a canonical `authorityCode` (e.g. `NL-DNB`, `DE-BAFIN`, `FR-ACPR`) from an alias table in `src/normalize/authorities.ts`. An unknown alias **does not break ingestion**, but is flagged as a warning |
+| `wp_url`   | Trim and lowercase the host. `EMT_NO_WP` and `EMT_CRIN` become `wpType` with `wpUrl: null`                                                                                                                                                   |
+| Duplicates | Rows with the same `rowSha256` after trimming are merged into one, flagged `quality: ["duplicate_row"]`                                                                                                                                      |
+| Ticker     | Stored only as `tickerHint`, extracted from `wp_comments` by rules. **Not a key and not verified data.** No DTIF tickers in public data until its licence is clarified                                                                       |
 
 Every anomaly is recorded in a `quality: string[]` field on the record, so
 problems stay visible instead of being silently cleaned.
@@ -153,18 +153,19 @@ CHANGELOG-data.md              # human-readable summary generated from changes.j
 
 ## Alternatives considered
 
-| Alternative | Why rejected |
-|---|---|
-| Ticker or name as key | Tickers repeat across issuers (EURR: StablR and Bridge/Revolut) and names have typos. This is the very problem we solve |
-| `Token` entity keyed by DTI in Phase 1 | Fails for 28 of 50 rows, and each DTI's chain is locked in the DTIF data |
-| Per-field provenance now | Duplicates the same value on every field of a row with no benefit while there is a single source. Adopted in Phase 2 |
-| Copy status "as is" | ESMA publishes no status field; it must be derived from dates. Doing it explicitly, with tests, is more auditable |
-| Database now | Rejected in ADR 0001: with 50 rows, versioned JSON in Git is free and its commit history doubles as an audit trail |
-| Store the raw CSV every day | Would mostly duplicate the same file. Stored only on hash change; the daily `manifest.json` proves the check ran |
+| Alternative                            | Why rejected                                                                                                            |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Ticker or name as key                  | Tickers repeat across issuers (EURR: StablR and Bridge/Revolut) and names have typos. This is the very problem we solve |
+| `Token` entity keyed by DTI in Phase 1 | Fails for 28 of 50 rows, and each DTI's chain is locked in the DTIF data                                                |
+| Per-field provenance now               | Duplicates the same value on every field of a row with no benefit while there is a single source. Adopted in Phase 2    |
+| Copy status "as is"                    | ESMA publishes no status field; it must be derived from dates. Doing it explicitly, with tests, is more auditable       |
+| Database now                           | Rejected in ADR 0001: with 50 rows, versioned JSON in Git is free and its commit history doubles as an audit trail      |
+| Store the raw CSV every day            | Would mostly duplicate the same file. Stored only on hash change; the daily `manifest.json` proves the check ran        |
 
 ## Consequences
 
 **Positive**
+
 - Every published data point traces to source and row, by hash. Meets the
   legal review's traceability requirement.
 - Withdrawals and delistings become dated critical events, which is what CASPs
@@ -172,6 +173,7 @@ CHANGELOG-data.md              # human-readable summary generated from changes.j
 - Phase 2 adds `Deployment` without touching `Issuer` or `WhitePaper`.
 
 **Negative / costs**
+
 - `wpKey` depends on the white paper URL; a new URL yields a removal plus an
   addition, mitigated by the `whitepaper_replaced` rule.
 - The authority alias table is maintained by hand (few entries, with a warning
@@ -180,6 +182,7 @@ CHANGELOG-data.md              # human-readable summary generated from changes.j
   search by ticker on every row.
 
 **Risks**
+
 - If ESMA changes the file format or URL, ingestion stops (by design) and needs
   manual intervention. Mitigation: the automatic alert in B5.
 - ESMA's register is interim and lags national registers. The B6 cross-check
@@ -187,4 +190,4 @@ CHANGELOG-data.md              # human-readable summary generated from changes.j
 
 ---
 
-*StableStatus provides sourced information, not legal advice.*
+_StableStatus provides sourced information, not legal advice._

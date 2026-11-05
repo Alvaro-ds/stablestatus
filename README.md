@@ -47,12 +47,12 @@ contracts. Four gaps make it insufficient on its own:
 
 ## Public Roadmap
 
-| Version | Description | Target |
-|---------|-------------|--------|
-| v0 | Issuer list from ESMA register (EMT + ART) | Nov 2026 |
-| v1 | Verified contract addresses per issuer and chain | **Before 8 Jan 2027** |
-| v1.1 | REST API + SDK | Jan 2027 |
-| v1.2 | Web dashboard | Jan 2027 |
+| Version | Description                                      | Target                |
+| ------- | ------------------------------------------------ | --------------------- |
+| v0      | Issuer list from ESMA register (EMT + ART)       | Nov 2026              |
+| v1      | Verified contract addresses per issuer and chain | **Before 8 Jan 2027** |
+| v1.1    | REST API + SDK                                   | Jan 2027              |
+| v1.2    | Web dashboard                                    | Jan 2027              |
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for the full phased roadmap.
 
@@ -62,23 +62,23 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the full phased roadmap.
 
 Each contract address carries one of four trust levels:
 
-| Level | Meaning |
-|-------|---------|
-| `verified` | Issuer's official source confirms the address **and** on-chain data matches |
-| `probable` | On-chain data matches the issuer profile, but issuer confirmation is pending |
-| `bridged` | A third-party bridged/wrapped version; the original issuer's MiCA obligations do not apply |
-| `imitation` | Uses the same ticker as an authorised token but belongs to a different issuer |
+| Level       | Meaning                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------ |
+| `verified`  | Issuer's official source confirms the address **and** on-chain data matches                |
+| `probable`  | On-chain data matches the issuer profile, but issuer confirmation is pending               |
+| `bridged`   | A third-party bridged/wrapped version; the original issuer's MiCA obligations do not apply |
+| `imitation` | Uses the same ticker as an authorised token but belongs to a different issuer              |
 
 ---
 
 ## Data Sources & Licenses
 
-| Source | Used for |
-|--------|---------|
+| Source                                                                                                                                         | Used for                                                  |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
 | [ESMA Interim MiCA Register](https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica) | Authorisation status, issuer LEI, white papers, DTI codes |
-| [DTI Foundation](https://dtif.org) | Digital Token Identifier codes |
-| Public blockchain RPC / explorers | Contract addresses, on-chain verification |
-| Issuer official sources | Address confirmation for `verified` level |
+| [DTI Foundation](https://dtif.org)                                                                                                             | Digital Token Identifier codes                            |
+| Public blockchain RPC / explorers                                                                                                              | Contract addresses, on-chain verification                 |
+| Issuer official sources                                                                                                                        | Address confirmation for `verified` level                 |
 
 - **Code** — [MIT License](LICENSE)
 - **Data** (`data/`) — [CC BY 4.0](LICENSE-DATA.md), with mandatory ESMA and DTI Foundation attributions

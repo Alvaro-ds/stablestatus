@@ -13,14 +13,14 @@ All files are served from the same base path:
 https://www.esma.europa.eu/sites/default/files/2024-12/{FILENAME}.csv
 ```
 
-| File | Contents |
-|------|---------|
-| `EMTWP.csv` | E-Money Token white papers (one row per white paper) |
-| `ARTZZ.csv` | Asset-Referenced Token entries |
-| `CASPS.csv` | Crypto-Asset Service Provider registrations |
-| `NCASP.csv` | Non-EU CASP notifications |
-| `OTHER.csv` | Other notified entities |
-| `Description_of_the_fields_in_the_interim_MiCA_register.csv` | Column dictionary |
+| File                                                         | Contents                                             |
+| ------------------------------------------------------------ | ---------------------------------------------------- |
+| `EMTWP.csv`                                                  | E-Money Token white papers (one row per white paper) |
+| `ARTZZ.csv`                                                  | Asset-Referenced Token entries                       |
+| `CASPS.csv`                                                  | Crypto-Asset Service Provider registrations          |
+| `NCASP.csv`                                                  | Non-EU CASP notifications                            |
+| `OTHER.csv`                                                  | Other notified entities                              |
+| `Description_of_the_fields_in_the_interim_MiCA_register.csv` | Column dictionary                                    |
 
 ---
 
@@ -46,27 +46,27 @@ https://www.esma.europa.eu/sites/default/files/2024-12/{FILENAME}.csv
 
 The 19 columns, in file order (taken from `EMTWP_2026-10-30.csv`):
 
-| # | Column | Notes |
-|---|--------|-------|
-| 1 | `ae_competentAuthority` | National Competent Authority (NCA) name. Contains typos — see below. |
-| 2 | `ae_homeMemberState` | ISO country code of the home member state (e.g. `CZ`). |
-| 3 | `ae_lei_name` | Legal name of the issuer as registered with its LEI. |
-| 4 | `ae_lei` | Legal Entity Identifier. **The issuer key.** |
-| 5 | `ae_lei_cou_code` | Country code of the LEI. |
-| 6 | `ae_commercial_name` | Commercial / brand name. |
-| 7 | `ae_address` | Registered address. |
-| 8 | `ae_website` | Issuer website. |
-| 9 | `ac_authorisationNotificationDate` | Date of the issuer's authorisation. |
-| 10 | `ac_authorisationEndDate` | **Critical** — end of authorisation. See below. |
-| 11 | `ae_exemption48_4` | Whether the MiCA Art. 48(4) exemption applies. |
-| 12 | `ae_exemption48_5` | Whether the MiCA Art. 48(5) exemption applies. |
-| 13 | `ae_authorisation_other_emt` | Licence type (e.g. `Electronic money institution`). |
-| 14 | `ae_DTI_FFG` | DTI Functionally Fungible Group code. |
-| 15 | `ae_DTI` | Digital Token Identifier(s). Noisy — see below. |
-| 16 | `wp_url` | White paper URL, or a sentinel value. |
-| 17 | `wp_authorisationNotificationDate` | Date of the white paper notification. |
-| 18 | `wp_comments` | Free text. Sometimes contains the ticker. |
-| 19 | `wp_lastupdate` | Date of the last update of the entry. |
+| #   | Column                             | Notes                                                                |
+| --- | ---------------------------------- | -------------------------------------------------------------------- |
+| 1   | `ae_competentAuthority`            | National Competent Authority (NCA) name. Contains typos — see below. |
+| 2   | `ae_homeMemberState`               | ISO country code of the home member state (e.g. `CZ`).               |
+| 3   | `ae_lei_name`                      | Legal name of the issuer as registered with its LEI.                 |
+| 4   | `ae_lei`                           | Legal Entity Identifier. **The issuer key.**                         |
+| 5   | `ae_lei_cou_code`                  | Country code of the LEI.                                             |
+| 6   | `ae_commercial_name`               | Commercial / brand name.                                             |
+| 7   | `ae_address`                       | Registered address.                                                  |
+| 8   | `ae_website`                       | Issuer website.                                                      |
+| 9   | `ac_authorisationNotificationDate` | Date of the issuer's authorisation.                                  |
+| 10  | `ac_authorisationEndDate`          | **Critical** — end of authorisation. See below.                      |
+| 11  | `ae_exemption48_4`                 | Whether the MiCA Art. 48(4) exemption applies.                       |
+| 12  | `ae_exemption48_5`                 | Whether the MiCA Art. 48(5) exemption applies.                       |
+| 13  | `ae_authorisation_other_emt`       | Licence type (e.g. `Electronic money institution`).                  |
+| 14  | `ae_DTI_FFG`                       | DTI Functionally Fungible Group code.                                |
+| 15  | `ae_DTI`                           | Digital Token Identifier(s). Noisy — see below.                      |
+| 16  | `wp_url`                           | White paper URL, or a sentinel value.                                |
+| 17  | `wp_authorisationNotificationDate` | Date of the white paper notification.                                |
+| 18  | `wp_comments`                      | Free text. Sometimes contains the ticker.                            |
+| 19  | `wp_lastupdate`                    | Date of the last update of the entry.                                |
 
 ### Dates
 
@@ -112,6 +112,7 @@ resolve by LEI, never by ticker.
 ### `wp_url` sentinel values
 
 The URL column is not always a URL. Known sentinel strings:
+
 - `EMT_NO_WP` — issuer has no white paper yet
 - `EMT_CRIN` — white paper is under CRIN confidentiality (not present in the
   2026-10-30 snapshot)
@@ -128,7 +129,7 @@ The file contains exact duplicate rows. Remove them before processing
 ### Extraction
 
 The `ae_DTI` column is noisy. Known separators and patterns found in the wild:
-`|`, ` | `, `||`, bare newlines followed by tabs, chain names in parentheses
+`|`, `|`, `||`, bare newlines followed by tabs, chain names in parentheses
 (e.g. `ABC123456 (Ethereum)`), and the literal string `n/a`.
 
 **Extract DTI codes with the regex `/\b[0-9A-Z]{9}\b/g`** applied to the raw
