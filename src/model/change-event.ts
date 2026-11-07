@@ -3,12 +3,13 @@ import { z } from "zod";
 export const ChangeKindSchema = z.enum([
   "baseline",
   "issuer_added",
-  "issuer_removed",
+  "issuer_delisted",
   "whitepaper_added",
-  "whitepaper_removed",
+  "whitepaper_delisted",
   "whitepaper_replaced",
   "status_changed",
   "field_changed",
+  "art_register_non_empty",
 ]);
 
 export type ChangeKind = z.infer<typeof ChangeKindSchema>;

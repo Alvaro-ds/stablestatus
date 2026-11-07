@@ -106,6 +106,7 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
 
   // --- Step 1: Fetch or read CSV ---
   let csvBuf: Buffer;
+  let artzzBuf: Buffer | null = null;
   let fetchedAt: string;
   let retrieval: "http" | "file";
 
@@ -126,8 +127,11 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
   } else {
     fetchedAt = new Date().toISOString();
     retrieval = "http";
-    log("Downloading EMTWP.csv from ESMA...");
-    csvBuf = await fetchEsmaCsv(url);
+    log("Downloading EMTWP.csv and ARTZZ.csv from ESMA...");
+    [csvBuf, artzzBuf] = await Promise.all([
+      fetchEsmaCsv(url),
+      fetchEsmaCsv(ESMA_URLS.ARTZZ),
+    ]);
   }
 
   const sha256 = computeSha256(csvBuf);
@@ -145,6 +149,23 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
     retrieval,
   };
 
+  // Parse ARTZZ if available (HTTP mode only).
+  let artzzSnapshot: SourceSnapshot | null = null;
+  let artzzRowCount = 0;
+  if (artzzBuf !== null) {
+    const artzzSha256 = computeSha256(artzzBuf);
+    const artzzParse = parseEsmaCsv(artzzBuf, "ARTZZ");
+    artzzRowCount = artzzParse.rows.length;
+    artzzSnapshot = {
+      url: ESMA_URLS.ARTZZ,
+      fetchedAt,
+      sha256: artzzSha256,
+      sizeBytes: artzzBuf.length,
+      rowCount: artzzRowCount,
+      retrieval,
+    };
+  }
+
   // --- Step 3: Normalize (always with real now — catches future withdrawal dates) ---
   log("Normalizing...");
   const nextState = normalizeEmtwp(parseResult, snapshot, date, now);
@@ -155,6 +176,18 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
   // --- Step 5: Diff ---
   const events = diffNormalized(prevState, nextState, { at: fetchedAt, snapshotSha256: sha256 });
 
+  // Emit art_register_non_empty if ARTZZ has data rows (first ART authorisation).
+  if (artzzRowCount > 0) {
+    events.push({
+      at: fetchedAt,
+      entity: "system",
+      key: "artzz",
+      kind: "art_register_non_empty",
+      severity: "critical",
+      snapshotSha256: sha256,
+    });
+  }
+
   // Validate each event before writing (fail fast if schema drifts).
   for (const event of events) {
     ChangeEventSchema.parse(event);
@@ -162,7 +195,12 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
 
   // --- Step 6: Always write daily manifest (even with no events) ---
   storeCsv(csvBuf, rawDir, date, "EMTWP.csv");
-  writeManifest(rawDir, date, [snapshot]);
+  const manifestSnapshots: SourceSnapshot[] = [snapshot];
+  if (artzzBuf !== null && artzzSnapshot !== null) {
+    storeCsv(artzzBuf, rawDir, date, "ARTZZ.csv");
+    manifestSnapshots.push(artzzSnapshot);
+  }
+  writeManifest(rawDir, date, manifestSnapshots);
 
   if (events.length === 0) {
     log("No structural changes. Manifest updated.");

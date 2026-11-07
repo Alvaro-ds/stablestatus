@@ -99,28 +99,28 @@ describe("diffNormalized — withdrawal", () => {
     changed.forEach((e) => expect(e.severity).toBe("critical"));
   });
 
-  it("no issuer_removed events", () => {
+  it("no issuer_delisted events", () => {
     const next = normalize(join(VARIANTS, "withdrawal.csv"));
     const events = diffNormalized(baseResult, next, CTX);
-    expect(events.filter((e) => e.kind === "issuer_removed")).toHaveLength(0);
+    expect(events.filter((e) => e.kind === "issuer_delisted")).toHaveLength(0);
   });
 });
 
 // ---------------------------------------------------------------------------
-// Whitepaper delisted (whitepaper_removed, severity critical)
+// Whitepaper delisted (whitepaper_delisted, severity critical)
 // ---------------------------------------------------------------------------
 
 describe("diffNormalized — whitepaper_delisted", () => {
-  it("emits exactly 1 whitepaper_removed event", () => {
+  it("emits exactly 1 whitepaper_delisted event", () => {
     const next = normalize(join(VARIANTS, "whitepaper_delisted.csv"));
     const events = diffNormalized(baseResult, next, CTX);
-    expect(events.filter((e) => e.kind === "whitepaper_removed")).toHaveLength(1);
+    expect(events.filter((e) => e.kind === "whitepaper_delisted")).toHaveLength(1);
   });
 
-  it("whitepaper_removed event has severity critical", () => {
+  it("whitepaper_delisted event has severity critical", () => {
     const next = normalize(join(VARIANTS, "whitepaper_delisted.csv"));
     const events = diffNormalized(baseResult, next, CTX);
-    const ev = events.find((e) => e.kind === "whitepaper_removed");
+    const ev = events.find((e) => e.kind === "whitepaper_delisted");
     expect(ev?.severity).toBe("critical");
   });
 
@@ -142,10 +142,10 @@ describe("diffNormalized — whitepaper_replaced", () => {
     expect(events.filter((e) => e.kind === "whitepaper_replaced")).toHaveLength(1);
   });
 
-  it("no whitepaper_removed or whitepaper_added events", () => {
+  it("no whitepaper_delisted or whitepaper_added events", () => {
     const next = normalize(join(VARIANTS, "whitepaper_replaced.csv"));
     const events = diffNormalized(baseResult, next, CTX);
-    expect(events.filter((e) => e.kind === "whitepaper_removed")).toHaveLength(0);
+    expect(events.filter((e) => e.kind === "whitepaper_delisted")).toHaveLength(0);
     expect(events.filter((e) => e.kind === "whitepaper_added")).toHaveLength(0);
   });
 
@@ -157,6 +157,13 @@ describe("diffNormalized — whitepaper_replaced", () => {
     expect(typeof ev?.from).toBe("string");
     expect(typeof ev?.to).toBe("string");
     expect(ev?.from).not.toBe(ev?.to);
+  });
+
+  it("whitepaper_replaced severity is at least warning (never info)", () => {
+    const next = normalize(join(VARIANTS, "whitepaper_replaced.csv"));
+    const events = diffNormalized(baseResult, next, CTX);
+    const ev = events.find((e) => e.kind === "whitepaper_replaced");
+    expect(ev?.severity).not.toBe("info");
   });
 });
 
@@ -179,10 +186,10 @@ describe("diffNormalized — field_changed", () => {
     expect(ev?.severity).toBe("info");
   });
 
-  it("no issuer_added, issuer_removed, whitepaper_added, whitepaper_removed events", () => {
+  it("no issuer_added, issuer_delisted, whitepaper_added, whitepaper_delisted events", () => {
     const next = normalize(join(VARIANTS, "field_changed.csv"));
     const events = diffNormalized(baseResult, next, CTX);
-    const unexpected = ["issuer_added", "issuer_removed", "whitepaper_added", "whitepaper_removed"];
+    const unexpected = ["issuer_added", "issuer_delisted", "whitepaper_added", "whitepaper_delisted"];
     for (const kind of unexpected) {
       expect(events.filter((e) => e.kind === kind)).toHaveLength(0);
     }
@@ -219,7 +226,7 @@ describe("diffNormalized — issuer_added", () => {
 // ---------------------------------------------------------------------------
 
 describe("diffNormalized — severity rules", () => {
-  it("issuer_removed is always critical", () => {
+  it("issuer_delisted is always critical", () => {
     // Build a next state missing one issuer entirely
     const prevWithExtra: NormalizeResult = {
       ...baseResult,
@@ -233,14 +240,14 @@ describe("diffNormalized — severity rules", () => {
       ],
     };
     const events = diffNormalized(prevWithExtra, baseResult, CTX);
-    const ev = events.find((e) => e.kind === "issuer_removed");
+    const ev = events.find((e) => e.kind === "issuer_delisted");
     expect(ev?.severity).toBe("critical");
   });
 
-  it("whitepaper_removed is always critical", () => {
+  it("whitepaper_delisted is always critical", () => {
     const next = normalize(join(VARIANTS, "whitepaper_delisted.csv"));
     const events = diffNormalized(baseResult, next, CTX);
-    const ev = events.find((e) => e.kind === "whitepaper_removed");
+    const ev = events.find((e) => e.kind === "whitepaper_delisted");
     expect(ev?.severity).toBe("critical");
   });
 });

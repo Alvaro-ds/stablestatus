@@ -14,7 +14,7 @@ function statusToSeverity(status: RegisterStatus): Severity {
 }
 
 const SKIP_ISSUER = new Set(["lei", "registerStatus", "provenance"]);
-const SKIP_WP = new Set(["wpKey", "lei", "registerStatus", "provenance"]);
+const SKIP_WP = new Set(["wpKey", "lei", "registerStatus", "provenance", "quality"]);
 
 function diffFields(
   entity: "issuer" | "whitepaper",
@@ -75,7 +75,7 @@ export function diffNormalized(
         at: ctx.at,
         entity: "issuer",
         key: lei,
-        kind: "issuer_removed",
+        kind: "issuer_delisted",
         severity: "critical",
         snapshotSha256: ctx.snapshotSha256,
       });
@@ -149,6 +149,7 @@ export function diffNormalized(
       const removedKey = removedKeys[i]!;
       const addedKey = addedKeys[i]!;
       const newWp = nextWpByKey.get(addedKey)!;
+      const replacedSeverity = statusToSeverity(newWp.registerStatus);
       events.push({
         at: ctx.at,
         entity: "whitepaper",
@@ -157,7 +158,7 @@ export function diffNormalized(
         field: "wpKey",
         from: removedKey,
         to: addedKey,
-        severity: statusToSeverity(newWp.registerStatus),
+        severity: replacedSeverity === "info" ? "warning" : replacedSeverity,
         snapshotSha256: ctx.snapshotSha256,
       });
     }
@@ -167,7 +168,7 @@ export function diffNormalized(
         at: ctx.at,
         entity: "whitepaper",
         key: removedKeys[i]!,
-        kind: "whitepaper_removed",
+        kind: "whitepaper_delisted",
         severity: "critical",
         snapshotSha256: ctx.snapshotSha256,
       });
