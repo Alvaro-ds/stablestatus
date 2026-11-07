@@ -28,23 +28,46 @@ describe("buildChangelog — ESMA legal notice", () => {
 });
 
 describe("buildChangelog — bullet format", () => {
-  it("bullet line does not start with '- •'", () => {
-    const md = buildChangelog([makeEvent()]);
-    expect(md).not.toMatch(/^- •/m);
+  it("every event line starts with '- '", () => {
+    const events = [
+      makeEvent({ severity: "info" }),
+      makeEvent({ severity: "warning", kind: "whitepaper_replaced" }),
+      makeEvent({ severity: "critical", kind: "issuer_delisted" }),
+    ];
+    const md = buildChangelog(events);
+    const eventLines = md.split("\n").filter((l) => l.startsWith("- "));
+    expect(eventLines).toHaveLength(events.length);
   });
 
-  it("critical event line starts with 🔴 (no leading dash)", () => {
+  it("N events produce N lines starting with '- '", () => {
+    const n = 5;
+    const events = Array.from({ length: n }, (_, i) =>
+      makeEvent({ at: `2026-11-0${i + 1}T12:00:00Z` })
+    );
+    const md = buildChangelog(events);
+    const listLines = md.split("\n").filter((l) => l.startsWith("- "));
+    expect(listLines).toHaveLength(n);
+  });
+
+  it("critical event line starts with '- 🔴'", () => {
     const md = buildChangelog([makeEvent({ severity: "critical", kind: "issuer_delisted" })]);
     const line = md.split("\n").find((l) => l.includes("issuer_delisted"));
     expect(line).toBeDefined();
-    expect(line!.trimStart()).toMatch(/^🔴/);
+    expect(line).toMatch(/^- 🔴/);
   });
 
-  it("info event line starts with • (no leading dash)", () => {
-    const md = buildChangelog([makeEvent()]);
+  it("warning event line starts with '- ⚠️'", () => {
+    const md = buildChangelog([makeEvent({ severity: "warning", kind: "whitepaper_replaced" })]);
+    const line = md.split("\n").find((l) => l.includes("whitepaper_replaced"));
+    expect(line).toBeDefined();
+    expect(line).toMatch(/^- ⚠️/);
+  });
+
+  it("info event line starts with '- ' followed by date (no icon)", () => {
+    const md = buildChangelog([makeEvent({ severity: "info" })]);
     const line = md.split("\n").find((l) => l.includes("field_changed"));
     expect(line).toBeDefined();
-    expect(line!.trimStart()).toMatch(/^•/);
+    expect(line).toMatch(/^- 2026-/);
   });
 });
 

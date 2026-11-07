@@ -27,13 +27,13 @@ export function buildChangelog(events: ChangeEvent[]): string {
   const lines: string[] = ["# StableStatus Data Changelog", ""];
 
   for (const ev of sorted) {
-    const icon = ev.severity === "critical" ? "🔴" : ev.severity === "warning" ? "⚠️" : "•";
+    const icon = ev.severity === "critical" ? "🔴 " : ev.severity === "warning" ? "⚠️ " : "";
     const dateStr = ev.at.slice(0, 10);
     let desc = `**${ev.kind}** [${ev.entity}] \`${ev.key}\``;
     if (ev.field !== undefined) desc += ` field=\`${ev.field}\``;
     if (ev.from !== undefined) desc += ` from=\`${escapeValue(ev.from)}\``;
     if (ev.to !== undefined) desc += ` to=\`${escapeValue(ev.to)}\``;
-    lines.push(`${icon} ${dateStr} ${desc} _(${ev.severity})_`);
+    lines.push(`- ${icon}${dateStr} ${desc} _(${ev.severity})_`);
   }
 
   lines.push(ESMA_NOTICE);
