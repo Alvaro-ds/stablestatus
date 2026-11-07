@@ -204,6 +204,71 @@ describe("normalizeEmtwp — idempotency", () => {
 });
 
 // ---------------------------------------------------------------------------
+// New fields: wpOfferDate, wpLastUpdate, exemptions, entityType
+// ---------------------------------------------------------------------------
+
+describe("normalizeEmtwp — new whitepaper fields", () => {
+  const ALLUNITY_LEI = "3912007G8L8CD3HFIV26";
+
+  it("AllUnity EURAU wpOfferDate is 2025-06-20", () => {
+    const { whitepapers } = getResult();
+    const eurau = whitepapers.find(
+      (w) => w.lei === ALLUNITY_LEI && w.tickerHint === "EURAU",
+    );
+    expect(eurau!.wpOfferDate).toBe("2025-06-20");
+  });
+
+  it("AllUnity EURAU wpLastUpdate is 2026-02-13", () => {
+    const { whitepapers } = getResult();
+    const eurau = whitepapers.find(
+      (w) => w.lei === ALLUNITY_LEI && w.tickerHint === "EURAU",
+    );
+    expect(eurau!.wpLastUpdate).toBe("2026-02-13");
+  });
+
+  it("wpLastUpdate is null when wp_lastupdate is empty (AllUnity SEKAU)", () => {
+    const { whitepapers } = getResult();
+    const sekau = whitepapers.find(
+      (w) => w.lei === ALLUNITY_LEI && w.tickerHint === "SEKAU",
+    );
+    expect(sekau!.wpLastUpdate).toBeNull();
+  });
+});
+
+describe("normalizeEmtwp — new issuer fields", () => {
+  const PAYMENTCORP_LEI = "315700IJDQF91J9C8B68";
+  const ALLUNITY_LEI = "3912007G8L8CD3HFIV26";
+  const AIEU_LEI = "254900VUR90QF0G3T387";
+
+  it("Payment Corp exemption48_4 and exemption48_5 are true (YES)", () => {
+    const { issuers } = getResult();
+    const pc = issuers.find((i) => i.lei === PAYMENTCORP_LEI);
+    expect(pc!.exemption48_4).toBe(true);
+    expect(pc!.exemption48_5).toBe(true);
+  });
+
+  it("AllUnity exemption48_4 and exemption48_5 are false (No)", () => {
+    const { issuers } = getResult();
+    const au = issuers.find((i) => i.lei === ALLUNITY_LEI);
+    expect(au!.exemption48_4).toBe(false);
+    expect(au!.exemption48_5).toBe(false);
+  });
+
+  it("Payment Corp entityType is set", () => {
+    const { issuers } = getResult();
+    const pc = issuers.find((i) => i.lei === PAYMENTCORP_LEI);
+    expect(pc!.entityType).toBeTruthy();
+  });
+
+  it("AIEU whitepapers with ac_authorisationEndDate=n/a are flagged date_placeholder", () => {
+    const { whitepapers } = getResult();
+    const aieu = whitepapers.filter((w) => w.lei === AIEU_LEI);
+    // All AIEU rows have ac_authorisationEndDate = "n/a"
+    aieu.forEach((w) => expect(w.quality).toContain("date_placeholder"));
+  });
+});
+
+// ---------------------------------------------------------------------------
 // wpKey stability — content-based, not position-based
 // ---------------------------------------------------------------------------
 

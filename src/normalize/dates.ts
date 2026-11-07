@@ -1,3 +1,12 @@
+/**
+ * Returns true when the raw value is a non-empty, non-date placeholder (e.g. "n/a").
+ * Used by the pipeline to add a "date_placeholder" quality flag to the entity.
+ */
+export function isDatePlaceholder(raw: string): boolean {
+  const trimmed = raw.trim();
+  return trimmed !== "" && !/^\d/.test(trimmed);
+}
+
 /** Converts an ESMA date string (dd/mm/yyyy) to ISO YYYY-MM-DD, or null if empty/non-date. */
 export function parseEsmaDate(raw: string): string | null {
   const trimmed = raw.trim();

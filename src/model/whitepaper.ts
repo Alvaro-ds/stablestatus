@@ -5,8 +5,7 @@ import { RegisterStatusSchema } from "./register-status.js";
 
 /**
  * One ESMA CSV row normalised into a structured entity.
- * Key: wpKey = lei + ":" + wpUrlNormalized.
- * When multiple rows share the same wpKey, ":rowIndex" is appended to each.
+ * Key: wpKey = lei + ":" + first 12 hex chars of sha256(wpUrl|comments|offerDate).
  * See ADR 0002 §D1.
  */
 export const WhitePaperSchema = z.object({
@@ -21,6 +20,11 @@ export const WhitePaperSchema = z.object({
   authorisationDate: z.iso.date().nullable(),
   /** ISO YYYY-MM-DD from ac_authorisationEndDate, or null. */
   authorisationEndDate: z.iso.date().nullable(),
+
+  /** ISO YYYY-MM-DD from wp_authorisationNotificationDate (white paper offer date), or null. */
+  wpOfferDate: z.iso.date().nullable(),
+  /** ISO YYYY-MM-DD from wp_lastupdate, or null. */
+  wpLastUpdate: z.iso.date().nullable(),
 
   /** DTI codes extracted with /\b[0-9A-Z]{9}\b/g, deduped and sorted. */
   dtis: z.array(z.string().regex(/^[0-9A-Z]{9}$/)),
@@ -40,7 +44,7 @@ export const WhitePaperSchema = z.object({
 
   /**
    * Quality flags recorded by normalisation rules, e.g.:
-   * "duplicate_row", "dti_ffg_swapped", "unknown_authority"
+   * "duplicate_row", "dti_ffg_swapped", "unknown_authority", "date_placeholder"
    */
   quality: z.array(z.string()),
 

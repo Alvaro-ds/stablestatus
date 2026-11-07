@@ -10,7 +10,7 @@ import { RegisterStatusSchema } from "./register-status.js";
  */
 export const IssuerSchema = z.object({
   /** LEI (ISO 17442, 20 chars). Stable key — never the name or ticker. */
-  lei: z.string(),
+  lei: z.string().regex(/^[A-Z0-9]{18}[0-9]{2}$/),
   name: z.string(),
   commercialName: z.string().nullable(),
   homeMemberState: z.string(),
@@ -23,6 +23,13 @@ export const IssuerSchema = z.object({
 
   /** Derived from the most critical status among the issuer's whitepapers. */
   registerStatus: RegisterStatusSchema,
+
+  /** ae_exemption48_4 / ae_exemption48_5 parsed from Yes/No. null when blank or N/A. */
+  exemption48_4: z.boolean().nullable(),
+  exemption48_5: z.boolean().nullable(),
+
+  /** ae_authorisation_other_emt, e.g. "Electronic money institution". null when blank or N/A. */
+  entityType: z.string().nullable(),
 
   quality: z.array(z.string()),
 

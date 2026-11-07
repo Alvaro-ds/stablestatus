@@ -2,7 +2,7 @@ import type { ParseResult } from "../esma/parse.js";
 import type { Issuer, Meta, RegisterStatus, SourceSnapshot, WhitePaper } from "../model/index.js";
 
 import { normalizeAuthority } from "./authorities.js";
-import { parseEsmaDate } from "./dates.js";
+import { isDatePlaceholder, parseEsmaDate } from "./dates.js";
 import { dedupeRows } from "./dedupe.js";
 import { normalizeDtis } from "./dti.js";
 import { computeWpStatus, deriveIssuerStatus } from "./status.js";
@@ -16,6 +16,26 @@ export interface NormalizeResult {
   whitepapers: WhitePaper[];
   meta: Meta;
 }
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function parseYesNo(raw: string): boolean | null {
+  const v = raw.trim().toLowerCase();
+  if (v === "yes") return true;
+  if (v === "no") return false;
+  return null;
+}
+
+function nullIfEmpty(raw: string): string | null {
+  const v = raw.trim();
+  return v === "" || v.toLowerCase() === "n/a" ? null : v;
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
 /**
  * Converts raw EMTWP parse output into normalised Issuer and WhitePaper entities.
@@ -59,14 +79,18 @@ export function normalizeEmtwp(
   const whitepapers: WhitePaper[] = rowData.map(({ row, wpUrlResult, wpKey }) => {
     const lei = row.fields["ae_lei"]!;
     const authorisationDate = parseEsmaDate(row.fields["ac_authorisationNotificationDate"]!);
-    const authorisationEndDate = parseEsmaDate(row.fields["ac_authorisationEndDate"]!);
+    const authorisationEndDateRaw = row.fields["ac_authorisationEndDate"]!;
+    const authorisationEndDate = parseEsmaDate(authorisationEndDateRaw);
     const authorityResult = normalizeAuthority(row.fields["ae_competentAuthority"]!);
     const dtiResult = normalizeDtis(row.fields["ae_DTI_FFG"]!, row.fields["ae_DTI"]!, lei);
     const registerStatus = computeWpStatus(authorisationDate, authorisationEndDate, now);
     const tickerHint = extractTickerHint(row.fields["wp_comments"]!);
+    const wpOfferDate = parseEsmaDate(row.fields["wp_authorisationNotificationDate"]!);
+    const wpLastUpdate = parseEsmaDate(row.fields["wp_lastupdate"]!);
 
     const quality: string[] = [];
     if (row.fields["_quality"]) quality.push(row.fields["_quality"]!);
+    if (isDatePlaceholder(authorisationEndDateRaw)) quality.push("date_placeholder");
     quality.push(...authorityResult.quality);
     quality.push(...dtiResult.quality);
 
@@ -77,6 +101,8 @@ export function normalizeEmtwp(
       wpType: wpUrlResult.wpType,
       authorisationDate,
       authorisationEndDate,
+      wpOfferDate,
+      wpLastUpdate,
       dtis: dtiResult.dtis,
       ffg: dtiResult.ffg,
       tickerHint,
@@ -122,6 +148,9 @@ export function normalizeEmtwp(
       authorityRaw: authorityResult.authorityRaw,
       authorityCode: authorityResult.authorityCode,
       registerStatus: deriveIssuerStatus(wpStatuses),
+      exemption48_4: parseYesNo(firstRow.fields["ae_exemption48_4"]!),
+      exemption48_5: parseYesNo(firstRow.fields["ae_exemption48_5"]!),
+      entityType: nullIfEmpty(firstRow.fields["ae_authorisation_other_emt"]!),
       quality: [...authorityResult.quality],
       provenance: {
         sourceUrl: snapshot.url,
