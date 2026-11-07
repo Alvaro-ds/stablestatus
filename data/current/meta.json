@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-07",
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "url": "https://www.esma.europa.eu/sites/default/files/2024-12/EMTWP.csv",
+      "sha256": "f7fb1c594f0374dc16171ac15d4f5db773bf84b1b495e6b3640bdc2a718a4484",
+      "fetchedAt": "2026-11-07T18:13:50.197Z",
+      "retrieval": "http"
+    }
+  ],
+  "issuerCount": 25,
+  "whitepaperCount": 48
+}

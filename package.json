@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "ingest": "node --experimental-strip-types src/cli/ingest.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "ingest": "pnpm build && node dist/cli/ingest.js",
     "generate-variants": "node --experimental-strip-types tests/scripts/generate-variants.ts"
   },
   "packageManager": "pnpm@12.16.1",
