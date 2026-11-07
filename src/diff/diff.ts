@@ -148,6 +148,7 @@ export function diffNormalized(
     for (let i = 0; i < pairCount; i++) {
       const removedKey = removedKeys[i]!;
       const addedKey = addedKeys[i]!;
+      const prevWp = prevWpByKey.get(removedKey)!;
       const newWp = nextWpByKey.get(addedKey)!;
       const replacedSeverity = statusToSeverity(newWp.registerStatus);
       events.push({
@@ -156,8 +157,8 @@ export function diffNormalized(
         key: addedKey,
         kind: "whitepaper_replaced",
         field: "wpKey",
-        from: removedKey,
-        to: addedKey,
+        from: { wpKey: removedKey, tickerHint: prevWp.tickerHint },
+        to: { wpKey: addedKey, tickerHint: newWp.tickerHint },
         severity: replacedSeverity === "info" ? "warning" : replacedSeverity,
         snapshotSha256: ctx.snapshotSha256,
       });

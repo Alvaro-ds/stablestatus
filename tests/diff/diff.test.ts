@@ -149,14 +149,18 @@ describe("diffNormalized — whitepaper_replaced", () => {
     expect(events.filter((e) => e.kind === "whitepaper_added")).toHaveLength(0);
   });
 
-  it("whitepaper_replaced event has field=wpKey and from/to values", () => {
+  it("whitepaper_replaced event has field=wpKey and from/to objects with wpKey+tickerHint", () => {
     const next = normalize(join(VARIANTS, "whitepaper_replaced.csv"));
     const events = diffNormalized(baseResult, next, CTX);
     const ev = events.find((e) => e.kind === "whitepaper_replaced");
     expect(ev?.field).toBe("wpKey");
-    expect(typeof ev?.from).toBe("string");
-    expect(typeof ev?.to).toBe("string");
-    expect(ev?.from).not.toBe(ev?.to);
+    const from = ev?.from as { wpKey: string; tickerHint: string | null };
+    const to = ev?.to as { wpKey: string; tickerHint: string | null };
+    expect(typeof from.wpKey).toBe("string");
+    expect(typeof to.wpKey).toBe("string");
+    expect(from.wpKey).not.toBe(to.wpKey);
+    expect("tickerHint" in from).toBe(true);
+    expect("tickerHint" in to).toBe(true);
   });
 
   it("whitepaper_replaced severity is at least warning (never info)", () => {
