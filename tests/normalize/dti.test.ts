@@ -103,4 +103,20 @@ describe("normalizeDtis — GR8.money DTI/FFG swap", () => {
     const result = normalizeDtis("9JDH8QBV2", "5X779H3M3", "DIFFERENT00000000000LEI1");
     expect(result.quality).not.toContain("dti_ffg_swapped");
   });
+
+  it("does NOT swap when GR8 LEI has unknown values — flags dti_ffg_check_needed instead", () => {
+    // Simulates ESMA correcting the row: values no longer match the known pair.
+    // Uses 9-char tokens to pass the DTI regex /\b[0-9A-Z]{9}\b/g.
+    const result = normalizeDtis("NEWFFG001", "NEWDTI001", GR8_LEI);
+    expect(result.quality).not.toContain("dti_ffg_swapped");
+    expect(result.quality).toContain("dti_ffg_check_needed");
+    // Values are taken as-is (no swap): ae_DTI_FFG → ffg, ae_DTI → dtis
+    expect(result.ffg).toBe("NEWFFG001");
+    expect(result.dtis).toEqual(["NEWDTI001"]);
+  });
+
+  it("does NOT add check_needed flag for other issuers with unknown values", () => {
+    const result = normalizeDtis("SOMEFFG01", "SOMEDTI01", "DIFFERENT00000000000LEI1");
+    expect(result.quality).not.toContain("dti_ffg_check_needed");
+  });
 });
