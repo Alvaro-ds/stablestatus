@@ -6,7 +6,10 @@ import { parseEsmaDate } from "./dates.js";
 import { dedupeRows } from "./dedupe.js";
 import { normalizeDtis } from "./dti.js";
 import { computeWpStatus, deriveIssuerStatus } from "./status.js";
+import { generateWpKey, WpKeyCollisionError } from "./wp-key.js";
 import { extractTickerHint, normalizeWpUrl } from "./wp-url.js";
+
+export { WpKeyCollisionError } from "./wp-key.js";
 
 export interface NormalizeResult {
   issuers: Issuer[];
@@ -32,24 +35,28 @@ export function normalizeEmtwp(
   // 1. Remove exact duplicate rows (same rowSha256), marking survivors.
   const rows = dedupeRows(parseResult.rows);
 
-  // 2. Pre-compute wpUrlResult + base key for every row.
+  // 2. Pre-compute wpUrlResult + content-based wpKey for every row.
   const rowData = rows.map((row) => {
     const wpUrlResult = normalizeWpUrl(row.fields["wp_url"]!);
-    const baseKey = `${row.fields["ae_lei"]}:${wpUrlResult.wpUrl ?? wpUrlResult.wpType}`;
-    return { row, wpUrlResult, baseKey };
+    const wpKey = generateWpKey(
+      row.fields["ae_lei"]!,
+      wpUrlResult.wpUrl ?? wpUrlResult.wpType,
+      row.fields["wp_comments"]!,
+      row.fields["wp_authorisationNotificationDate"]!,
+    );
+    return { row, wpUrlResult, wpKey };
   });
 
-  // 3. Find collision groups (same base key → multiple rows).
-  const keyCount = new Map<string, number>();
-  for (const { baseKey } of rowData) {
-    keyCount.set(baseKey, (keyCount.get(baseKey) ?? 0) + 1);
+  // 3. Guard against collisions (two non-duplicate rows with identical content hash).
+  const keyToRow = new Map<string, (typeof rowData)[number]["row"]>();
+  for (const { wpKey, row } of rowData) {
+    const existing = keyToRow.get(wpKey);
+    if (existing) throw new WpKeyCollisionError(wpKey, existing, row);
+    keyToRow.set(wpKey, row);
   }
 
   // 4. Build WhitePaper entities.
-  const whitepapers: WhitePaper[] = rowData.map(({ row, wpUrlResult, baseKey }) => {
-    const wpKey =
-      keyCount.get(baseKey)! > 1 ? `${baseKey}:${row.rowIndex}` : baseKey;
-
+  const whitepapers: WhitePaper[] = rowData.map(({ row, wpUrlResult, wpKey }) => {
     const lei = row.fields["ae_lei"]!;
     const authorisationDate = parseEsmaDate(row.fields["ac_authorisationNotificationDate"]!);
     const authorisationEndDate = parseEsmaDate(row.fields["ac_authorisationEndDate"]!);
@@ -87,7 +94,7 @@ export function normalizeEmtwp(
     };
   });
 
-  // 5. Build Issuer entities (one per LEI) from the grouped whitepaper data.
+  // 5. Build Issuer entities (one per LEI).
   const issuerMap = new Map<
     string,
     { firstRow: (typeof rowData)[number]["row"]; wpStatuses: RegisterStatus[] }

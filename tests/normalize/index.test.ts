@@ -202,3 +202,51 @@ describe("normalizeEmtwp — idempotency", () => {
     expect(JSON.stringify(r1)).toBe(JSON.stringify(r2));
   });
 });
+
+// ---------------------------------------------------------------------------
+// wpKey stability — content-based, not position-based
+// ---------------------------------------------------------------------------
+
+describe("normalizeEmtwp — wpKey stability", () => {
+  const ALLUNITY_LEI = "3912007G8L8CD3HFIV26";
+
+  it("reordering rows does not change any wpKey", () => {
+    const rows = parseResult.rows;
+    const target = rows.find((r) => r.fields["ae_lei"] === ALLUNITY_LEI)!;
+    const reordered = [...rows.filter((r) => r !== target), target];
+    const reorderedResult = normalizeEmtwp(
+      { rows: reordered, artNonEmpty: false },
+      snapshot,
+      DATE,
+      NOW,
+    );
+    const originalKeys = getResult().whitepapers.map((w) => w.wpKey).sort();
+    const reorderedKeys = reorderedResult.whitepapers.map((w) => w.wpKey).sort();
+    expect(reorderedKeys).toEqual(originalKeys);
+  });
+
+  it("changing wp_comments on one row changes only that row's wpKey", () => {
+    const rows = parseResult.rows;
+    const target = rows.find(
+      (r) => r.fields["ae_lei"] === ALLUNITY_LEI && r.fields["wp_comments"] === "EURAU",
+    )!;
+    const modified = rows.map((r) =>
+      r === target ? { ...r, fields: { ...r.fields, wp_comments: "MODIFIED" } } : r,
+    );
+    const originalResult = getResult();
+    const modifiedResult = normalizeEmtwp(
+      { rows: modified, artNonEmpty: false },
+      snapshot,
+      DATE,
+      NOW,
+    );
+
+    const originalKeys = new Set(originalResult.whitepapers.map((w) => w.wpKey));
+    const modifiedKeys = new Set(modifiedResult.whitepapers.map((w) => w.wpKey));
+
+    const added = [...modifiedKeys].filter((k) => !originalKeys.has(k));
+    const removed = [...originalKeys].filter((k) => !modifiedKeys.has(k));
+    expect(added).toHaveLength(1);
+    expect(removed).toHaveLength(1);
+  });
+});

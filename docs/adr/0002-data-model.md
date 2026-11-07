@@ -44,7 +44,7 @@ This model underpins blocks B2–B7. Changing it later is expensive, so it is fi
 | Entity           | Represents                                                   | Key                                                                                | Why                                                                                                        |
 | ---------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `Issuer`         | Authorised legal entity                                      | `lei` (20 chars, ISO 17442)                                                        | Stable, global, links to GLEIF and national registers. **Never** the name (typos) or the ticker (copyable) |
-| `WhitePaper`     | One ESMA row: a white paper, or an authorisation without one | `wpKey = lei + ":" + wpUrlNormalized`; without a white paper, `lei + ":EMT_NO_WP"` | The only key that identifies every row, including the 28 without a DTI                                     |
+| `WhitePaper`     | One ESMA row: a white paper, or an authorisation without one | `wpKey = lei + ":" + first 12 hex chars of sha256(wpUrl\|wp_comments\|wp_authorisationNotificationDate)` | The only key that identifies every row, including the 28 without a DTI. Content-based: never depends on row position |
 | `SourceSnapshot` | One ESMA file as downloaded at a given time                  | `sha256` of the content                                                            | Proves exactly what the source said                                                                        |
 
 **There is no `Token` entity in Phase 1.** DTIs are stored as a list on the
@@ -180,6 +180,13 @@ CHANGELOG-data.md              # human-readable summary generated from changes.j
   on new ones).
 - The ticker is only a hint (`tickerHint`); in Phase 1 the site cannot reliably
   search by ticker on every row.
+
+*Amendment (2026-11-07):* ESMA lists several white papers under the same
+`wp_url` (AllUnity, Quantoz, Fiat Republic, Bettr), so `lei + wpUrl` is not
+unique. `wpKey` is now `lei + ":" + first 12 hex chars of
+sha256(wpUrl|wp_comments|wp_authorisationNotificationDate)`, applied to every
+row. It never depends on row position. A change to `wp_comments` or to the
+white paper date yields a new key, which B4 reports as `whitepaper_replaced`.
 
 **Risks**
 
