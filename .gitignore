@@ -30,6 +30,9 @@ desktop.ini
 # pnpm
 .pnpm-debug.log
 
+# Atomic write temp files
+*.tmp
+
 # Local AI assistant instructions and config
 CLAUDE.md
 .claude/settings.local.json

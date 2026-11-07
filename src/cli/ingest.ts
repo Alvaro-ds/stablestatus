@@ -16,6 +16,8 @@ import { normalizeEmtwp } from "../normalize/index.js";
 import { diffNormalized } from "../diff/diff.js";
 import { regenerateChangelog } from "../diff/changelog.js";
 import { ESMA_URLS } from "../esma/constants.js";
+import { IssuerSchema, WhitePaperSchema, MetaSchema } from "../model/index.js";
+import { ChangeEventSchema } from "../model/change-event.js";
 import type { NormalizeResult } from "../normalize/index.js";
 import type { SourceSnapshot } from "../model/index.js";
 import type { ChangeEvent } from "../model/change-event.js";
@@ -45,26 +47,37 @@ export interface IngestResult {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function loadPreviousState(currentDir: string): NormalizeResult | null {
+function loadPreviousState(currentDir: string, changesPath: string): NormalizeResult | null {
   const issuersPath = join(currentDir, "issuers.json");
   const wpPath = join(currentDir, "whitepapers.json");
   const metaPath = join(currentDir, "meta.json");
-  if (!existsSync(issuersPath) || !existsSync(wpPath) || !existsSync(metaPath)) return null;
-  try {
-    return {
-      issuers: JSON.parse(readFileSync(issuersPath, "utf8")) as NormalizeResult["issuers"],
-      whitepapers: JSON.parse(readFileSync(wpPath, "utf8")) as NormalizeResult["whitepapers"],
-      meta: JSON.parse(readFileSync(metaPath, "utf8")) as NormalizeResult["meta"],
-    };
-  } catch {
-    return null;
-  }
-}
+  const currentExists = existsSync(issuersPath) && existsSync(wpPath) && existsSync(metaPath);
+  const changesExists = existsSync(changesPath);
 
-function writeAtomically(filePath: string, content: string): void {
-  const tmp = `${filePath}.tmp`;
-  writeFileSync(tmp, content, "utf8");
-  renameSync(tmp, filePath);
+  // Consistency check: both must exist together or not at all.
+  if (currentExists !== changesExists) {
+    throw new Error(
+      `Inconsistent state: data/current/ ${currentExists ? "exists" : "missing"} but ` +
+        `changes.jsonl ${changesExists ? "exists" : "missing"}. ` +
+        "Remove both or restore both before running ingest."
+    );
+  }
+
+  if (!currentExists) return null;
+
+  try {
+    const issuers = IssuerSchema.array().parse(JSON.parse(readFileSync(issuersPath, "utf8")));
+    const whitepapers = WhitePaperSchema.array().parse(
+      JSON.parse(readFileSync(wpPath, "utf8"))
+    );
+    const meta = MetaSchema.parse(JSON.parse(readFileSync(metaPath, "utf8")));
+    return { issuers, whitepapers, meta };
+  } catch (err) {
+    throw new Error(
+      `data/current/ exists but failed zod validation: ${err instanceof Error ? err.message : String(err)}. ` +
+        "Remove data/current/ and changes.jsonl to start fresh."
+    );
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -136,33 +149,49 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
   log("Normalizing...");
   const nextState = normalizeEmtwp(parseResult, snapshot, date, now);
 
-  // --- Step 4: Diff ---
-  const prevState = loadPreviousState(currentDir);
+  // --- Step 4: Load and validate previous state (consistency check included) ---
+  const prevState = loadPreviousState(currentDir, changesPath);
+
+  // --- Step 5: Diff ---
   const events = diffNormalized(prevState, nextState, { at: fetchedAt, snapshotSha256: sha256 });
 
+  // Validate each event before writing (fail fast if schema drifts).
+  for (const event of events) {
+    ChangeEventSchema.parse(event);
+  }
+
+  // --- Step 6: Always write daily manifest (even with no events) ---
+  storeCsv(csvBuf, rawDir, date, "EMTWP.csv");
+  writeManifest(rawDir, date, [snapshot]);
+
   if (events.length === 0) {
-    log("No structural changes. Skipping write.");
+    log("No structural changes. Manifest updated.");
     return { skipped: true, reason: "no_events", events: [] };
   }
 
   log(`${events.length} change event(s) detected.`);
 
-  // --- Step 6: Atomic write to data/current/ ---
+  // --- Step 7: Atomic write to data/current/ ---
+  // Write to .tmp files first, then append changes.jsonl, then rename.
   mkdirSync(currentDir, { recursive: true });
-  writeAtomically(join(currentDir, "issuers.json"), JSON.stringify(nextState.issuers, null, 2));
-  writeAtomically(join(currentDir, "whitepapers.json"), JSON.stringify(nextState.whitepapers, null, 2));
-  writeAtomically(join(currentDir, "meta.json"), JSON.stringify(nextState.meta, null, 2));
+  const issuersTmp = join(currentDir, "issuers.json.tmp");
+  const wpTmp = join(currentDir, "whitepapers.json.tmp");
+  const metaTmp = join(currentDir, "meta.json.tmp");
+  writeFileSync(issuersTmp, JSON.stringify(nextState.issuers, null, 2), "utf8");
+  writeFileSync(wpTmp, JSON.stringify(nextState.whitepapers, null, 2), "utf8");
+  writeFileSync(metaTmp, JSON.stringify(nextState.meta, null, 2), "utf8");
 
-  // --- Step 7: Store raw CSV ---
-  storeCsv(csvBuf, rawDir, date, "EMTWP.csv");
-  writeManifest(rawDir, date, [snapshot]);
-
-  // --- Step 8: Append to changes.jsonl ---
+  // --- Step 8: Append to changes.jsonl (append-only, before rename) ---
   for (const event of events) {
     appendFileSync(changesPath, JSON.stringify(event) + "\n", "utf8");
   }
 
-  // --- Step 9: Regenerate CHANGELOG-data.md ---
+  // --- Step 9: Atomic rename ---
+  renameSync(issuersTmp, join(currentDir, "issuers.json"));
+  renameSync(wpTmp, join(currentDir, "whitepapers.json"));
+  renameSync(metaTmp, join(currentDir, "meta.json"));
+
+  // --- Step 10: Regenerate CHANGELOG-data.md ---
   await regenerateChangelog(changelogPath, changesPath);
 
   log(`Done. ${nextState.issuers.length} issuers, ${nextState.whitepapers.length} whitepapers.`);

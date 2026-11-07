@@ -238,3 +238,40 @@ describe("runIngest — provenance", () => {
     expect(meta.sources[0]?.fetchedAt).toBe("2026-10-30T05:00:00Z");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Manifest always written (paso 3)
+// ---------------------------------------------------------------------------
+
+describe("runIngest — manifest always written", () => {
+  it("writes manifest.json even when there are no structural changes (second run)", async () => {
+    await runIngest(opts(BASE_CSV, "2026-11-06"));
+    // Second run: same CSV, same now → no events, but manifest must still be written.
+    await runIngest(opts(BASE_CSV, "2026-11-07"));
+    const manifestPath = join(dataDir, "raw", "2026-11-07", "manifest.json");
+    expect(existsSync(manifestPath)).toBe(true);
+  });
+
+  it("writes manifest.json on first run (baseline)", async () => {
+    await runIngest(opts(BASE_CSV, "2026-11-07"));
+    const manifestPath = join(dataDir, "raw", "2026-11-07", "manifest.json");
+    expect(existsSync(manifestPath)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Consistency check: current/ and changes.jsonl must coexist (paso 3)
+// ---------------------------------------------------------------------------
+
+describe("runIngest — state consistency check", () => {
+  it("throws when current/ exists but changes.jsonl is missing", async () => {
+    // Create a valid first run.
+    await runIngest(opts(BASE_CSV, "2026-11-07"));
+    // Manually delete changes.jsonl to simulate inconsistency.
+    const { unlinkSync } = await import("node:fs");
+    unlinkSync(join(dataDir, "changes.jsonl"));
+    await expect(runIngest(opts(BASE_CSV, "2026-11-08"))).rejects.toThrow(
+      "Inconsistent state"
+    );
+  });
+});
