@@ -5,3 +5,11 @@ export { RegisterStatusSchema, type RegisterStatus } from "./register-status.js"
 export { IssuerSchema, type Issuer } from "./issuer.js";
 export { WhitePaperSchema, type WhitePaper } from "./whitepaper.js";
 export { MetaSchema, type Meta } from "./meta.js";
+export {
+  ChangeEventSchema,
+  ChangeKindSchema,
+  SeveritySchema,
+  type ChangeEvent,
+  type ChangeKind,
+  type Severity,
+} from "./change-event.js";
