@@ -132,9 +132,7 @@ describe("runIngest — future withdrawal (hash-idempotency regression)", () => 
     // Run 1: future_withdrawal CSV with now BEFORE the end date (2026-10-15)
     // The row has ac_authorisationEndDate = "15/10/2026" → authorised at now=2026-10-01
     await runIngest(opts(BASE_CSV, "2026-10-01", new Date("2026-10-01T12:00:00Z")));
-    await runIngest(
-      opts(FUTURE_WITHDRAWAL_CSV, "2026-10-01", new Date("2026-10-01T12:00:00Z"))
-    );
+    await runIngest(opts(FUTURE_WITHDRAWAL_CSV, "2026-10-01", new Date("2026-10-01T12:00:00Z")));
 
     // Run 2: same CSV, same hash — but now is AFTER end date → withdrawn
     const result = await runIngest(
@@ -212,15 +210,22 @@ describe("runIngest — validation", () => {
 
   it("throws when --from-file is set but fetchedAt is missing", async () => {
     const o = opts(BASE_CSV);
-    const withoutFetchedAt = { fromFile: o.fromFile, date: o.date, dataDir: o.dataDir, changelogPath: o.changelogPath, now: o.now, log: o.log };
+    const withoutFetchedAt = {
+      fromFile: o.fromFile,
+      date: o.date,
+      dataDir: o.dataDir,
+      changelogPath: o.changelogPath,
+      now: o.now,
+      log: o.log,
+    };
     await expect(runIngest(withoutFetchedAt)).rejects.toThrow("--fetched-at");
   });
 
   it("throws when --from-file path is inside data directory", async () => {
     const insideData = join(dataDir, "raw", "2026-10-30", "EMTWP.csv");
-    await expect(
-      runIngest({ ...opts(BASE_CSV), fromFile: insideData })
-    ).rejects.toThrow("--from-file path must not be inside the data directory");
+    await expect(runIngest({ ...opts(BASE_CSV), fromFile: insideData })).rejects.toThrow(
+      "--from-file path must not be inside the data directory"
+    );
   });
 });
 
@@ -270,8 +275,6 @@ describe("runIngest — state consistency check", () => {
     // Manually delete changes.jsonl to simulate inconsistency.
     const { unlinkSync } = await import("node:fs");
     unlinkSync(join(dataDir, "changes.jsonl"));
-    await expect(runIngest(opts(BASE_CSV, "2026-11-08"))).rejects.toThrow(
-      "Inconsistent state"
-    );
+    await expect(runIngest(opts(BASE_CSV, "2026-11-08"))).rejects.toThrow("Inconsistent state");
   });
 });

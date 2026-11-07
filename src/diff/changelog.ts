@@ -13,7 +13,10 @@ function escapeValue(value: unknown): string {
   let s = JSON.stringify(value);
   // Remove backticks (break out of inline code), angle brackets (HTML injection),
   // and control characters (newlines, carriage returns).
-  s = s.replace(/`/g, "'").replace(/[<>]/g, "").replace(/[\r\n]/g, " ");
+  s = s
+    .replace(/`/g, "'")
+    .replace(/[<>]/g, "")
+    .replace(/[\r\n]/g, " ");
   if (s.length > 200) s = s.slice(0, 197) + "...";
   return s;
 }

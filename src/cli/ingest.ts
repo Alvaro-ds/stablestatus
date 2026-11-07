@@ -67,9 +67,7 @@ function loadPreviousState(currentDir: string, changesPath: string): NormalizeRe
 
   try {
     const issuers = IssuerSchema.array().parse(JSON.parse(readFileSync(issuersPath, "utf8")));
-    const whitepapers = WhitePaperSchema.array().parse(
-      JSON.parse(readFileSync(wpPath, "utf8"))
-    );
+    const whitepapers = WhitePaperSchema.array().parse(JSON.parse(readFileSync(wpPath, "utf8")));
     const meta = MetaSchema.parse(JSON.parse(readFileSync(metaPath, "utf8")));
     return { issuers, whitepapers, meta };
   } catch (err) {
@@ -101,7 +99,8 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
 
   // HTTP: use real execution time so future withdrawal dates are caught on the day they pass.
   // --from-file: use noon UTC on the given date (deterministic for historical loads).
-  const now = options.now ?? (options.fromFile !== undefined ? new Date(`${date}T12:00:00Z`) : new Date());
+  const now =
+    options.now ?? (options.fromFile !== undefined ? new Date(`${date}T12:00:00Z`) : new Date());
   const url = ESMA_URLS.EMTWP;
 
   // --- Step 1: Fetch or read CSV ---
@@ -118,7 +117,9 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
       throw new Error(`--from-file path must not be inside the data directory (${resolvedData})`);
     }
     if (!options.fetchedAt) {
-      throw new Error("--fetched-at <ISO> is required when using --from-file (record when the file was actually downloaded)");
+      throw new Error(
+        "--fetched-at <ISO> is required when using --from-file (record when the file was actually downloaded)"
+      );
     }
     fetchedAt = options.fetchedAt;
     retrieval = "file";
@@ -128,10 +129,7 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
     fetchedAt = new Date().toISOString();
     retrieval = "http";
     log("Downloading EMTWP.csv and ARTZZ.csv from ESMA...");
-    [csvBuf, artzzBuf] = await Promise.all([
-      fetchEsmaCsv(url),
-      fetchEsmaCsv(ESMA_URLS.ARTZZ),
-    ]);
+    [csvBuf, artzzBuf] = await Promise.all([fetchEsmaCsv(url), fetchEsmaCsv(ESMA_URLS.ARTZZ)]);
   }
 
   const sha256 = computeSha256(csvBuf);
@@ -272,7 +270,9 @@ if (isMain) {
   }
 
   if (args.fromFile && !args.fetchedAt) {
-    console.error("Error: --fetched-at <ISO> is required when using --from-file (record when the file was actually downloaded from ESMA)");
+    console.error(
+      "Error: --fetched-at <ISO> is required when using --from-file (record when the file was actually downloaded from ESMA)"
+    );
     process.exit(1);
   }
 

@@ -189,7 +189,12 @@ describe("diffNormalized — field_changed", () => {
   it("no issuer_added, issuer_delisted, whitepaper_added, whitepaper_delisted events", () => {
     const next = normalize(join(VARIANTS, "field_changed.csv"));
     const events = diffNormalized(baseResult, next, CTX);
-    const unexpected = ["issuer_added", "issuer_delisted", "whitepaper_added", "whitepaper_delisted"];
+    const unexpected = [
+      "issuer_added",
+      "issuer_delisted",
+      "whitepaper_added",
+      "whitepaper_delisted",
+    ];
     for (const kind of unexpected) {
       expect(events.filter((e) => e.kind === kind)).toHaveLength(0);
     }

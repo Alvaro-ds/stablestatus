@@ -106,12 +106,15 @@ const fieldChangedRowIdx = 0;
 // ---------------------------------------------------------------------------
 
 // 1. withdrawal.csv
-const withdrawalRows: string[][] = [header, ...dataRows.map((r, i) => {
-  if (i !== withdrawalRowIdx) return r;
-  const updated = [...r];
-  updated[COL_END_DATE] = "01/01/2024";
-  return updated;
-})];
+const withdrawalRows: string[][] = [
+  header,
+  ...dataRows.map((r, i) => {
+    if (i !== withdrawalRowIdx) return r;
+    const updated = [...r];
+    updated[COL_END_DATE] = "01/01/2024";
+    return updated;
+  }),
+];
 writeVariant("withdrawal.csv", withdrawalRows);
 
 // 2. whitepaper_delisted.csv — remove one whitepaper row
@@ -119,22 +122,28 @@ const delistedRows: string[][] = [header, ...dataRows.filter((_, i) => i !== del
 writeVariant("whitepaper_delisted.csv", delistedRows);
 
 // 3. whitepaper_replaced.csv — change wp_url (new wpKey, same LEI)
-const replacedRows: string[][] = [header, ...dataRows.map((r, i) => {
-  if (i !== replacedRowIdx) return r;
-  const updated = [...r];
-  updated[COL_WP_URL] = "https://www.replaced-whitepaper.example.com/wp";
-  return updated;
-})];
+const replacedRows: string[][] = [
+  header,
+  ...dataRows.map((r, i) => {
+    if (i !== replacedRowIdx) return r;
+    const updated = [...r];
+    updated[COL_WP_URL] = "https://www.replaced-whitepaper.example.com/wp";
+    return updated;
+  }),
+];
 writeVariant("whitepaper_replaced.csv", replacedRows);
 
 // 4. field_changed.csv — append a new DTI to ae_DTI
-const fieldChangedRows: string[][] = [header, ...dataRows.map((r, i) => {
-  if (i !== fieldChangedRowIdx) return r;
-  const updated = [...r];
-  const existing = updated[COL_DTI] ?? "";
-  updated[COL_DTI] = existing ? existing + "|NEWDTI001" : "NEWDTI001";
-  return updated;
-})];
+const fieldChangedRows: string[][] = [
+  header,
+  ...dataRows.map((r, i) => {
+    if (i !== fieldChangedRowIdx) return r;
+    const updated = [...r];
+    const existing = updated[COL_DTI] ?? "";
+    updated[COL_DTI] = existing ? existing + "|NEWDTI001" : "NEWDTI001";
+    return updated;
+  }),
+];
 writeVariant("field_changed.csv", fieldChangedRows);
 
 // 5. issuer_added.csv — append a new issuer row
@@ -155,12 +164,15 @@ writeVariant("issuer_added.csv", issuerAddedRows);
 // 6. future_withdrawal.csv — same as base but one row has a future ac_authorisationEndDate
 // Used to test that status is re-evaluated even when the CSV hash is unchanged.
 // "15/10/2026" is after 2026-10-01 (authorised) but before 2026-11-01 (withdrawn).
-const futureWithdrawalRows: string[][] = [header, ...dataRows.map((r, i) => {
-  if (i !== withdrawalRowIdx) return r;
-  const updated = [...r];
-  updated[COL_END_DATE] = "15/10/2026";
-  return updated;
-})];
+const futureWithdrawalRows: string[][] = [
+  header,
+  ...dataRows.map((r, i) => {
+    if (i !== withdrawalRowIdx) return r;
+    const updated = [...r];
+    updated[COL_END_DATE] = "15/10/2026";
+    return updated;
+  }),
+];
 writeVariant("future_withdrawal.csv", futureWithdrawalRows);
 
 console.log("Done. Variants written to", OUT_DIR);
