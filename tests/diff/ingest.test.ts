@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, existsSync, readFileSync } from "node:fs";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { mkdtempSync, rmSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
 import { runIngest } from "../../src/cli/ingest.js";
+import { ESMA_URLS } from "../../src/esma/constants.js";
 
 const BASE_CSV = join(import.meta.dirname, "..", "fixtures", "esma", "EMTWP_2026-10-30.csv");
 const WITHDRAWAL_CSV = join(
@@ -276,5 +277,105 @@ describe("runIngest — state consistency check", () => {
     const { unlinkSync } = await import("node:fs");
     unlinkSync(join(dataDir, "changes.jsonl"));
     await expect(runIngest(opts(BASE_CSV, "2026-11-08"))).rejects.toThrow("Inconsistent state");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Helpers for HTTP-mode tests (injectable fetch)
+// ---------------------------------------------------------------------------
+
+const ARTZZ_HEADER = Buffer.from(
+  "ae_competentAuthority,ae_homeMemberState,ae_lei_name,ae_lei,ae_lei_cou_code," +
+    "ae_commercial_name,ae_address,ae_website,ac_authorisationNotificationDate," +
+    "ac_authorisationEndDate,ae_credit_institution,wp_url,wp_authorisationNotificationDate," +
+    "wp_url_cou,wp_comments,wp_lastupdate\r\n"
+);
+
+const ARTZZ_WITH_ROW = Buffer.from(
+  "ae_competentAuthority,ae_homeMemberState,ae_lei_name,ae_lei,ae_lei_cou_code," +
+    "ae_commercial_name,ae_address,ae_website,ac_authorisationNotificationDate," +
+    "ac_authorisationEndDate,ae_credit_institution,wp_url,wp_authorisationNotificationDate," +
+    "wp_url_cou,wp_comments,wp_lastupdate\r\n" +
+    "AMF,FR,Test ART SA,TESTARTISSUER0000001,FR,TestART,,https://test.example.com," +
+    "01/01/2026,,no,https://test.example.com/wp,01/01/2026,FR,,\r\n"
+);
+
+function httpOpts(fetchFn: (url: string) => Promise<Buffer>) {
+  return {
+    dataDir,
+    changelogPath,
+    fetch: fetchFn,
+    log: () => {},
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Corrupted state: meta.json with invalid JSON throws and writes nothing
+// ---------------------------------------------------------------------------
+
+describe("runIngest — corrupted previous state", () => {
+  it("throws when meta.json is invalid JSON and does not write manifest", async () => {
+    await runIngest(opts(BASE_CSV, "2026-11-06"));
+    writeFileSync(join(dataDir, "current", "meta.json"), "{not valid json", "utf8");
+
+    await expect(runIngest(opts(BASE_CSV, "2026-11-07"))).rejects.toThrow("zod validation");
+
+    // No manifest for 2026-11-07 — loadPreviousState threw before Step 6.
+    expect(existsSync(join(dataDir, "raw", "2026-11-07", "manifest.json"))).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ARTZZ signal: one row → art_register_non_empty critical
+// ---------------------------------------------------------------------------
+
+describe("runIngest — ARTZZ signal", () => {
+  it("emits art_register_non_empty (critical) when ARTZZ has a data row", async () => {
+    const emtwpBuf = readFileSync(BASE_CSV);
+    const result = await runIngest(
+      httpOpts(async (url) => (url === ESMA_URLS.ARTZZ ? ARTZZ_WITH_ROW : emtwpBuf))
+    );
+    const ev = result.events.find((e) => e.kind === "art_register_non_empty");
+    expect(ev).toBeDefined();
+    expect(ev?.severity).toBe("critical");
+  });
+
+  it("does not emit art_register_non_empty when ARTZZ is header-only", async () => {
+    const emtwpBuf = readFileSync(BASE_CSV);
+    const result = await runIngest(
+      httpOpts(async (url) => (url === ESMA_URLS.ARTZZ ? ARTZZ_HEADER : emtwpBuf))
+    );
+    expect(result.events.some((e) => e.kind === "art_register_non_empty")).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Real-time now: HTTP mode uses new Date() — fake timers trigger withdrawal
+// ---------------------------------------------------------------------------
+
+describe("runIngest — real-time now (HTTP mode)", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("detects withdrawal when end date passes, using new Date() from fake timers", async () => {
+    // Baseline before the withdrawal date (future_withdrawal.csv has end=15/10/2026).
+    await runIngest(opts(BASE_CSV, "2026-10-01", new Date("2026-10-01T12:00:00Z")));
+    await runIngest(opts(FUTURE_WITHDRAWAL_CSV, "2026-10-01", new Date("2026-10-01T12:00:00Z")));
+
+    // Fake time to after the end date — HTTP mode will use new Date() for now.
+    vi.useFakeTimers({ now: new Date("2026-11-01T12:00:00Z") });
+
+    const withdrawalBuf = readFileSync(FUTURE_WITHDRAWAL_CSV);
+    const result = await runIngest(
+      httpOpts(async (url) => (url === ESMA_URLS.ARTZZ ? ARTZZ_HEADER : withdrawalBuf))
+    );
+
+    expect(result.skipped).toBe(false);
+    const withdrawals = result.events.filter(
+      (e) => e.kind === "status_changed" && (e as { to?: unknown }).to === "withdrawn"
+    );
+    expect(withdrawals.length).toBeGreaterThan(0);
+    expect(withdrawals[0]!.severity).toBe("critical");
   });
 });

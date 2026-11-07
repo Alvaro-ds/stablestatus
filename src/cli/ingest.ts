@@ -35,6 +35,8 @@ export interface IngestOptions {
   changelogPath: string;
   now?: Date;
   log?: (msg: string) => void;
+  /** Override HTTP fetcher for tests. Called with the full CSV URL; must return raw bytes. */
+  fetch?: (url: string) => Promise<Buffer>;
 }
 
 export interface IngestResult {
@@ -129,7 +131,8 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
     fetchedAt = new Date().toISOString();
     retrieval = "http";
     log("Downloading EMTWP.csv and ARTZZ.csv from ESMA...");
-    [csvBuf, artzzBuf] = await Promise.all([fetchEsmaCsv(url), fetchEsmaCsv(ESMA_URLS.ARTZZ)]);
+    const fetcher = options.fetch ?? fetchEsmaCsv;
+    [csvBuf, artzzBuf] = await Promise.all([fetcher(url), fetcher(ESMA_URLS.ARTZZ)]);
   }
 
   const sha256 = computeSha256(csvBuf);
