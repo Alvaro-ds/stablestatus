@@ -1,5 +1,6 @@
 pnpm-lock.yaml
 data/
 tests/fixtures/
+tests/__snapshots__/
 CHANGELOG-data.md
 *.csv
