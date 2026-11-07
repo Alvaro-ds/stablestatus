@@ -26,6 +26,8 @@ import type { ChangeEvent } from "../model/change-event.js";
 
 export interface IngestOptions {
   fromFile?: string;
+  /** Required when fromFile is set: ISO-8601 UTC timestamp of when the file was actually downloaded from ESMA. */
+  fetchedAt?: string;
   date?: string;
   dataDir: string;
   changelogPath: string;
@@ -87,16 +89,30 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
   // HTTP: use real execution time so future withdrawal dates are caught on the day they pass.
   // --from-file: use noon UTC on the given date (deterministic for historical loads).
   const now = options.now ?? (options.fromFile !== undefined ? new Date(`${date}T12:00:00Z`) : new Date());
-  const fetchedAt = new Date().toISOString();
   const url = ESMA_URLS.EMTWP;
 
   // --- Step 1: Fetch or read CSV ---
   let csvBuf: Buffer;
-  if (options.fromFile) {
+  let fetchedAt: string;
+  let retrieval: "http" | "file";
+
+  if (options.fromFile !== undefined) {
     const filePath = resolve(options.fromFile);
+    // Reject paths inside data/ to prevent circular provenance.
+    const resolvedData = resolve(dataDir);
+    if (filePath.startsWith(resolvedData + "/") || filePath.startsWith(resolvedData + "\\")) {
+      throw new Error(`--from-file path must not be inside the data directory (${resolvedData})`);
+    }
+    if (!options.fetchedAt) {
+      throw new Error("--fetched-at <ISO> is required when using --from-file (record when the file was actually downloaded)");
+    }
+    fetchedAt = options.fetchedAt;
+    retrieval = "file";
     log(`Reading CSV from ${filePath}`);
     csvBuf = readFileSync(filePath);
   } else {
+    fetchedAt = new Date().toISOString();
+    retrieval = "http";
     log("Downloading EMTWP.csv from ESMA...");
     csvBuf = await fetchEsmaCsv(url);
   }
@@ -113,6 +129,7 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
     sha256,
     sizeBytes: csvBuf.length,
     rowCount: parseResult.rows.length,
+    retrieval,
   };
 
   // --- Step 3: Normalize (always with real now — catches future withdrawal dates) ---
@@ -157,8 +174,8 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
 // CLI entry point
 // ---------------------------------------------------------------------------
 
-function parseArgs(argv: string[]): { fromFile?: string; date?: string } {
-  const args: { fromFile?: string; date?: string } = {};
+function parseArgs(argv: string[]): { fromFile?: string; date?: string; fetchedAt?: string } {
+  const args: { fromFile?: string; date?: string; fetchedAt?: string } = {};
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--from-file" && i + 1 < argv.length) {
       const val = argv[++i];
@@ -166,6 +183,9 @@ function parseArgs(argv: string[]): { fromFile?: string; date?: string } {
     } else if (argv[i] === "--date" && i + 1 < argv.length) {
       const val = argv[++i];
       if (val !== undefined) args.date = val;
+    } else if (argv[i] === "--fetched-at" && i + 1 < argv.length) {
+      const val = argv[++i];
+      if (val !== undefined) args.fetchedAt = val;
     }
   }
   return args;
@@ -184,6 +204,11 @@ if (isMain) {
     process.exit(1);
   }
 
+  if (args.fromFile && !args.fetchedAt) {
+    console.error("Error: --fetched-at <ISO> is required when using --from-file (record when the file was actually downloaded from ESMA)");
+    process.exit(1);
+  }
+
   const __dirname = fileURLToPath(new URL(".", import.meta.url));
   const PROJECT_ROOT = resolve(__dirname, "..", "..");
 
@@ -193,6 +218,7 @@ if (isMain) {
   };
   if (args.fromFile !== undefined) ingestOpts.fromFile = args.fromFile;
   if (args.date !== undefined) ingestOpts.date = args.date;
+  if (args.fetchedAt !== undefined) ingestOpts.fetchedAt = args.fetchedAt;
 
   runIngest(ingestOpts)
     .then((result) => {

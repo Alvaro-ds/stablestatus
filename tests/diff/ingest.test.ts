@@ -50,6 +50,7 @@ afterEach(() => {
 function opts(csvPath: string, date = "2026-11-07", now = NOW) {
   return {
     fromFile: csvPath,
+    fetchedAt: "2026-10-30T05:00:00Z",
     date,
     dataDir,
     changelogPath,
@@ -207,5 +208,33 @@ describe("runIngest — validation", () => {
     await expect(runIngest({ ...opts(BASE_CSV), date: "07-11-2026" })).rejects.toThrow(
       "Invalid date format"
     );
+  });
+
+  it("throws when --from-file is set but fetchedAt is missing", async () => {
+    const o = opts(BASE_CSV);
+    const withoutFetchedAt = { fromFile: o.fromFile, date: o.date, dataDir: o.dataDir, changelogPath: o.changelogPath, now: o.now, log: o.log };
+    await expect(runIngest(withoutFetchedAt)).rejects.toThrow("--fetched-at");
+  });
+
+  it("throws when --from-file path is inside data directory", async () => {
+    const insideData = join(dataDir, "raw", "2026-10-30", "EMTWP.csv");
+    await expect(
+      runIngest({ ...opts(BASE_CSV), fromFile: insideData })
+    ).rejects.toThrow("--from-file path must not be inside the data directory");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Provenance: retrieval field in meta.json
+// ---------------------------------------------------------------------------
+
+describe("runIngest — provenance", () => {
+  it("file-based run stores retrieval=file and correct fetchedAt in meta.json", async () => {
+    await runIngest(opts(BASE_CSV));
+    const meta = JSON.parse(readFileSync(join(dataDir, "current", "meta.json"), "utf8")) as {
+      sources: Array<{ retrieval: string; fetchedAt: string }>;
+    };
+    expect(meta.sources[0]?.retrieval).toBe("file");
+    expect(meta.sources[0]?.fetchedAt).toBe("2026-10-30T05:00:00Z");
   });
 });

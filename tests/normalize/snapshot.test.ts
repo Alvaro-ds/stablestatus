@@ -17,6 +17,7 @@ const snapshot: SourceSnapshot = {
   sha256: computeSha256(fixtureBuf),
   sizeBytes: fixtureBuf.length,
   rowCount: parseResult.rows.length,
+  retrieval: "file",
 };
 
 const NOW = new Date("2026-11-07T00:00:00Z");

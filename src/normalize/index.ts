@@ -175,6 +175,7 @@ export function normalizeEmtwp(
         url: snapshot.url,
         sha256: snapshot.sha256,
         fetchedAt: snapshot.fetchedAt,
+        retrieval: snapshot.retrieval,
       },
     ],
     issuerCount: issuers.length,

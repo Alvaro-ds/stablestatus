@@ -139,6 +139,7 @@ describe("writeManifest", () => {
       sha256: computeSha256(CONTENT_A),
       sizeBytes: CONTENT_A.length,
       rowCount: 1,
+      retrieval: "http",
     };
 
     writeManifest(dir, "2026-11-04", [snapshot]);
@@ -160,6 +161,7 @@ describe("writeManifest", () => {
       sha256: computeSha256(CONTENT_A),
       sizeBytes: CONTENT_A.length,
       rowCount: 1,
+      retrieval: "http",
     };
 
     writeManifest(dir, "2026-11-04", [snapshot]);

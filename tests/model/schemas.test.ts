@@ -20,6 +20,7 @@ const VALID_SNAPSHOT = {
   sha256: "f7fb1c594f0374dc16171ac15d4f5db773bf84b1b495e6b3640bdc2a718a4484",
   sizeBytes: 12345,
   rowCount: 50,
+  retrieval: "http" as const,
 };
 
 // ---------------------------------------------------------------------------

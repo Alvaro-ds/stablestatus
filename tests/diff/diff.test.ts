@@ -30,6 +30,7 @@ function normalize(csvPath: string): NormalizeResult {
     sha256: computeSha256(buf),
     sizeBytes: buf.length,
     rowCount: parseResult.rows.length,
+    retrieval: "file",
   };
   return normalizeEmtwp(parseResult, snapshot, DATE, NOW);
 }
@@ -71,6 +72,7 @@ describe("diffNormalized — idempotency", () => {
       sha256: "b".repeat(64),
       sizeBytes: buf.length,
       rowCount: parseResult.rows.length,
+      retrieval: "file",
     };
     const nextResult = normalizeEmtwp(parseResult, differentSnapshot, DATE, NOW);
     const events = diffNormalized(baseResult, nextResult, CTX);

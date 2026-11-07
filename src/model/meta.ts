@@ -12,6 +12,7 @@ export const MetaSchema = z.object({
       url: z.url(),
       sha256: z.string().regex(/^[0-9a-f]{64}$/),
       fetchedAt: z.iso.datetime(),
+      retrieval: z.enum(["http", "file"]),
     })
   ),
   issuerCount: z.number().int().min(0),
