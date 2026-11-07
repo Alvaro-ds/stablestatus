@@ -56,7 +56,7 @@ describe("normalizeAuthority", () => {
 
   it("maps Polish Financial Supervision Authority (KNF)", () => {
     expect(normalizeAuthority("Polish Financial Supervision Authority (KNF)").authorityCode).toBe(
-      "PL-KNF",
+      "PL-KNF"
     );
   });
 

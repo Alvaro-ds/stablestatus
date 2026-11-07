@@ -11,11 +11,11 @@ export class WpKeyCollisionError extends Error {
   constructor(
     public readonly wpKey: string,
     public readonly rowA: ParsedRow,
-    public readonly rowB: ParsedRow,
+    public readonly rowB: ParsedRow
   ) {
     super(
       `wpKey collision "${wpKey}" produced by rows ${rowA.rowIndex} and ${rowB.rowIndex}. ` +
-        `Rows are not exact duplicates — add a distinguishing field or file a data quality report.`,
+        `Rows are not exact duplicates — add a distinguishing field or file a data quality report.`
     );
     this.name = "WpKeyCollisionError";
   }
@@ -34,7 +34,7 @@ export function generateWpKey(
   lei: string,
   wpUrlOrType: string,
   wpComments: string,
-  wpOfferDateRaw: string,
+  wpOfferDateRaw: string
 ): string {
   const input = `${wpUrlOrType}|${wpComments.trim()}|${wpOfferDateRaw.trim()}`;
   const hash = createHash("sha256").update(input, "utf8").digest("hex").slice(0, 12);

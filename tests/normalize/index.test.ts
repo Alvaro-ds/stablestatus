@@ -117,7 +117,7 @@ describe("normalizeEmtwp — Quantoz authorisation_date_missing", () => {
   it("exactly 3 Quantoz whitepapers have authorisation_date_missing status", () => {
     const { whitepapers } = getResult();
     const missing = whitepapers.filter(
-      (w) => w.lei === QUANTOZ_LEI && w.registerStatus === "authorisation_date_missing",
+      (w) => w.lei === QUANTOZ_LEI && w.registerStatus === "authorisation_date_missing"
     );
     expect(missing).toHaveLength(3);
   });
@@ -184,7 +184,7 @@ describe("normalizeEmtwp — DNB authority errata", () => {
     const dutch = issuers.filter(
       (i) =>
         i.authorityRaw === "De Nederlandsche Bank (DNB)" ||
-        i.authorityRaw === "De Nederlansche Bank (DNB)",
+        i.authorityRaw === "De Nederlansche Bank (DNB)"
     );
     expect(dutch.length).toBeGreaterThan(0);
     dutch.forEach((i) => expect(i.authorityCode).toBe("NL-DNB"));
@@ -212,25 +212,19 @@ describe("normalizeEmtwp — new whitepaper fields", () => {
 
   it("AllUnity EURAU wpOfferDate is 2025-06-20", () => {
     const { whitepapers } = getResult();
-    const eurau = whitepapers.find(
-      (w) => w.lei === ALLUNITY_LEI && w.tickerHint === "EURAU",
-    );
+    const eurau = whitepapers.find((w) => w.lei === ALLUNITY_LEI && w.tickerHint === "EURAU");
     expect(eurau!.wpOfferDate).toBe("2025-06-20");
   });
 
   it("AllUnity EURAU wpLastUpdate is 2026-02-13", () => {
     const { whitepapers } = getResult();
-    const eurau = whitepapers.find(
-      (w) => w.lei === ALLUNITY_LEI && w.tickerHint === "EURAU",
-    );
+    const eurau = whitepapers.find((w) => w.lei === ALLUNITY_LEI && w.tickerHint === "EURAU");
     expect(eurau!.wpLastUpdate).toBe("2026-02-13");
   });
 
   it("wpLastUpdate is null when wp_lastupdate is empty (AllUnity SEKAU)", () => {
     const { whitepapers } = getResult();
-    const sekau = whitepapers.find(
-      (w) => w.lei === ALLUNITY_LEI && w.tickerHint === "SEKAU",
-    );
+    const sekau = whitepapers.find((w) => w.lei === ALLUNITY_LEI && w.tickerHint === "SEKAU");
     expect(sekau!.wpLastUpdate).toBeNull();
   });
 });
@@ -283,9 +277,11 @@ describe("normalizeEmtwp — wpKey stability", () => {
       { rows: reordered, artNonEmpty: false },
       snapshot,
       DATE,
-      NOW,
+      NOW
     );
-    const originalKeys = getResult().whitepapers.map((w) => w.wpKey).sort();
+    const originalKeys = getResult()
+      .whitepapers.map((w) => w.wpKey)
+      .sort();
     const reorderedKeys = reorderedResult.whitepapers.map((w) => w.wpKey).sort();
     expect(reorderedKeys).toEqual(originalKeys);
   });
@@ -293,17 +289,17 @@ describe("normalizeEmtwp — wpKey stability", () => {
   it("changing wp_comments on one row changes only that row's wpKey", () => {
     const rows = parseResult.rows;
     const target = rows.find(
-      (r) => r.fields["ae_lei"] === ALLUNITY_LEI && r.fields["wp_comments"] === "EURAU",
+      (r) => r.fields["ae_lei"] === ALLUNITY_LEI && r.fields["wp_comments"] === "EURAU"
     )!;
     const modified = rows.map((r) =>
-      r === target ? { ...r, fields: { ...r.fields, wp_comments: "MODIFIED" } } : r,
+      r === target ? { ...r, fields: { ...r.fields, wp_comments: "MODIFIED" } } : r
     );
     const originalResult = getResult();
     const modifiedResult = normalizeEmtwp(
       { rows: modified, artNonEmpty: false },
       snapshot,
       DATE,
-      NOW,
+      NOW
     );
 
     const originalKeys = new Set(originalResult.whitepapers.map((w) => w.wpKey));

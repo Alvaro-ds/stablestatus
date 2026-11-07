@@ -19,7 +19,7 @@ const AUTHORITY_MAP: Record<string, string> = {
   "De Nederlansche Bank (DNB)": "NL-DNB",
   "Federal Financial Supervisory Authority (BaFin)": "DE-BAFIN",
   "Finanssivalvonta (FIN-FSA)": "FI-FINFSA",
-  "Finanstilsynet": "DK-FT",
+  Finanstilsynet: "DK-FT",
   "Latvijas Banka": "LV-LB",
   "Malta Financial Services Authority": "MT-MFSA",
   "Polish Financial Supervision Authority (KNF)": "PL-KNF",

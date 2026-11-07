@@ -4,7 +4,7 @@ import type { RegisterStatus } from "../model/index.js";
 export function computeWpStatus(
   authorisationDate: string | null,
   authorisationEndDate: string | null,
-  now: Date,
+  now: Date
 ): RegisterStatus {
   if (authorisationDate === null) return "authorisation_date_missing";
 

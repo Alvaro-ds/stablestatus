@@ -50,7 +50,7 @@ export function normalizeEmtwp(
   parseResult: ParseResult,
   snapshot: SourceSnapshot,
   date: string,
-  now: Date,
+  now: Date
 ): NormalizeResult {
   // 1. Remove exact duplicate rows (same rowSha256), marking survivors.
   const rows = dedupeRows(parseResult.rows);
@@ -62,7 +62,7 @@ export function normalizeEmtwp(
       row.fields["ae_lei"]!,
       wpUrlResult.wpUrl ?? wpUrlResult.wpType,
       row.fields["wp_comments"]!,
-      row.fields["wp_authorisationNotificationDate"]!,
+      row.fields["wp_authorisationNotificationDate"]!
     );
     return { row, wpUrlResult, wpKey };
   });

@@ -18,7 +18,9 @@ describe("extractDtis", () => {
 
   it("ignores double-pipe — no empty token generated (Monerium case)", () => {
     // Raw from fixture: "81PTSP744|JVM0S87GB||3P9X6K6P2|..."
-    const result = extractDtis("81PTSP744|JVM0S87GB||3P9X6K6P2|S45L7172C|ZHKQJ78VZ|6KL7TK20G|5LN265K07");
+    const result = extractDtis(
+      "81PTSP744|JVM0S87GB||3P9X6K6P2|S45L7172C|ZHKQJ78VZ|6KL7TK20G|5LN265K07"
+    );
     expect(result.every((t) => t.length === 9)).toBe(true);
     expect(result).toHaveLength(7);
   });

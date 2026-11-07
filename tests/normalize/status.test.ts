@@ -53,14 +53,14 @@ describe("deriveIssuerStatus", () => {
         "authorisation_date_missing",
         "authorisation_date_missing",
         "authorisation_date_missing",
-      ]),
+      ])
     ).toBe("authorised");
   });
 
   it("returns authorisation_date_missing when all whitepapers have missing date", () => {
-    expect(
-      deriveIssuerStatus(["authorisation_date_missing", "authorisation_date_missing"]),
-    ).toBe("authorisation_date_missing");
+    expect(deriveIssuerStatus(["authorisation_date_missing", "authorisation_date_missing"])).toBe(
+      "authorisation_date_missing"
+    );
   });
 
   it("withdrawn beats authorisation_date_missing", () => {
