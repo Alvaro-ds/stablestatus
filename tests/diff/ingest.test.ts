@@ -5,13 +5,7 @@ import { tmpdir } from "node:os";
 
 import { runIngest } from "../../src/cli/ingest.js";
 
-const BASE_CSV = join(
-  import.meta.dirname,
-  "..",
-  "fixtures",
-  "esma",
-  "EMTWP_2026-10-30.csv"
-);
+const BASE_CSV = join(import.meta.dirname, "..", "fixtures", "esma", "EMTWP_2026-10-30.csv");
 const WITHDRAWAL_CSV = join(
   import.meta.dirname,
   "..",
@@ -19,6 +13,14 @@ const WITHDRAWAL_CSV = join(
   "esma",
   "variants",
   "withdrawal.csv"
+);
+const FUTURE_WITHDRAWAL_CSV = join(
+  import.meta.dirname,
+  "..",
+  "fixtures",
+  "esma",
+  "variants",
+  "future_withdrawal.csv"
 );
 
 const NOW = new Date("2026-11-07T12:00:00Z");
@@ -45,13 +47,13 @@ afterEach(() => {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function opts(csvPath: string, date = "2026-11-07") {
+function opts(csvPath: string, date = "2026-11-07", now = NOW) {
   return {
     fromFile: csvPath,
     date,
     dataDir,
     changelogPath,
-    now: NOW,
+    now,
     log: () => {},
   };
 }
@@ -100,18 +102,18 @@ describe("runIngest — baseline", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Idempotency
+// Idempotency (same CSV, same now → no events)
 // ---------------------------------------------------------------------------
 
 describe("runIngest — idempotency", () => {
-  it("second run with same file is skipped (same hash)", async () => {
+  it("second run with same file and same now produces no events", async () => {
     await runIngest(opts(BASE_CSV));
     const result2 = await runIngest(opts(BASE_CSV));
     expect(result2.skipped).toBe(true);
-    expect(result2.reason).toBe("same_hash");
+    expect(result2.reason).toBe("no_events");
   });
 
-  it("changes.jsonl is not extended on a skipped run", async () => {
+  it("changes.jsonl is not extended on a no-events run", async () => {
     await runIngest(opts(BASE_CSV));
     const linesAfterFirst = readJsonLines(join(dataDir, "changes.jsonl")).length;
     await runIngest(opts(BASE_CSV));
@@ -121,11 +123,38 @@ describe("runIngest — idempotency", () => {
 });
 
 // ---------------------------------------------------------------------------
+// Future withdrawal: same CSV hash, different now → status_changed detected
+// ---------------------------------------------------------------------------
+
+describe("runIngest — future withdrawal (hash-idempotency regression)", () => {
+  it("same CSV but later now detects withdrawal when end date passes", async () => {
+    // Run 1: future_withdrawal CSV with now BEFORE the end date (2026-10-15)
+    // The row has ac_authorisationEndDate = "15/10/2026" → authorised at now=2026-10-01
+    await runIngest(opts(BASE_CSV, "2026-10-01", new Date("2026-10-01T12:00:00Z")));
+    await runIngest(
+      opts(FUTURE_WITHDRAWAL_CSV, "2026-10-01", new Date("2026-10-01T12:00:00Z"))
+    );
+
+    // Run 2: same CSV, same hash — but now is AFTER end date → withdrawn
+    const result = await runIngest(
+      opts(FUTURE_WITHDRAWAL_CSV, "2026-11-01", new Date("2026-11-01T12:00:00Z"))
+    );
+
+    expect(result.skipped).toBe(false);
+    const withdrawals = result.events.filter(
+      (e) => e.kind === "status_changed" && (e as { to?: unknown }).to === "withdrawn"
+    );
+    expect(withdrawals.length).toBeGreaterThan(0);
+    expect(withdrawals[0]!.severity).toBe("critical");
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Withdrawal scenario
 // ---------------------------------------------------------------------------
 
 describe("runIngest — withdrawal", () => {
-  it("after baseline, withdrawal run emits critical status_changed events", async () => {
+  it("after baseline, withdrawal run emits critical events", async () => {
     await runIngest(opts(BASE_CSV, "2026-11-07"));
     const result = await runIngest(opts(WITHDRAWAL_CSV, "2026-11-08"));
     expect(result.skipped).toBe(false);
@@ -137,9 +166,7 @@ describe("runIngest — withdrawal", () => {
     await runIngest(opts(BASE_CSV, "2026-11-07"));
     await runIngest(opts(WITHDRAWAL_CSV, "2026-11-08"));
     const lines = readJsonLines(join(dataDir, "changes.jsonl"));
-    // First event must be the original baseline
     expect((lines[0] as { kind: string }).kind).toBe("baseline");
-    // Total lines > 1
     expect(lines.length).toBeGreaterThan(1);
   });
 });
@@ -150,7 +177,7 @@ describe("runIngest — withdrawal", () => {
 
 describe("runIngest — append-only changes.jsonl", () => {
   it("events accumulate across multiple runs and old lines are never deleted", async () => {
-    const WITHDRAWAL_CSV2 = join(
+    const ISSUER_ADDED_CSV = join(
       import.meta.dirname,
       "..",
       "fixtures",
@@ -162,12 +189,10 @@ describe("runIngest — append-only changes.jsonl", () => {
     await runIngest(opts(BASE_CSV, "2026-11-06"));
     const afterRun1 = readJsonLines(join(dataDir, "changes.jsonl")).length;
 
-    await runIngest(opts(WITHDRAWAL_CSV2, "2026-11-07"));
+    await runIngest(opts(ISSUER_ADDED_CSV, "2026-11-07"));
     const afterRun2 = readJsonLines(join(dataDir, "changes.jsonl")).length;
 
     expect(afterRun2).toBeGreaterThan(afterRun1);
-
-    // The baseline event from run 1 must still be line 1
     const lines = readJsonLines(join(dataDir, "changes.jsonl"));
     expect((lines[0] as { kind: string }).kind).toBe("baseline");
   });

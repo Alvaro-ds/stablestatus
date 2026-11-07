@@ -152,4 +152,15 @@ newRow[COL_END_DATE] = "";
 const issuerAddedRows: string[][] = [header, ...dataRows, newRow];
 writeVariant("issuer_added.csv", issuerAddedRows);
 
+// 6. future_withdrawal.csv — same as base but one row has a future ac_authorisationEndDate
+// Used to test that status is re-evaluated even when the CSV hash is unchanged.
+// "15/10/2026" is after 2026-10-01 (authorised) but before 2026-11-01 (withdrawn).
+const futureWithdrawalRows: string[][] = [header, ...dataRows.map((r, i) => {
+  if (i !== withdrawalRowIdx) return r;
+  const updated = [...r];
+  updated[COL_END_DATE] = "15/10/2026";
+  return updated;
+})];
+writeVariant("future_withdrawal.csv", futureWithdrawalRows);
+
 console.log("Done. Variants written to", OUT_DIR);

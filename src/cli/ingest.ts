@@ -59,19 +59,6 @@ function loadPreviousState(currentDir: string): NormalizeResult | null {
   }
 }
 
-function loadPreviousSnapshotSha256(currentDir: string): string | null {
-  const metaPath = join(currentDir, "meta.json");
-  if (!existsSync(metaPath)) return null;
-  try {
-    const meta = JSON.parse(readFileSync(metaPath, "utf8")) as {
-      sources?: { sha256?: string }[];
-    };
-    return meta.sources?.[0]?.sha256 ?? null;
-  } catch {
-    return null;
-  }
-}
-
 function writeAtomically(filePath: string, content: string): void {
   const tmp = `${filePath}.tmp`;
   writeFileSync(tmp, content, "utf8");
@@ -97,7 +84,9 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
     throw new Error(`Invalid date format: ${date}. Expected YYYY-MM-DD.`);
   }
 
-  const now = options.now ?? new Date(`${date}T12:00:00Z`);
+  // HTTP: use real execution time so future withdrawal dates are caught on the day they pass.
+  // --from-file: use noon UTC on the given date (deterministic for historical loads).
+  const now = options.now ?? (options.fromFile !== undefined ? new Date(`${date}T12:00:00Z`) : new Date());
   const fetchedAt = new Date().toISOString();
   const url = ESMA_URLS.EMTWP;
 
@@ -114,14 +103,7 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
 
   const sha256 = computeSha256(csvBuf);
 
-  // --- Step 2: Idempotency check ---
-  const prevSha256 = loadPreviousSnapshotSha256(currentDir);
-  if (prevSha256 === sha256) {
-    log("No changes detected (same CSV hash). Skipping.");
-    return { skipped: true, reason: "same_hash", events: [] };
-  }
-
-  // --- Step 3: Parse ---
+  // --- Step 2: Parse ---
   log("Parsing CSV...");
   const parseResult = parseEsmaCsv(csvBuf, "EMTWP");
 
@@ -133,11 +115,11 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
     rowCount: parseResult.rows.length,
   };
 
-  // --- Step 4: Normalize ---
+  // --- Step 3: Normalize (always with real now — catches future withdrawal dates) ---
   log("Normalizing...");
   const nextState = normalizeEmtwp(parseResult, snapshot, date, now);
 
-  // --- Step 5: Diff ---
+  // --- Step 4: Diff ---
   const prevState = loadPreviousState(currentDir);
   const events = diffNormalized(prevState, nextState, { at: fetchedAt, snapshotSha256: sha256 });
 
