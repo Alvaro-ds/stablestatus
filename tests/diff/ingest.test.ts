@@ -379,3 +379,44 @@ describe("runIngest — real-time now (HTTP mode)", () => {
     expect(withdrawals[0]!.severity).toBe("critical");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Run summary: data/last-run.json
+// ---------------------------------------------------------------------------
+
+describe("runIngest — last-run.json", () => {
+  interface LastRun {
+    at: string;
+    status: string;
+    events: number;
+    critical: number;
+    emtwpSha256: string;
+    artzzSha256: string | null;
+  }
+
+  function readLastRun(): LastRun {
+    return JSON.parse(readFileSync(join(dataDir, "last-run.json"), "utf8")) as LastRun;
+  }
+
+  it("writes a summary with zero events on a no-change run", async () => {
+    await runIngest(opts(BASE_CSV));
+    await runIngest(opts(BASE_CSV));
+    const summary = readLastRun();
+    expect(summary).toMatchObject({ status: "ok", events: 0, critical: 0, artzzSha256: null });
+    expect(summary.emtwpSha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(typeof summary.at).toBe("string");
+  });
+
+  it("counts events and critical events, with both hashes in HTTP mode", async () => {
+    await runIngest(opts(BASE_CSV));
+    const withdrawalBuf = readFileSync(WITHDRAWAL_CSV);
+    const result = await runIngest(
+      httpOpts(async (url) => (url === ESMA_URLS.ARTZZ ? ARTZZ_HEADER : withdrawalBuf))
+    );
+    const summary = readLastRun();
+    expect(summary.events).toBe(result.events.length);
+    expect(summary.critical).toBe(result.events.filter((e) => e.severity === "critical").length);
+    expect(summary.critical).toBeGreaterThan(0);
+    expect(summary.artzzSha256).toMatch(/^[0-9a-f]{64}$/);
+  });
+});

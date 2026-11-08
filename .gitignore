@@ -37,3 +37,6 @@ desktop.ini
 CLAUDE.md
 .claude/settings.local.json
 .superpowers/
+
+# Ingest run summary (read by the daily workflow, not published)
+data/last-run.json

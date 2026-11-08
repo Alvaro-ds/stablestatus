@@ -80,6 +80,23 @@ function loadPreviousState(currentDir: string, changesPath: string): NormalizeRe
   }
 }
 
+function writeLastRun(
+  dataDir: string,
+  events: ChangeEvent[],
+  emtwpSha256: string,
+  artzzSha256: string | null
+): void {
+  const summary = {
+    at: new Date().toISOString(),
+    status: "ok",
+    events: events.length,
+    critical: events.filter((e) => e.severity === "critical").length,
+    emtwpSha256,
+    artzzSha256,
+  };
+  writeFileSync(join(dataDir, "last-run.json"), JSON.stringify(summary, null, 2) + "\n", "utf8");
+}
+
 // ---------------------------------------------------------------------------
 // Core ingest function (exportable for tests)
 // ---------------------------------------------------------------------------
@@ -205,6 +222,7 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
 
   if (events.length === 0) {
     log("No structural changes. Manifest updated.");
+    writeLastRun(dataDir, [], sha256, artzzSnapshot?.sha256 ?? null);
     return { skipped: true, reason: "no_events", events: [] };
   }
 
@@ -232,6 +250,8 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
 
   // --- Step 10: Regenerate CHANGELOG-data.md ---
   await regenerateChangelog(changelogPath, changesPath);
+
+  writeLastRun(dataDir, events, sha256, artzzSnapshot?.sha256 ?? null);
 
   log(`Done. ${nextState.issuers.length} issuers, ${nextState.whitepapers.length} whitepapers.`);
 
