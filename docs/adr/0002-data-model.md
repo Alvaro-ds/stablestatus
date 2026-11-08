@@ -139,6 +139,7 @@ data/
   current/whitepapers.json
   current/meta.json            # date, source hashes, counts, schema version
   changes.jsonl                # append-only history, never rewritten
+  runs.jsonl                   # append-only, one line per successful run (runner, trigger, runId, hashes, event counts)
 CHANGELOG-data.md              # human-readable summary generated from changes.jsonl
 ```
 
@@ -194,6 +195,10 @@ white paper date yields a new key, which B4 reports as `whitepaper_replaced`.
   manual intervention. Mitigation: the automatic alert in B5.
 - ESMA's register is interim and lags national registers. The B6 cross-check
   documents this but does not modify ESMA data.
+
+_Amendment (2026-11-08):_ `data/runs.jsonl` records every successful check, not
+only changes. The phase 1 gate counts only days with a run where
+`runner = github-actions` and `trigger = schedule`.
 
 ---
 
