@@ -49,6 +49,7 @@ jobs:
       - run: pnpm changelog
 
       - name: Commit data changes
+        id: commit
         run: |
           git add data CHANGELOG-data.md
           if git diff --cached --quiet; then
@@ -66,6 +67,7 @@ jobs:
           git commit -m "$msg"
           for attempt in 1 2 3; do
             if git push; then
+              echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             echo "Push attempt $attempt failed; rebasing on remote."
@@ -73,3 +75,63 @@ jobs:
           done
           echo "Push failed after 3 attempts."
           exit 1
+
+      # Alerts. ESMA values never go through ${{ }} inside run: they are read from
+      # files with jq and passed to gh via --body-file.
+
+      - name: Open issue for critical changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          COMMIT_SHA: ${{ steps.commit.outputs.sha }}
+        run: |
+          critical=$(jq -r '.critical' data/last-run.json)
+          if [ "$critical" -eq 0 ]; then
+            echo "No critical changes."
+            exit 0
+          fi
+          events=$(jq -r '.events' data/last-run.json)
+          day=$(jq -r '.at[0:10]' data/last-run.json)
+          gh label create critical-change --color B60205 \
+            --description "Critical change in the ESMA register" 2>/dev/null || true
+          {
+            echo "The daily ingest on $day detected $critical critical change(s)."
+            echo
+            echo "Commit: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$COMMIT_SHA"
+            echo
+            echo "~~~~json"
+            tail -n "$events" data/changes.jsonl | jq -c 'select(.severity == "critical")' | tr -d '~'
+            echo "~~~~"
+            sed -n '/^---$/,$p' CHANGELOG-data.md
+          } > "$RUNNER_TEMP/issue-body.md"
+          gh issue create --title "Critical change in ESMA register ($day)" \
+            --label critical-change --body-file "$RUNNER_TEMP/issue-body.md"
+
+      - name: Close failure issue on recovery
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          number=$(gh issue list --label ingest-failure --state open \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$number" ]; then
+            gh issue close "$number" --comment "Recovered on $(date -u +%F)."
+          fi
+
+      - name: Report failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          body="Daily ingest failed on $(date -u +%F): $run_url"
+          gh label create ingest-failure --color D93F0B \
+            --description "The daily ESMA ingest failed" 2>/dev/null || true
+          number=$(gh issue list --label ingest-failure --state open \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body "$body"
+          else
+            gh issue create --title "Daily ingest failed" --label ingest-failure --body "$body"
+          fi
