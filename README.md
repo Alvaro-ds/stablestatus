@@ -71,6 +71,34 @@ Each contract address carries one of four trust levels:
 
 ---
 
+## Daily Ingest
+
+A GitHub Actions workflow ([`.github/workflows/ingest.yml`](.github/workflows/ingest.yml)) runs every day at **06:17 UTC**:
+
+1. Runs the test suite. If any test fails, nothing is ingested.
+2. Downloads `EMTWP.csv` and `ARTZZ.csv` from the ESMA interim MiCA register, normalises them and compares them with the previous state.
+3. Commits the result as `chore(data): daily ESMA ingest YYYY-MM-DD` (with `[critical: N]` when critical changes are detected). Only `data/` and `CHANGELOG-data.md` are committed.
+
+Where the data lives:
+
+| Path                   | Content                                                 |
+| ---------------------- | ------------------------------------------------------- |
+| `data/current/`        | Current normalised state (issuers, white papers, meta)  |
+| `data/changes.jsonl`   | Append-only history of every change                     |
+| `data/raw/YYYY-MM-DD/` | Daily manifest with hashes; raw CSVs when they change   |
+| `CHANGELOG-data.md`    | Human-readable changelog generated from `changes.jsonl` |
+
+Alerts are GitHub issues, so maintainers get them by email:
+
+- `ingest-failure`: opened when the run fails (later failures add a comment) and closed automatically on the next successful run.
+- `critical-change`: opened when the register shows a withdrawal, a delisting or the first ART authorisation, with the critical events and a link to the commit.
+
+The workflow can also be started by hand (`workflow_dispatch`); the `simulate_failure` input makes it fail on purpose to test the failure alert. `pnpm gate:check` reports how many consecutive days were ingested over HTTP.
+
+Caveats: GitHub may delay scheduled runs by several minutes, and it disables scheduled workflows in repositories with no activity for 60 days. The daily data commits keep the repository active, but this should be monitored.
+
+---
+
 ## Data Sources & Licenses
 
 | Source                                                                                                                                         | Used for                                                  |
