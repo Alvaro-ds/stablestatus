@@ -420,3 +420,73 @@ describe("runIngest — last-run.json", () => {
     expect(summary.artzzSha256).toMatch(/^[0-9a-f]{64}$/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Runner and trigger: manifest fields and append-only runs.jsonl
+// ---------------------------------------------------------------------------
+
+describe("runIngest — runner, trigger and runs.jsonl", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  function stubGithub(event: string, runId: string): void {
+    vi.stubEnv("GITHUB_ACTIONS", "true");
+    vi.stubEnv("GITHUB_EVENT_NAME", event);
+    vi.stubEnv("GITHUB_RUN_ID", runId);
+  }
+
+  function readManifestFiles(date: string): Array<Record<string, unknown>> {
+    const path = join(dataDir, "raw", date, "manifest.json");
+    return (JSON.parse(readFileSync(path, "utf8")) as { files: Array<Record<string, unknown>> })
+      .files;
+  }
+
+  it("records github-actions/schedule in every manifest file on a scheduled run", async () => {
+    stubGithub("schedule", "1234");
+    const emtwpBuf = readFileSync(BASE_CSV);
+    await runIngest(httpOpts(async (url) => (url === ESMA_URLS.ARTZZ ? ARTZZ_HEADER : emtwpBuf)));
+    const files = readManifestFiles(new Date().toISOString().slice(0, 10));
+    expect(files).toHaveLength(2);
+    for (const f of files)
+      expect(f).toMatchObject({ runner: "github-actions", trigger: "schedule" });
+  });
+
+  it("records local/manual outside GitHub Actions", async () => {
+    vi.stubEnv("GITHUB_ACTIONS", "");
+    await runIngest(opts(BASE_CSV));
+    expect(readManifestFiles("2026-11-07")[0]).toMatchObject({
+      runner: "local",
+      trigger: "manual",
+    });
+  });
+
+  it("appends one line per successful run to runs.jsonl", async () => {
+    vi.stubEnv("GITHUB_ACTIONS", "");
+    await runIngest(opts(BASE_CSV));
+    stubGithub("workflow_dispatch", "77");
+    await runIngest(opts(WITHDRAWAL_CSV));
+    const runs = readJsonLines(join(dataDir, "runs.jsonl")) as Array<Record<string, unknown>>;
+    expect(runs).toHaveLength(2);
+    expect(runs[0]).toMatchObject({
+      runner: "local",
+      trigger: "manual",
+      runId: null,
+      events: 1,
+      critical: 0,
+      artzzSha256: null,
+    });
+    expect(runs[1]).toMatchObject({
+      runner: "github-actions",
+      trigger: "workflow_dispatch",
+      runId: "77",
+    });
+    expect(runs[1]!["critical"]).toBeGreaterThan(0);
+    expect(runs[1]!["emtwpSha256"]).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it("does not append to runs.jsonl when the run fails", async () => {
+    await expect(runIngest({ ...opts(BASE_CSV), date: "bad" })).rejects.toThrow();
+    expect(existsSync(join(dataDir, "runs.jsonl"))).toBe(false);
+  });
+});

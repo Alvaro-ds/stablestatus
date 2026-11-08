@@ -18,6 +18,9 @@ import { regenerateChangelog } from "../diff/changelog.js";
 import { ESMA_URLS } from "../esma/constants.js";
 import { IssuerSchema, WhitePaperSchema, MetaSchema } from "../model/index.js";
 import { ChangeEventSchema } from "../model/change-event.js";
+import { RunRecordSchema } from "../model/run.js";
+import { detectRunContext } from "../lib/run-context.js";
+import type { RunContext } from "../lib/run-context.js";
 import type { NormalizeResult } from "../normalize/index.js";
 import type { SourceSnapshot } from "../model/index.js";
 import type { ChangeEvent } from "../model/change-event.js";
@@ -80,21 +83,23 @@ function loadPreviousState(currentDir: string, changesPath: string): NormalizeRe
   }
 }
 
-function writeLastRun(
+function recordRun(
   dataDir: string,
+  context: RunContext,
   events: ChangeEvent[],
   emtwpSha256: string,
   artzzSha256: string | null
 ): void {
-  const summary = {
-    at: new Date().toISOString(),
-    status: "ok",
+  const at = new Date().toISOString();
+  const counts = {
     events: events.length,
     critical: events.filter((e) => e.severity === "critical").length,
-    emtwpSha256,
-    artzzSha256,
   };
+  const summary = { at, status: "ok", ...counts, emtwpSha256, artzzSha256 };
   writeFileSync(join(dataDir, "last-run.json"), JSON.stringify(summary, null, 2) + "\n", "utf8");
+
+  const run = RunRecordSchema.parse({ at, ...context, emtwpSha256, artzzSha256, ...counts });
+  appendFileSync(join(dataDir, "runs.jsonl"), JSON.stringify(run) + "\n", "utf8");
 }
 
 // ---------------------------------------------------------------------------
@@ -121,6 +126,11 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
   const now =
     options.now ?? (options.fromFile !== undefined ? new Date(`${date}T12:00:00Z`) : new Date());
   const url = ESMA_URLS.EMTWP;
+  const runContext = detectRunContext();
+  const runFields = {
+    runner: runContext.runner,
+    ...(runContext.trigger !== undefined && { trigger: runContext.trigger }),
+  };
 
   // --- Step 1: Fetch or read CSV ---
   let csvBuf: Buffer;
@@ -165,6 +175,7 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
     sizeBytes: csvBuf.length,
     rowCount: parseResult.rows.length,
     retrieval,
+    ...runFields,
   };
 
   // Parse ARTZZ if available (HTTP mode only).
@@ -181,6 +192,7 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
       sizeBytes: artzzBuf.length,
       rowCount: artzzRowCount,
       retrieval,
+      ...runFields,
     };
   }
 
@@ -222,7 +234,7 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
 
   if (events.length === 0) {
     log("No structural changes. Manifest updated.");
-    writeLastRun(dataDir, [], sha256, artzzSnapshot?.sha256 ?? null);
+    recordRun(dataDir, runContext, [], sha256, artzzSnapshot?.sha256 ?? null);
     return { skipped: true, reason: "no_events", events: [] };
   }
 
@@ -251,7 +263,7 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
   // --- Step 10: Regenerate CHANGELOG-data.md ---
   await regenerateChangelog(changelogPath, changesPath);
 
-  writeLastRun(dataDir, events, sha256, artzzSnapshot?.sha256 ?? null);
+  recordRun(dataDir, runContext, events, sha256, artzzSnapshot?.sha256 ?? null);
 
   log(`Done. ${nextState.issuers.length} issuers, ${nextState.whitepapers.length} whitepapers.`);
 

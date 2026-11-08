@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { RunnerSchema, TriggerSchema } from "./run.js";
+
 /**
  * Describes a single downloaded CSV file.
  * One entry per file in each day's manifest.json.
@@ -17,6 +19,10 @@ export const SourceSnapshotSchema = z.object({
   rowCount: z.number().int().min(0),
   /** How the file was obtained: "http" for a live download, "file" for a local copy. */
   retrieval: z.enum(["http", "file"]),
+  /** Where the ingest ran. Optional: manifests written before it existed lack it. */
+  runner: RunnerSchema.optional(),
+  /** What started the ingest. Optional: manifests written before it existed lack it. */
+  trigger: TriggerSchema.optional(),
 });
 
 export type SourceSnapshot = z.infer<typeof SourceSnapshotSchema>;

@@ -93,7 +93,7 @@ Alerts are GitHub issues, so maintainers get them by email:
 - `ingest-failure`: opened when the run fails (later failures add a comment) and closed automatically on the next successful run.
 - `critical-change`: opened when the register shows a withdrawal, a delisting or the first ART authorisation, with the critical events and a link to the commit.
 
-The workflow can also be started by hand (`workflow_dispatch`); the `simulate_failure` input makes it fail on purpose to test the failure alert. `pnpm gate:check` reports how many consecutive days were ingested over HTTP.
+The workflow can also be started by hand (`workflow_dispatch`); the `simulate_failure` input makes it fail on purpose to test the failure alert. `pnpm gate:check` reports how many consecutive days had a scheduled GitHub Actions run, read from `data/runs.jsonl` (one append-only line per successful run, with its runner and trigger). Manual and local runs are listed but never counted.
 
 Caveats: GitHub may delay scheduled runs by several minutes, and it disables scheduled workflows in repositories with no activity for 60 days. The daily data commits keep the repository active, but this should be monitored.
 

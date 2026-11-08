@@ -6,8 +6,8 @@ import { parseEsmaCsv } from "../esma/parse.js";
 import { computeSha256 } from "../esma/store.js";
 import { ESMA_URLS } from "../esma/constants.js";
 import { dedupeRows } from "../normalize/dedupe.js";
-import { ManifestSchema, MetaSchema } from "../model/index.js";
-import type { Manifest } from "../model/index.js";
+import { ManifestSchema, MetaSchema, RunRecordSchema } from "../model/index.js";
+import type { Manifest, RunRecord } from "../model/index.js";
 
 const DATE_DIR_RE = /^\d{4}-\d{2}-\d{2}$/;
 const REQUIRED_STREAK = 7;
@@ -21,6 +21,8 @@ export interface GateReport {
   streak: number;
   todayPending: boolean;
   missing: string[];
+  /** Manual, local or unlabelled runs: informational only, never counted. */
+  otherRuns: Array<Pick<RunRecord, "at" | "runner" | "trigger">>;
   counts: { match: boolean; expected: Counts | null; actual: Counts | null };
   ok: boolean;
 }
@@ -43,8 +45,26 @@ function loadManifests(rawDir: string): Map<string, Manifest> {
   return manifests;
 }
 
-function isHttpDay(manifest: Manifest | undefined): boolean {
-  return manifest?.files.some((f) => f.url === ESMA_URLS.EMTWP && f.retrieval === "http") ?? false;
+function loadRuns(dataDir: string): RunRecord[] {
+  const path = join(dataDir, "runs.jsonl");
+  if (!existsSync(path)) return [];
+  return readFileSync(path, "utf8")
+    .split("\n")
+    .map((line, i) => ({ line: line.trim(), n: i + 1 }))
+    .filter(({ line }) => line !== "")
+    .map(({ line, n }) => {
+      try {
+        return RunRecordSchema.parse(JSON.parse(line));
+      } catch (err) {
+        throw new Error(
+          `runs.jsonl line ${n} is invalid: ${err instanceof Error ? err.message : String(err)}`
+        );
+      }
+    });
+}
+
+function isScheduled(run: RunRecord): boolean {
+  return run.runner === "github-actions" && run.trigger === "schedule";
 }
 
 function countsFromLatestEmtwp(rawDir: string, manifests: Map<string, Manifest>): Counts | null {
@@ -79,20 +99,22 @@ function countsFromMeta(dataDir: string): Counts | null {
 export function checkGate(dataDir: string, today: string): GateReport {
   const rawDir = join(dataDir, "raw");
   const manifests = loadManifests(rawDir);
+  const runs = loadRuns(dataDir);
+  const scheduledDays = new Set(runs.filter(isScheduled).map((r) => r.at.slice(0, 10)));
+  const otherRuns = runs
+    .filter((r) => !isScheduled(r))
+    .map(({ at, runner, trigger }) => ({ at, runner, trigger }));
 
-  const todayPending = !manifests.has(today);
-  let day = todayPending ? previousDay(today) : today;
+  const todayPending = !scheduledDays.has(today);
+  const lastDay = todayPending ? previousDay(today) : today;
   let streak = 0;
-  while (isHttpDay(manifests.get(day))) {
-    streak++;
-    day = previousDay(day);
-  }
+  for (let d = lastDay; scheduledDays.has(d); d = previousDay(d)) streak++;
 
   const missing: string[] = [];
-  const first = [...manifests.keys()].sort()[0];
+  const first = [...scheduledDays].sort()[0];
   if (first !== undefined) {
-    for (let d = todayPending ? previousDay(today) : today; d > first; d = previousDay(d)) {
-      if (!manifests.has(d)) missing.push(d);
+    for (let d = lastDay; d > first; d = previousDay(d)) {
+      if (!scheduledDays.has(d)) missing.push(d);
     }
   }
   missing.sort();
@@ -109,6 +131,7 @@ export function checkGate(dataDir: string, today: string): GateReport {
     streak,
     todayPending,
     missing,
+    otherRuns,
     counts: { match, expected, actual },
     ok: streak >= REQUIRED_STREAK && match,
   };
@@ -122,9 +145,14 @@ if (isMain) {
   const today = new Date().toISOString().slice(0, 10);
   try {
     const report = checkGate(join(projectRoot, "data"), today);
-    console.log(`Consecutive http days up to ${today}: ${report.streak}/${REQUIRED_STREAK}`);
+    console.log(`Consecutive scheduled days up to ${today}: ${report.streak}/${REQUIRED_STREAK}`);
     if (report.todayPending) console.log(`Today (${today}): pending`);
     console.log(`Missing days: ${report.missing.length ? report.missing.join(", ") : "none"}`);
+    console.log("Other runs (informational, not counted):");
+    for (const r of report.otherRuns) {
+      console.log(`  ${r.at} ${r.runner ?? "unknown"}/${r.trigger ?? "unknown"}`);
+    }
+    if (report.otherRuns.length === 0) console.log("  none");
     const { expected, actual, match } = report.counts;
     console.log(
       `Counts (EMTWP deduped vs meta.json): ${JSON.stringify(expected)} vs ${JSON.stringify(actual)} → ${match ? "match" : "MISMATCH"}`
