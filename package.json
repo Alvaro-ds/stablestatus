@@ -16,6 +16,7 @@
     "build": "tsc -p tsconfig.build.json",
     "ingest": "pnpm build && node dist/cli/ingest.js",
     "changelog": "pnpm build && node dist/cli/changelog.js",
+    "gate:check": "pnpm build && node dist/cli/gate-check.js",
     "generate-variants": "node --experimental-strip-types tests/scripts/generate-variants.ts"
   },
   "packageManager": "pnpm@12.16.1",
