@@ -1,0 +1,75 @@
+name: Daily ESMA ingest
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+    inputs:
+      simulate_failure:
+        description: "Exit with code 1 before downloading anything (tests the failure alert)"
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm test
+
+      - name: Simulate failure
+        if: inputs.simulate_failure
+        run: |
+          echo "simulate_failure=true: exiting before download"
+          exit 1
+
+      - run: pnpm ingest
+
+      - run: pnpm changelog
+
+      - name: Commit data changes
+        run: |
+          git add data CHANGELOG-data.md
+          if git diff --cached --quiet; then
+            echo "No data changes to commit."
+            exit 0
+          fi
+          day=$(jq -r '.at[0:10]' data/last-run.json)
+          critical=$(jq -r '.critical' data/last-run.json)
+          msg="chore(data): daily ESMA ingest $day"
+          if [ "$critical" -gt 0 ]; then
+            msg="$msg [critical: $critical]"
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "$msg"
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; rebasing on remote."
+            git pull --rebase
+          done
+          echo "Push failed after 3 attempts."
+          exit 1
