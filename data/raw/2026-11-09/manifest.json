@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-09",
+  "schemaVersion": 1,
+  "files": [
+    {
+      "url": "https://www.esma.europa.eu/sites/default/files/2024-12/EMTWP.csv",
+      "fetchedAt": "2026-11-09T14:53:17.339Z",
+      "sha256": "f7fb1c594f0374dc16171ac15d4f5db773bf84b1b495e6b3640bdc2a718a4484",
+      "sizeBytes": 17993,
+      "rowCount": 50,
+      "retrieval": "http",
+      "runner": "github-actions",
+      "trigger": "workflow_dispatch"
+    },
+    {
+      "url": "https://www.esma.europa.eu/sites/default/files/2024-12/ARTZZ.csv",
+      "fetchedAt": "2026-11-09T14:53:17.339Z",
+      "sha256": "fa1ef4da123e3d49642c69f90a81a88f6c2cc2a0b9471b2108e4dfc635ca7c67",
+      "sizeBytes": 276,
+      "rowCount": 0,
+      "retrieval": "http",
+      "runner": "github-actions",
+      "trigger": "workflow_dispatch"
+    }
+  ]
+}
