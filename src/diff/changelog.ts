@@ -21,6 +21,14 @@ function escapeValue(value: unknown): string {
   return s;
 }
 
+function escapeMessage(message: string): string {
+  const s = message
+    .replace(/`/g, "'")
+    .replace(/[<>]/g, "")
+    .replace(/[\r\n]+/g, " ");
+  return s.length > 500 ? s.slice(0, 497) + "..." : s;
+}
+
 export function buildChangelog(events: ChangeEvent[]): string {
   const sorted = [...events].sort((a, b) => b.at.localeCompare(a.at));
 
@@ -30,9 +38,13 @@ export function buildChangelog(events: ChangeEvent[]): string {
     const icon = ev.severity === "critical" ? "🔴 " : ev.severity === "warning" ? "⚠️ " : "";
     const dateStr = ev.at.slice(0, 10);
     let desc = `**${ev.kind}** [${ev.entity}] \`${ev.key}\``;
-    if (ev.field !== undefined) desc += ` field=\`${ev.field}\``;
-    if (ev.from !== undefined) desc += ` from=\`${escapeValue(ev.from)}\``;
-    if (ev.to !== undefined) desc += ` to=\`${escapeValue(ev.to)}\``;
+    if (ev.message !== undefined) {
+      desc += ` ${escapeMessage(ev.message)}`;
+    } else {
+      if (ev.field !== undefined) desc += ` field=\`${ev.field}\``;
+      if (ev.from !== undefined) desc += ` from=\`${escapeValue(ev.from)}\``;
+      if (ev.to !== undefined) desc += ` to=\`${escapeValue(ev.to)}\``;
+    }
     lines.push(`- ${icon}${dateStr} ${desc} _(${ev.severity})_`);
   }
 

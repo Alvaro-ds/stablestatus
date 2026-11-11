@@ -20,6 +20,9 @@ import { IssuerSchema, WhitePaperSchema, MetaSchema } from "../model/index.js";
 import { ChangeEventSchema } from "../model/change-event.js";
 import { RunRecordSchema } from "../model/run.js";
 import { detectRunContext } from "../lib/run-context.js";
+import { runGleifStep } from "../checks/run-gleif.js";
+import { fetchGleifRecords } from "../sources/gleif.js";
+import type { GleifFetcher, GleifStepResult } from "../checks/run-gleif.js";
 import type { RunContext } from "../lib/run-context.js";
 import type { NormalizeResult } from "../normalize/index.js";
 import type { SourceSnapshot } from "../model/index.js";
@@ -40,6 +43,8 @@ export interface IngestOptions {
   log?: (msg: string) => void;
   /** Override HTTP fetcher for tests. Called with the full CSV URL; must return raw bytes. */
   fetch?: (url: string) => Promise<Buffer>;
+  /** GLEIF L1 check. When absent (e.g. historical --from-file loads) GLEIF is not queried. */
+  gleif?: GleifFetcher;
 }
 
 export interface IngestResult {
@@ -88,17 +93,34 @@ function recordRun(
   context: RunContext,
   events: ChangeEvent[],
   emtwpSha256: string,
-  artzzSha256: string | null
+  artzzSha256: string | null,
+  at: string,
+  gleif: GleifStepResult | null
 ): void {
-  const at = new Date().toISOString();
   const counts = {
     events: events.length,
     critical: events.filter((e) => e.severity === "critical").length,
   };
-  const summary = { at, status: "ok", ...counts, emtwpSha256, artzzSha256 };
+  const sources = gleif ? { sources: { gleif: gleif.sourceRun } } : {};
+  const summary = {
+    at,
+    status: "ok",
+    ...counts,
+    emtwpSha256,
+    artzzSha256,
+    ...sources,
+    ...(gleif ? { sourceAlerts: gleif.alert ? ["gleif"] : [] } : {}),
+  };
   writeFileSync(join(dataDir, "last-run.json"), JSON.stringify(summary, null, 2) + "\n", "utf8");
 
-  const run = RunRecordSchema.parse({ at, ...context, emtwpSha256, artzzSha256, ...counts });
+  const run = RunRecordSchema.parse({
+    at,
+    ...context,
+    emtwpSha256,
+    artzzSha256,
+    ...counts,
+    ...sources,
+  });
   appendFileSync(join(dataDir, "runs.jsonl"), JSON.stringify(run) + "\n", "utf8");
 }
 
@@ -218,8 +240,25 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
     });
   }
 
+  // --- Step 5b: GLEIF L1 checks (never fails the ingest) ---
+  const runAt = (options.now ?? new Date()).toISOString();
+  const gleif = options.gleif
+    ? await runGleifStep({
+        issuers: nextState.issuers,
+        dataDir,
+        date,
+        runAt,
+        esmaSha256: sha256,
+        fetch: options.gleif,
+        log,
+      })
+    : null;
+
+  const esmaEvents = events.map((e): ChangeEvent => ({ ...e, source: "esma" }));
+  const allEvents = [...esmaEvents, ...(gleif?.events ?? [])];
+
   // Validate each event before writing (fail fast if schema drifts).
-  for (const event of events) {
+  for (const event of allEvents) {
     ChangeEventSchema.parse(event);
   }
 
@@ -232,42 +271,53 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
   }
   writeManifest(rawDir, date, manifestSnapshots);
 
-  if (events.length === 0) {
-    log("No structural changes. Manifest updated.");
-    recordRun(dataDir, runContext, [], sha256, artzzSnapshot?.sha256 ?? null);
-    return { skipped: true, reason: "no_events", events: [] };
-  }
-
-  log(`${events.length} change event(s) detected.`);
-
-  // --- Step 7: Atomic write to data/current/ ---
-  // Write to .tmp files first, then append changes.jsonl, then rename.
+  // --- Step 7: Write .tmp files first, then append the jsonl files, then rename ---
   mkdirSync(currentDir, { recursive: true });
-  const issuersTmp = join(currentDir, "issuers.json.tmp");
-  const wpTmp = join(currentDir, "whitepapers.json.tmp");
-  const metaTmp = join(currentDir, "meta.json.tmp");
-  writeFileSync(issuersTmp, JSON.stringify(nextState.issuers, null, 2), "utf8");
-  writeFileSync(wpTmp, JSON.stringify(nextState.whitepapers, null, 2), "utf8");
-  writeFileSync(metaTmp, JSON.stringify(nextState.meta, null, 2), "utf8");
+  const renames: [string, string][] = [];
+  const writeTmp = (name: string, value: unknown) => {
+    const tmp = join(currentDir, `${name}.tmp`);
+    writeFileSync(tmp, JSON.stringify(value, null, 2), "utf8");
+    renames.push([tmp, join(currentDir, name)]);
+  };
+  if (esmaEvents.length > 0) {
+    writeTmp("issuers.json", nextState.issuers);
+    writeTmp("whitepapers.json", nextState.whitepapers);
+    writeTmp("meta.json", nextState.meta);
+  }
+  if (gleif) writeTmp("checks.json", gleif.checks);
 
-  // --- Step 8: Append to changes.jsonl (append-only, before rename) ---
-  for (const event of events) {
+  // --- Step 8: Append evidence and changes (append-only, before rename) ---
+  if (gleif && gleif.newEvidence.length > 0) {
+    const evidenceDir = join(dataDir, "evidence");
+    mkdirSync(evidenceDir, { recursive: true });
+    for (const evidence of gleif.newEvidence) {
+      appendFileSync(join(evidenceDir, "evidence.jsonl"), JSON.stringify(evidence) + "\n", "utf8");
+    }
+  }
+  for (const event of allEvents) {
     appendFileSync(changesPath, JSON.stringify(event) + "\n", "utf8");
   }
 
   // --- Step 9: Atomic rename ---
-  renameSync(issuersTmp, join(currentDir, "issuers.json"));
-  renameSync(wpTmp, join(currentDir, "whitepapers.json"));
-  renameSync(metaTmp, join(currentDir, "meta.json"));
+  for (const [tmp, dest] of renames) renameSync(tmp, dest);
+
+  const artzzSha256 = artzzSnapshot?.sha256 ?? null;
+  if (allEvents.length === 0) {
+    log("No structural changes. Manifest updated.");
+    recordRun(dataDir, runContext, [], sha256, artzzSha256, runAt, gleif);
+    return { skipped: true, reason: "no_events", events: [] };
+  }
+
+  log(`${allEvents.length} change event(s) detected.`);
 
   // --- Step 10: Regenerate CHANGELOG-data.md ---
   await regenerateChangelog(changelogPath, changesPath);
 
-  recordRun(dataDir, runContext, events, sha256, artzzSnapshot?.sha256 ?? null);
+  recordRun(dataDir, runContext, allEvents, sha256, artzzSha256, runAt, gleif);
 
   log(`Done. ${nextState.issuers.length} issuers, ${nextState.whitepapers.length} whitepapers.`);
 
-  return { skipped: false, events };
+  return { skipped: false, events: allEvents };
 }
 
 // ---------------------------------------------------------------------------
@@ -321,6 +371,7 @@ if (isMain) {
   if (args.fromFile !== undefined) ingestOpts.fromFile = args.fromFile;
   if (args.date !== undefined) ingestOpts.date = args.date;
   if (args.fetchedAt !== undefined) ingestOpts.fetchedAt = args.fetchedAt;
+  if (args.fromFile === undefined) ingestOpts.gleif = (leis) => fetchGleifRecords(leis);
 
   runIngest(ingestOpts)
     .then((result) => {
