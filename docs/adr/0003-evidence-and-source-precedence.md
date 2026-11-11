@@ -26,6 +26,7 @@ Clients must be able to verify every claim themselves, and StableStatus must sta
 `data/current/issuers.json` and `whitepapers.json` keep exactly what ESMA says (ADR 0002). Any disagreement with another official source is recorded as a **discrepancy**: both values, each with its own source, never a "corrected" value.
 
 Discrepancy kinds:
+
 - `date_mismatch`
 - `name_mismatch`
 - `authority_mismatch`
@@ -38,6 +39,7 @@ Discrepancy kinds:
 `registerStatus` still describes only the ESMA register. Events that affect an issuer but have not (yet) changed a register are **signals**, each with severity and an official source.
 
 Signal kinds:
+
 - `lei_lapsed` (warning)
 - `lei_retired` (critical)
 - `nca_licence_inactive` (critical)
@@ -51,14 +53,14 @@ A signal never changes `registerStatus`. It is shown next to it, and it creates 
 
 Allowed `sourceType` values:
 
-| `sourceType` | Examples |
-|---|---|
-| `esma_register` | ESMA interim MiCA register |
-| `nca_register` | ACPR, DNB, CSSF, BaFin, MFSA… |
-| `eba_register` | EBA PSD2/EMD2 register, EBA credit institutions register |
-| `gleif` | GLEIF LEI API |
-| `issuer_official` | Issuer's own website or press release on its domain |
-| `official_gazette_or_court` | Official journal, court or companies register |
+| `sourceType`                | Examples                                                 |
+| --------------------------- | -------------------------------------------------------- |
+| `esma_register`             | ESMA interim MiCA register                               |
+| `nca_register`              | ACPR, DNB, CSSF, BaFin, MFSA…                            |
+| `eba_register`              | EBA PSD2/EMD2 register, EBA credit institutions register |
+| `gleif`                     | GLEIF LEI API                                            |
+| `issuer_official`           | Issuer's own website or press release on its domain      |
+| `official_gazette_or_court` | Official journal, court or companies register            |
 
 Third-party sources (news, blogs, aggregators, LEI lookup sites) are **leads only**. They are never stored in public data. A lead becomes evidence only after it has been confirmed in an official source.
 
@@ -86,11 +88,11 @@ For manual checks, the PDF of the page is kept privately by the maintainer. Only
 
 ### D4. Verification levels
 
-| Level | Meaning | Typical source |
-|---|---|---|
-| **L1** | LEI is ISSUED in GLEIF and its legal name and country are recorded | GLEIF |
-| **L2** | The entity's licence (e-money institution or credit institution) is active in an official register | EBA, NCA |
-| **L3** | An official register lists EMT issuance specifically | CSSF, MFSA |
+| Level  | Meaning                                                                                            | Typical source |
+| ------ | -------------------------------------------------------------------------------------------------- | -------------- |
+| **L1** | LEI is ISSUED in GLEIF and its legal name and country are recorded                                 | GLEIF          |
+| **L2** | The entity's licence (e-money institution or credit institution) is active in an official register | EBA, NCA       |
+| **L3** | An official register lists EMT issuance specifically                                               | CSSF, MFSA     |
 
 Public output never says "verified" or "confirmed" without the level. ESMA itself remains the source of the EMT notification.
 
@@ -104,15 +106,16 @@ Public output never says "verified" or "confirmed" without the level. ESMA itsel
 
 Automated checks need no human intervention. They run inside the daily ingest, or in a separate scheduled job when a source is slow or rate-limited. Human checks are optional: they add L3 evidence and credibility, but the system never depends on them.
 
-| Source | Covers | Mode | When |
-|---|---|---|---|
-| GLEIF API | 25/25, L1 | Automated, daily | B6.2 |
-| EBA PSD2 register (JSON) | E-money institutions, L2 | Automated | After its reuse terms are confirmed |
-| DNB CSV, ACPR REGAFI API | NL 3, FR 6, L2 | Automated | After their reuse terms are confirmed; the REGAFI key is a GitHub secret |
-| Credit institutions not covered above | L2 | Manual baseline once, then automated where a legitimate feed exists | B6.3 |
-| CSSF, MFSA (and CNB, KNF) | L2 and L3 | Manual only | B6.3, then optional |
+| Source                                | Covers                   | Mode                                                                | When                                                                     |
+| ------------------------------------- | ------------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| GLEIF API                             | 25/25, L1                | Automated, daily                                                    | B6.2                                                                     |
+| EBA PSD2 register (JSON)              | E-money institutions, L2 | Automated                                                           | After its reuse terms are confirmed                                      |
+| DNB CSV, ACPR REGAFI API              | NL 3, FR 6, L2           | Automated                                                           | After their reuse terms are confirmed; the REGAFI key is a GitHub secret |
+| Credit institutions not covered above | L2                       | Manual baseline once, then automated where a legitimate feed exists | B6.3                                                                     |
+| CSSF, MFSA (and CNB, KNF)             | L2 and L3                | Manual only                                                         | B6.3, then optional                                                      |
 
 Rules for automation:
+
 - We respect robots.txt, CAPTCHAs and terms of use. **No scraping where it is disallowed.** If a source cannot be automated legitimately, its level is reached through another official source (for example the EBA for L2) or stays manual and optional.
 - Each automated source is enabled only after its reuse terms have been read and recorded in `docs/sources.md`.
 - A source that is unreachable does not fail the daily ingest. It records `result: "not_checked"` for that run, and after 3 consecutive days it opens an `ingest-failure` issue.
@@ -135,30 +138,42 @@ docs/sources.md                   # every source: URL, access method, reuse term
 
 ## Alternatives considered
 
-| Alternative | Why rejected |
-|---|---|
-| Correct ESMA data when an NCA disagrees | We would be asserting a fact no official source states in that form, and ESMA's record would be lost |
-| Change `registerStatus` on news of liquidation | Mixes "what the register says" with our interpretation; clients could not tell them apart |
-| Accept reputable third-party sources as evidence | Clients would have to trust our judgement instead of re-checking an official source |
-| Scrape every NCA register | Breaks the terms of some registers (CSSF robots.txt, CNB CAPTCHA); legal and reputational risk |
-| Match by name | Names differ across registers (Monerium, DINARO) |
+| Alternative                                      | Why rejected                                                                                         |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Correct ESMA data when an NCA disagrees          | We would be asserting a fact no official source states in that form, and ESMA's record would be lost |
+| Change `registerStatus` on news of liquidation   | Mixes "what the register says" with our interpretation; clients could not tell them apart            |
+| Accept reputable third-party sources as evidence | Clients would have to trust our judgement instead of re-checking an official source                  |
+| Scrape every NCA register                        | Breaks the terms of some registers (CSSF robots.txt, CNB CAPTCHA); legal and reputational risk       |
+| Match by name                                    | Names differ across registers (Monerium, DINARO)                                                     |
 
 ## Consequences
 
 **Positive**
+
 - Every claim can be re-checked by a client from a URL, a date and a hash.
 - Risk signals such as liquidations reach clients before the registers change, with an official source.
 - Automation covers L1 for all issuers and L2 for most, without human work.
 
 **Negative / costs**
+
 - Two more data files and a new schema to maintain.
 - L3 depends on manual checks for now, so it may be missing for most issuers.
 - Credit institutions outside FR and NL may stay at L1 until a legitimate feed is found.
 
 **Risks**
+
 - Reuse terms of EBA, ACPR and DNB are not yet confirmed. Mitigation: no automated source goes live before its terms are recorded.
 - Official sources change URLs or formats. Mitigation: per-source `not_checked` results and an alert after 3 days.
 
+_Amendment (2026-11-11, B6.2):_
+
+- **New discrepancy kind `country_mismatch`:** ESMA `ae_lei_cou_code` differs from GLEIF `entity.legalAddress.country`. An empty ESMA value is a data-quality issue, not a discrepancy.
+- **New evidence result `not_checked`** (D3), as already required by D6. In practice it is recorded per source in `data/runs.jsonl` (`sources.gleif.status`), not as 25 evidence lines per failed run.
+- **L1 (D4) requires** GLEIF `registration.status = ISSUED`, `entity.status = ACTIVE`, and a recorded legal name and country.
+- **Evidence gains an optional `viewUrl`:** the source's public page for the entity. `sourceUrl` stays the exact URL whose response is hashed (for GLEIF, the batch API request).
+- **Evidence is appended only when what was observed changes.** Every daily check is still recorded in `runs.jsonl` with the response hash (`contentSha256`) and a hash of the fields used, sorted by LEI and without volatile metadata (`recordsSha256`). `checks.json` is rebuilt from `evidence.jsonl`, `runs.jsonl` and the current ESMA state.
+- **Alert after 3 days (D6):** for now `last-run.json` lists the source in `sourceAlerts`. Opening an issue from the workflow is a follow-up.
+
 ---
 
-*StableStatus provides sourced information, not legal advice.*
+_StableStatus provides sourced information, not legal advice._

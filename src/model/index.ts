@@ -17,7 +17,40 @@ export {
   RunnerSchema,
   TriggerSchema,
   RunRecordSchema,
+  SourceRunSchema,
   type Runner,
   type Trigger,
   type RunRecord,
+  type SourceRun,
 } from "./run.js";
+export {
+  LeiSchema,
+  SourceTypeSchema,
+  CheckLevelSchema,
+  EvidenceResultSchema,
+  EvidenceSchema,
+  type Lei,
+  type SourceType,
+  type CheckLevel,
+  type EvidenceResult,
+  type Evidence,
+} from "./evidence.js";
+export {
+  SignalKindSchema,
+  SignalSchema,
+  SIGNAL_SEVERITY,
+  type SignalKind,
+  type Signal,
+} from "./signal.js";
+export {
+  DiscrepancyKindSchema,
+  DiscrepancySchema,
+  type DiscrepancyKind,
+  type Discrepancy,
+} from "./discrepancy.js";
+export {
+  IssuerChecksSchema,
+  ChecksFileSchema,
+  type IssuerChecks,
+  type ChecksFile,
+} from "./checks.js";

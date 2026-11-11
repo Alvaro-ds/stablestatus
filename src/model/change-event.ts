@@ -10,6 +10,10 @@ export const ChangeKindSchema = z.enum([
   "status_changed",
   "field_changed",
   "art_register_non_empty",
+  "discrepancy_added",
+  "discrepancy_resolved",
+  "signal_added",
+  "signal_cleared",
 ]);
 
 export type ChangeKind = z.infer<typeof ChangeKindSchema>;
@@ -26,6 +30,10 @@ export const ChangeEventSchema = z.object({
   from: z.unknown().optional(),
   to: z.unknown().optional(),
   severity: SeveritySchema,
+  /** Source that produced the event. Absent on events written before B6 (all ESMA). */
+  source: z.enum(["esma", "gleif"]).optional(),
+  /** Neutral, template-generated description shown in the changelog. */
+  message: z.string().optional(),
   snapshotSha256: z.string().regex(/^[0-9a-f]{64}$/),
 });
 
