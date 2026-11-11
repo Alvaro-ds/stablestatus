@@ -3,6 +3,7 @@
     {
       "lei": "213800W1NGBLERUS6M39",
       "name": "Banking Circle S.A.",
+      "displayName": "Banking Circle S.A.",
       "commercialName": "Banking Circle",
       "homeMemberState": "LU",
       "countryCode": "LU",
@@ -26,6 +27,7 @@
     {
       "lei": "2549003QDNZWASSSCY31",
       "name": "Monerium ehf",
+      "displayName": "Monerium ehf",
       "commercialName": "Monerium",
       "homeMemberState": "IS",
       "countryCode": "IS",
@@ -49,6 +51,7 @@
     {
       "lei": "254900MVWQXMF77YZP65",
       "name": "Bridge Building S.A.",
+      "displayName": "Bridge Building S.A.",
       "commercialName": "Bridge Building S.A.",
       "homeMemberState": "LU",
       "countryCode": "LU",
@@ -72,6 +75,7 @@
     {
       "lei": "254900VUR90QF0G3T387",
       "name": "AIEU Services Limited S.A.",
+      "displayName": "AIEU Services Limited S.A.",
       "commercialName": "AIEU Services Limited S.A.",
       "homeMemberState": "LU",
       "countryCode": "LU",
@@ -95,6 +99,7 @@
     {
       "lei": "254900XFMACGD0L7AI73",
       "name": "UAB BLUE EMI LT",
+      "displayName": "UAB BLUE EMI LT",
       "commercialName": "BLUE EMI LT",
       "homeMemberState": "LT",
       "countryCode": "LT",
@@ -118,6 +123,7 @@
     {
       "lei": "2594008EL5UN8RIA8P23",
       "name": "StaBillon sp. z o.o.",
+      "displayName": "StaBillon sp. z o.o.",
       "commercialName": "StaBillon",
       "homeMemberState": "PL",
       "countryCode": "PL",
@@ -141,6 +147,7 @@
     {
       "lei": "315700IJDQF91J9C8B68",
       "name": "Payment Corporation SE",
+      "displayName": "Payment Corporation SE",
       "commercialName": "Stable Labs",
       "homeMemberState": "CZ",
       "countryCode": "CZ",
@@ -164,6 +171,7 @@
     {
       "lei": "3912007G8L8CD3HFIV26",
       "name": "AllUnity GmbH",
+      "displayName": "AllUnity GmbH",
       "commercialName": "AllUnity GmbH",
       "homeMemberState": "DE",
       "countryCode": "DE",
@@ -187,6 +195,7 @@
     {
       "lei": "48510062OP64BYKPNO22",
       "name": "DINARO company for electronic money issuing and payment services Ltd.",
+      "displayName": "DINARO company for electronic money issuing and payment services Ltd.",
       "commercialName": "Dinaro",
       "homeMemberState": "SI",
       "countryCode": "SI",
@@ -210,6 +219,7 @@
     {
       "lei": "549300V4H4USWZUCE073",
       "name": "BISON BANK, S.A.",
+      "displayName": "BISON BANK, S.A.",
       "commercialName": "BISON BANK, S.A.",
       "homeMemberState": "PT",
       "countryCode": "PT",
@@ -233,6 +243,7 @@
     {
       "lei": "6488GKH17O8XT1326F66",
       "name": "SIA GR8 PAY",
+      "displayName": "SIA GR8 PAY",
       "commercialName": "GR8.money",
       "homeMemberState": "LV",
       "countryCode": "LV",
@@ -256,6 +267,7 @@
     {
       "lei": "72450039GAIN4MNI4V12",
       "name": "Aplauz NL B.V.",
+      "displayName": "Aplauz NL B.V.",
       "commercialName": "Aplauz",
       "homeMemberState": "NL",
       "countryCode": "NL",
@@ -279,6 +291,7 @@
     {
       "lei": "7245008P1HPUPVM7XL94",
       "name": "Quantoz Payments B.V",
+      "displayName": "Quantoz Payments B.V",
       "commercialName": "Quantoz Payments",
       "homeMemberState": "NL",
       "countryCode": null,
@@ -302,6 +315,7 @@
     {
       "lei": "724500GVWT7QULV8CR59",
       "name": "Fiat Republic Netherlands",
+      "displayName": "Fiat Republic Netherlands",
       "commercialName": "Fiat Republic",
       "homeMemberState": "NL",
       "countryCode": null,
@@ -325,6 +339,7 @@
     {
       "lei": "743700KYSSTKZYGEUF50",
       "name": "Paxos Issuance Europe Oy",
+      "displayName": "Paxos Issuance Europe Oy",
       "commercialName": "Paxos EU",
       "homeMemberState": "FI",
       "countryCode": "FI",
@@ -348,6 +363,7 @@
     {
       "lei": "875500AX7AO0XVYSQD64",
       "name": "Newrails, UAB",
+      "displayName": "Newrails, UAB",
       "commercialName": "Newrails",
       "homeMemberState": "LT",
       "countryCode": "LT",
@@ -371,6 +387,7 @@
     {
       "lei": "8945001XWFMRUTCAK575",
       "name": "Eurodollar ApS",
+      "displayName": "Eurodollar ApS",
       "commercialName": "Eurodollar",
       "homeMemberState": "DK",
       "countryCode": "DK",
@@ -394,6 +411,7 @@
     {
       "lei": "96950023SCR9X9F3L662",
       "name": "CACEIS BANK SA",
+      "displayName": "CACEIS BANK SA",
       "commercialName": "CACEIS BANK",
       "homeMemberState": "FR",
       "countryCode": "FR",
@@ -417,6 +435,7 @@
     {
       "lei": "9695002I9DJHZ3449O66",
       "name": "Oddo BHF SCA",
+      "displayName": "Oddo BHF SCA",
       "commercialName": "Oddo BHF",
       "homeMemberState": "FR",
       "countryCode": "FR",
@@ -440,6 +459,7 @@
     {
       "lei": "969500FX8K40ZDW4F377",
       "name": "Société Générale - Forge",
+      "displayName": "Société Générale - Forge",
       "commercialName": null,
       "homeMemberState": "FR",
       "countryCode": "FR",
@@ -463,6 +483,7 @@
     {
       "lei": "969500OYUDADGZKCR583",
       "name": "Circle Internet Financial Europe SAS",
+      "displayName": "Circle Internet Financial Europe SAS",
       "commercialName": null,
       "homeMemberState": "FR",
       "countryCode": "FR",
@@ -486,6 +507,7 @@
     {
       "lei": "969500SGAEBRXYUAJ739",
       "name": "SALVUS",
+      "displayName": "SALVUS",
       "commercialName": null,
       "homeMemberState": "FR",
       "countryCode": "FR",
@@ -509,6 +531,7 @@
     {
       "lei": "984500A64C0EA64BC554",
       "name": "Stable mint Ltd",
+      "displayName": "Stable mint Ltd",
       "commercialName": "Stable mint",
       "homeMemberState": "MT",
       "countryCode": "MT",
@@ -532,6 +555,7 @@
     {
       "lei": "984500AA0OCA9CE0D796",
       "name": "StablR Ltd",
+      "displayName": "StablR Ltd",
       "commercialName": "StablR Ltd",
       "homeMemberState": "MT",
       "countryCode": "MT",
@@ -555,6 +579,7 @@
     {
       "lei": "984500DB91E5A48E7F26",
       "name": "HEURO SAS",
+      "displayName": "HEURO SAS",
       "commercialName": "OuiTrust",
       "homeMemberState": "FR",
       "countryCode": "FR",

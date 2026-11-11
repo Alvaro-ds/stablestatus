@@ -9,6 +9,7 @@ preserve the original BOM and CRLF line endings required by the parser tests.
 | File                   | Source URL                                                       | Downloaded | SHA-256                                                            | Notes                                              |
 | ---------------------- | ---------------------------------------------------------------- | ---------- | ------------------------------------------------------------------ | -------------------------------------------------- |
 | `EMTWP_2026-10-30.csv` | https://www.esma.europa.eu/sites/default/files/2024-12/EMTWP.csv | 2026-10-30 | `f7fb1c594f0374dc16171ac15d4f5db773bf84b1b495e6b3640bdc2a718a4484` | 50 data rows, 25 issuers                           |
+| `EMTWP_2026-11-11.csv` | https://www.esma.europa.eu/sites/default/files/2024-12/EMTWP.csv | 2026-11-11 | `53dfa4ee351a70b91be80b2e3ecb086268df262e388b0d0c4d42665959e434f4` | 26 issuers; Qivalis name on three repeated lines   |
 | `ARTZZ_2026-11-04.csv` | https://www.esma.europa.eu/sites/default/files/2024-12/ARTZZ.csv | 2026-11-04 | `fa1ef4da123e3d49642c69f90a81a88f6c2cc2a0b9471b2108e4dfc635ca7c67` | Header only (no ART issuers yet); uses LF not CRLF |
 
 ## Encoding

@@ -5,6 +5,7 @@ import { normalizeAuthority } from "./authorities.js";
 import { isDatePlaceholder, parseEsmaDate } from "./dates.js";
 import { dedupeRows } from "./dedupe.js";
 import { normalizeDtis } from "./dti.js";
+import { normalizeDisplayName } from "./name.js";
 import { computeWpStatus, deriveIssuerStatus } from "./status.js";
 import { generateWpKey, WpKeyCollisionError } from "./wp-key.js";
 import { extractTickerHint, normalizeWpUrl } from "./wp-url.js";
@@ -137,9 +138,11 @@ export function normalizeEmtwp(
 
   const issuers: Issuer[] = [...issuerMap.entries()].map(([lei, { firstRow, wpStatuses }]) => {
     const authorityResult = normalizeAuthority(firstRow.fields["ae_competentAuthority"]!);
+    const nameResult = normalizeDisplayName(firstRow.fields["ae_lei_name"]!);
     return {
       lei,
       name: firstRow.fields["ae_lei_name"]!,
+      displayName: nameResult.displayName,
       commercialName: firstRow.fields["ae_commercial_name"]! || null,
       homeMemberState: firstRow.fields["ae_homeMemberState"]!,
       countryCode: firstRow.fields["ae_lei_cou_code"]! || null,
@@ -151,7 +154,7 @@ export function normalizeEmtwp(
       exemption48_4: parseYesNo(firstRow.fields["ae_exemption48_4"]!),
       exemption48_5: parseYesNo(firstRow.fields["ae_exemption48_5"]!),
       entityType: nullIfEmpty(firstRow.fields["ae_authorisation_other_emt"]!),
-      quality: [...authorityResult.quality],
+      quality: [...authorityResult.quality, ...nameResult.quality],
       provenance: {
         sourceUrl: snapshot.url,
         fetchedAt: snapshot.fetchedAt,

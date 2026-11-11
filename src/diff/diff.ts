@@ -13,7 +13,7 @@ function statusToSeverity(status: RegisterStatus): Severity {
   return "info";
 }
 
-const SKIP_ISSUER = new Set(["lei", "registerStatus", "provenance"]);
+const SKIP_ISSUER = new Set(["lei", "displayName", "registerStatus", "provenance"]);
 const SKIP_WP = new Set(["wpKey", "lei", "registerStatus", "provenance", "quality"]);
 
 function diffFields(

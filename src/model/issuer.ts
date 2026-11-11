@@ -11,7 +11,10 @@ import { RegisterStatusSchema } from "./register-status.js";
 export const IssuerSchema = z.object({
   /** LEI (ISO 17442, 20 chars). Stable key — never the name or ticker. */
   lei: z.string().regex(/^[A-Z0-9]{18}[0-9]{2}$/),
+  /** ae_lei_name exactly as published by ESMA (may contain several lines). */
   name: z.string(),
+  /** First non-empty line of name, without extra spaces. Optional for files written before it existed. */
+  displayName: z.string().optional(),
   commercialName: z.string().nullable(),
   homeMemberState: z.string(),
   countryCode: z.string().nullable(),
