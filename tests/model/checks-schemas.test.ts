@@ -31,8 +31,7 @@ const EVIDENCE = {
 const SIGNAL = {
   kind: "lei_lapsed",
   severity: "warning",
-  field: "registration.status",
-  value: "LAPSED",
+  observed: { "registration.status": "LAPSED" },
   sourceType: "gleif",
   sourceUrl: URL,
   evidenceId: SHA,

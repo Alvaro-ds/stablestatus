@@ -10,7 +10,8 @@ const FIELD_LABEL: Record<string, string> = {
 
 const label = (field: string) => FIELD_LABEL[field] ?? field;
 const show = (value: string | null) => (value === null ? "not available" : `"${value}"`);
-const signalKey = (s: Signal) => `${s.kind}|${s.field}|${s.value ?? ""}`;
+const signalKey = (s: Signal) => `${s.kind}|${JSON.stringify(s.observed)}`;
+const causes = (s: Signal) => Object.entries(s.observed);
 const discrepancyKey = (d: Discrepancy) =>
   `${d.kind}|${d.field}|${d.esmaValue ?? ""}|${d.otherValue ?? ""}`;
 
@@ -22,15 +23,23 @@ function sourceSuffix(evidence: Evidence | undefined): string {
 /** Fixed, neutral templates (ADR 0003 §D7). No adjectives, no conclusions. */
 export function signalAddedMessage(signal: Signal, evidence: Evidence | undefined): string {
   const renewal =
-    signal.field === OBSERVED.registrationStatus
+    OBSERVED.registrationStatus in signal.observed
       ? ` (next renewal date ${(evidence?.observed[OBSERVED.nextRenewalDate] ?? "not available").slice(0, 10)})`
       : "";
-  return `GLEIF: ${label(signal.field)} ${signal.value ?? "not available"}${renewal}.${sourceSuffix(evidence)}`;
+  const text = causes(signal)
+    .map(([field, value]) => `${label(field)} ${value ?? "not available"}`)
+    .join("; ");
+  return `GLEIF: ${text}${renewal}.${sourceSuffix(evidence)}`;
 }
 
 export function signalClearedMessage(signal: Signal, evidence: Evidence | undefined): string {
-  const current = evidence?.observed[signal.field] ?? null;
-  return `GLEIF: ${label(signal.field)} ${current ?? "not available"} (previously ${signal.value ?? "not available"}).${sourceSuffix(evidence)}`;
+  const text = causes(signal)
+    .map(
+      ([field, value]) =>
+        `${label(field)} ${evidence?.observed[field] ?? "not available"} (previously ${value ?? "not available"})`
+    )
+    .join("; ");
+  return `GLEIF: ${text}.${sourceSuffix(evidence)}`;
 }
 
 export function discrepancyAddedMessage(d: Discrepancy, evidence: Evidence | undefined): string {
@@ -101,7 +110,7 @@ export function diffChecks(
         kind: "discrepancy_added",
         field: d.kind,
         to: d,
-        severity: "warning",
+        severity: d.kind === "name_format" ? "info" : "warning",
         message: discrepancyAddedMessage(d, evidence),
       });
     }

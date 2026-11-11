@@ -29,9 +29,10 @@ export const SignalSchema = z
   .object({
     kind: SignalKindSchema,
     severity: SeveritySchema,
-    /** Source field and value that raised the signal, e.g. registration.status = LAPSED. */
-    field: z.string(),
-    value: z.string().nullable(),
+    /** Every source field and value that raised this signal, e.g. { "registration.status": "LAPSED" }. */
+    observed: z
+      .record(z.string(), z.string().nullable())
+      .refine((o) => Object.keys(o).length > 0, "a signal needs at least one cause"),
     sourceType: SourceTypeSchema,
     sourceUrl: z.url(),
     evidenceId: z.string().regex(/^[0-9a-f]{64}$/),

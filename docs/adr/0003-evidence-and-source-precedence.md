@@ -173,6 +173,8 @@ _Amendment (2026-11-11, B6.2):_
 - **Evidence gains an optional `viewUrl`:** the source's public page for the entity. `sourceUrl` stays the exact URL whose response is hashed (for GLEIF, the batch API request).
 - **Evidence is appended only when what was observed changes.** Every daily check is still recorded in `runs.jsonl` with the response hash (`contentSha256`) and a hash of the fields used, sorted by LEI and without volatile metadata (`recordsSha256`). `checks.json` is rebuilt from `evidence.jsonl`, `runs.jsonl` and the current ESMA state.
 - **Alert after 3 days (D6):** for now `last-run.json` lists the source in `sourceAlerts`. Opening an issue from the workflow is a follow-up.
+- **New discrepancy kind `name_format` (info):** names are compared using the ESMA `displayName` (first non-empty line of `ae_lei_name`), ignoring case, accents (NFKD without diacritics), punctuation and whitespace. If they then differ only by legal forms from a closed list (SA, S.A., SAS, SCA, B.V., GmbH, Ltd, ehf, hf., UAB, SIA, sp. z o.o., Oy, ApS, SE, d.o.o.), the kind is `name_format` (info); otherwise `name_mismatch` (warning). Both values are kept, as for any discrepancy.
+- **One signal per issuer and kind (D2):** when several fields raise the same signal (e.g. `registration.status = DUPLICATE` and an `entity.status` other than `ACTIVE`), they are stored together in the signal's `observed`.
 
 ---
 

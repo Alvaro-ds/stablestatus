@@ -75,40 +75,75 @@ export function buildL1Evidence(
   };
 }
 
-function signal(kind: SignalKind, field: string, evidence: Evidence): Signal {
-  return {
+/**
+ * Risk signals raised by a GLEIF L1 evidence record: at most one per kind, with every
+ * cause in `observed`. None when the LEI was not found.
+ */
+export function deriveGleifSignals(evidence: Evidence): Signal[] {
+  if (evidence.result === "not_found") return [];
+  const causes = new Map<SignalKind, Record<string, string | null>>();
+  const addCause = (kind: SignalKind, field: string) => {
+    causes.set(kind, { ...causes.get(kind), [field]: evidence.observed[field] ?? null });
+  };
+
+  const registration = evidence.observed[OBSERVED.registrationStatus] ?? null;
+  if (registration === "LAPSED") addCause("lei_lapsed", OBSERVED.registrationStatus);
+  if (registration !== null && RETIRED_REGISTRATION.has(registration)) {
+    addCause("lei_retired", OBSERVED.registrationStatus);
+  }
+  if (evidence.observed[OBSERVED.entityStatus] !== "ACTIVE") {
+    addCause("lei_retired", OBSERVED.entityStatus);
+  }
+
+  return [...causes.entries()].map(([kind, observed]) => ({
     kind,
     severity: SIGNAL_SEVERITY[kind],
-    field,
-    value: evidence.observed[field] ?? null,
+    observed,
     sourceType: evidence.sourceType,
     sourceUrl: evidence.sourceUrl,
     evidenceId: evidence.id,
-  };
+  }));
 }
 
-/** Risk signals raised by a GLEIF L1 evidence record. None when the LEI was not found. */
-export function deriveGleifSignals(evidence: Evidence): Signal[] {
-  if (evidence.result === "not_found") return [];
-  const signals: Signal[] = [];
-  const registration = evidence.observed[OBSERVED.registrationStatus] ?? null;
-  if (registration === "LAPSED") {
-    signals.push(signal("lei_lapsed", OBSERVED.registrationStatus, evidence));
-  } else if (registration !== null && RETIRED_REGISTRATION.has(registration)) {
-    signals.push(signal("lei_retired", OBSERVED.registrationStatus, evidence));
-  }
-  if (evidence.observed[OBSERVED.entityStatus] !== "ACTIVE") {
-    signals.push(signal("lei_retired", OBSERVED.entityStatus, evidence));
-  }
-  return signals;
-}
-
-/**
- * Case, whitespace and punctuation only. Legal forms are NOT equated:
- * "ehf" and "hf." are different company forms in Iceland.
- */
+/** Case, accents (NFKD without diacritics), punctuation and whitespace only. */
 export function normalizeName(name: string): string {
-  return name.toUpperCase().replace(/\p{P}/gu, " ").replace(/\s+/g, " ").trim();
+  return name
+    .normalize("NFKD")
+    .replace(/\p{M}/gu, "")
+    .toUpperCase()
+    .replace(/\p{P}/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Closed list of legal forms ignored when telling a format difference from a name mismatch. */
+const LEGAL_FORMS = [
+  "SA",
+  "S.A.",
+  "SAS",
+  "SCA",
+  "B.V.",
+  "GmbH",
+  "Ltd",
+  "ehf",
+  "hf.",
+  "UAB",
+  "SIA",
+  "sp. z o.o.",
+  "Oy",
+  "ApS",
+  "SE",
+  "d.o.o.",
+];
+
+const LEGAL_FORM_RE = new RegExp(
+  `(^| )(${[...new Set(LEGAL_FORMS.map(normalizeName))].join("|")})(?= |$)`,
+  "g"
+);
+
+/** normalizeName, then removes the legal forms in LEGAL_FORMS as whole words. */
+export function stripLegalForms(name: string): string {
+  return normalizeName(name).replace(LEGAL_FORM_RE, " ").replace(/\s+/g, " ").trim();
 }
 
 /** Discrepancies between the ESMA issuer record and GLEIF. ESMA data is never modified. */
@@ -121,12 +156,17 @@ export function deriveGleifDiscrepancies(issuer: Issuer, evidence: Evidence): Di
   };
   const discrepancies: Discrepancy[] = [];
 
+  const esmaName = issuer.displayName ?? issuer.name;
   const legalName = evidence.observed[OBSERVED.legalName] ?? null;
-  if (legalName === null || normalizeName(issuer.name) !== normalizeName(legalName)) {
+  if (legalName === null || normalizeName(esmaName) !== normalizeName(legalName)) {
+    const sameWithoutForms =
+      legalName !== null &&
+      stripLegalForms(esmaName) !== "" &&
+      stripLegalForms(esmaName) === stripLegalForms(legalName);
     discrepancies.push({
-      kind: "name_mismatch",
+      kind: sameWithoutForms ? "name_format" : "name_mismatch",
       field: "name",
-      esmaValue: issuer.name,
+      esmaValue: esmaName,
       otherValue: legalName,
       ...base,
     });

@@ -10,6 +10,7 @@ import {
   deriveIssuerChecks,
   l1Result,
   normalizeName,
+  stripLegalForms,
 } from "../../src/checks/gleif-l1.js";
 import { parseEsmaCsv } from "../../src/esma/parse.js";
 import { computeSha256 } from "../../src/esma/store.js";
@@ -24,11 +25,11 @@ const gleifBuf = readFileSync(join(FIXTURES, "gleif", "2026-11-11.json"));
 const records = parseGleifResponse(gleifBuf);
 const byLei = new Map(records.map((r) => [r.lei, r]));
 
-const esmaBuf = readFileSync(join(FIXTURES, "esma", "EMTWP_2026-10-30.csv"));
+const esmaBuf = readFileSync(join(FIXTURES, "esma", "EMTWP_2026-11-11.csv"));
 const esmaParse = parseEsmaCsv(esmaBuf, "EMTWP");
 const esmaSnapshot: SourceSnapshot = {
   url: "https://www.esma.europa.eu/sites/default/files/2024-12/EMTWP.csv",
-  fetchedAt: "2026-10-30T05:00:00Z",
+  fetchedAt: "2026-11-11T14:19:31.574Z",
   sha256: computeSha256(esmaBuf),
   sizeBytes: esmaBuf.length,
   rowCount: esmaParse.rows.length,
@@ -37,8 +38,8 @@ const esmaSnapshot: SourceSnapshot = {
 const issuers = normalizeEmtwp(
   esmaParse,
   esmaSnapshot,
-  "2026-11-07",
-  new Date("2026-11-07T00:00:00Z")
+  "2026-11-11",
+  new Date("2026-11-11T14:19:31.574Z")
 ).issuers;
 
 const snapshot = {
@@ -60,6 +61,7 @@ function evidenceFor(lei: string) {
 const EURODOLLAR = "8945001XWFMRUTCAK575";
 const MONERIUM = "2549003QDNZWASSSCY31";
 const STABLR = "984500AA0OCA9CE0D796";
+const NEWRAILS = "875500AX7AO0XVYSQD64";
 
 describe("L1 with the real GLEIF fixture", () => {
   it("Eurodollar ApS: lapsed LEI is inactive with a lei_lapsed warning", () => {
@@ -69,18 +71,17 @@ describe("L1 with the real GLEIF fixture", () => {
       expect.objectContaining({
         kind: "lei_lapsed",
         severity: "warning",
-        field: "registration.status",
-        value: "LAPSED",
+        observed: { "registration.status": "LAPSED" },
       }),
     ]);
   });
 
-  it("Monerium: name_mismatch between 'Monerium ehf' and 'Monerium hf.'", () => {
+  it("Monerium: name_format between 'Monerium ehf' and 'Monerium hf.'", () => {
     const ev = evidenceFor(MONERIUM);
     expect(ev.result).toBe("confirmed");
     expect(deriveGleifDiscrepancies(issuer(MONERIUM), ev)).toEqual([
       expect.objectContaining({
-        kind: "name_mismatch",
+        kind: "name_format",
         esmaValue: "Monerium ehf",
         otherValue: "Monerium hf.",
         otherSourceType: "gleif",
@@ -139,15 +140,25 @@ describe("l1Result", () => {
 describe("deriveGleifSignals", () => {
   it.each(["RETIRED", "ANNULLED", "DUPLICATE", "MERGED"])("%s → lei_retired", (status) => {
     const ev = buildL1Evidence(STABLR, { ...ISSUED, registrationStatus: status }, snapshot);
-    expect(deriveGleifSignals(ev).map((s) => [s.kind, s.severity, s.field])).toEqual([
-      ["lei_retired", "critical", "registration.status"],
+    expect(deriveGleifSignals(ev).map((s) => [s.kind, s.severity, s.observed])).toEqual([
+      ["lei_retired", "critical", { "registration.status": status }],
     ]);
   });
 
   it("entity.status other than ACTIVE → lei_retired", () => {
     const ev = buildL1Evidence(STABLR, { ...ISSUED, entityStatus: "INACTIVE" }, snapshot);
-    expect(deriveGleifSignals(ev).map((s) => [s.kind, s.field, s.value])).toEqual([
-      ["lei_retired", "entity.status", "INACTIVE"],
+    expect(deriveGleifSignals(ev).map((s) => [s.kind, s.observed])).toEqual([
+      ["lei_retired", { "entity.status": "INACTIVE" }],
+    ]);
+  });
+
+  it("Newrails/Ambr (real fixture): one lei_retired signal with both causes", () => {
+    expect(deriveGleifSignals(evidenceFor(NEWRAILS))).toEqual([
+      expect.objectContaining({
+        kind: "lei_retired",
+        severity: "critical",
+        observed: { "registration.status": "DUPLICATE", "entity.status": "NULL" },
+      }),
     ]);
   });
 
@@ -157,10 +168,46 @@ describe("deriveGleifSignals", () => {
 });
 
 describe("normalizeName and discrepancies", () => {
-  it("normalises only case, whitespace and punctuation", () => {
+  it("normalises case, accents, whitespace and punctuation only", () => {
     expect(normalizeName("Quantoz Payments B.V")).toBe(normalizeName("QUANTOZ PAYMENTS B.V."));
+    expect(normalizeName("Société Générale - Forge")).toBe(
+      normalizeName("SOCIETE GENERALE - FORGE")
+    );
     expect(normalizeName("Monerium ehf")).not.toBe(normalizeName("Monerium hf."));
     expect(normalizeName("StablR Ltd")).not.toBe(normalizeName("StablR Limited"));
+  });
+
+  it("strips only the closed list of legal forms, as whole words", () => {
+    expect(stripLegalForms("BILLON sp. z o.o.")).toBe("BILLON");
+    expect(stripLegalForms("UAB BLUE EMI LT")).toBe("BLUE EMI LT");
+    expect(stripLegalForms("SEABANK SA")).toBe("SEABANK");
+    expect(stripLegalForms("StablR Limited")).toBe("STABLR LIMITED");
+  });
+
+  it.each([
+    [MONERIUM, "Monerium ehf", "Monerium hf."],
+    ["254900VUR90QF0G3T387", "AIEU Services Limited S.A.", "AIEU Services Limited"],
+    ["96950023SCR9X9F3L662", "CACEIS BANK SA", "CACEIS BANK"],
+    ["724500GVWT7QULV8CR59", "Fiat Republic Netherlands", "Fiat Republic Netherlands B.V."],
+  ])("%s → name_format (%s / %s)", (lei, esma, gleif) => {
+    expect(deriveGleifDiscrepancies(issuer(lei), evidenceFor(lei))).toEqual([
+      expect.objectContaining({ kind: "name_format", esmaValue: esma, otherValue: gleif }),
+    ]);
+  });
+
+  it.each([NEWRAILS, "984500DB91E5A48E7F26", "2594008EL5UN8RIA8P23", "48510062OP64BYKPNO22"])(
+    "%s → name_mismatch",
+    (lei) => {
+      expect(deriveGleifDiscrepancies(issuer(lei), evidenceFor(lei)).map((d) => d.kind)).toEqual([
+        "name_mismatch",
+      ]);
+    }
+  );
+
+  it("no name discrepancy for Qivalis (displayName) or Société Générale (accents)", () => {
+    for (const lei of ["724500LOOWQMIDXTS391", "969500FX8K40ZDW4F377"]) {
+      expect(deriveGleifDiscrepancies(issuer(lei), evidenceFor(lei))).toEqual([]);
+    }
   });
 
   it("country_mismatch unless ESMA country is empty", () => {

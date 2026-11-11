@@ -125,7 +125,8 @@ describe("runIngest with GLEIF — first run", () => {
       `GLEIF: LEI registration status LAPSED (next renewal date 2026-10-31). Source: https://search.gleif.org/#/record/${EURODOLLAR} (checked 2026-11-11).`
     );
     const monerium = events.find((e) => e.key === MONERIUM && e.kind === "discrepancy_added");
-    expect(monerium?.severity).toBe("warning");
+    expect(monerium?.severity).toBe("info");
+    expect(monerium?.field).toBe("name_format");
     expect(monerium?.message).toContain(
       `ESMA register: legal name "Monerium ehf". GLEIF: "Monerium hf."`
     );

@@ -5,6 +5,7 @@ import { SourceTypeSchema } from "./evidence.js";
 /** Disagreements between ESMA and another official source. See ADR 0003 §D1. */
 export const DiscrepancyKindSchema = z.enum([
   "date_mismatch",
+  "name_format",
   "name_mismatch",
   "country_mismatch",
   "authority_mismatch",
