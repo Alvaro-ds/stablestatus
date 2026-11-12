@@ -96,7 +96,9 @@ describe("L1 with the real GLEIF fixture", () => {
     const ev = evidenceFor(STABLR);
     expect(ev.result).toBe("confirmed");
     expect(deriveGleifSignals(ev)).toEqual([]);
-    expect(deriveIssuerChecks(issuer(STABLR), l1Only(ev), at(snapshot.retrievedAt)).levelReached).toBe("L1");
+    expect(
+      deriveIssuerChecks(issuer(STABLR), l1Only(ev), at(snapshot.retrievedAt)).levelReached
+    ).toBe("L1");
   });
 
   it("stores registeredAs as nationalId and matches by LEI", () => {
