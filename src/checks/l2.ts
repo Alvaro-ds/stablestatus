@@ -244,6 +244,12 @@ const RESULT_PRIORITY: EvidenceResult[] = [
   "not_found",
 ];
 
+/** Most informative result among the evidence, or null when there is none. */
+export function bestResult(evidence: Evidence[]): EvidenceResult | null {
+  const results = new Set(evidence.map((e) => e.result));
+  return RESULT_PRIORITY.find((r) => results.has(r)) ?? null;
+}
+
 /** Fixed, neutral public text per reason (ADR 0003 §D7). */
 export const L2_REASON_NOTE: Partial<Record<L2Reason, string>> = {
   exempt_institution:
@@ -259,8 +265,7 @@ export function summarizeL2(
   evidence: Evidence[],
   reason: L2Reason | null
 ): { result: EvidenceResult; reason: L2Reason | null; note: string | null } {
-  const results = new Set(evidence.map((e) => e.result));
-  const best = RESULT_PRIORITY.find((r) => results.has(r));
+  const best = bestResult(evidence);
   const finalReason = best === "not_licensed" ? "exempt_institution" : best ? null : reason;
   return {
     result: best ?? "not_checked",

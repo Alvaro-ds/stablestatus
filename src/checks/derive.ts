@@ -1,6 +1,6 @@
 import type { CheckLevel, Evidence, Issuer, IssuerChecks, L2Reason } from "../model/index.js";
 import { deriveGleifDiscrepancies, deriveGleifSignals } from "./gleif-l1.js";
-import { deriveL2Signals, summarizeL2 } from "./l2.js";
+import { bestResult, deriveL2Signals, summarizeL2 } from "./l2.js";
 
 /** Latest evidence of one issuer, per check. */
 export interface IssuerEvidence {
@@ -30,6 +30,7 @@ export function deriveIssuerChecks(
 ): IssuerChecks {
   return {
     lei: issuer.lei,
+    levels: { L1: ev.l1?.result ?? null, L2: bestResult(ev.l2), L3: bestResult(ev.l3) },
     levelReached: levelReached(ev),
     discrepancies: ev.l1 ? deriveGleifDiscrepancies(issuer, ev.l1) : [],
     signals: [...(ev.l1 ? deriveGleifSignals(ev.l1) : []), ...ev.l2.flatMap(deriveL2Signals)],

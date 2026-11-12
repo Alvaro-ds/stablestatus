@@ -32,6 +32,7 @@ const PAYMENT_CORP = "315700IJDQF91J9C8B68";
 const BRIDGE = "254900MVWQXMF77YZP65";
 const CACEIS = "96950023SCR9X9F3L662";
 const PAXOS = "743700KYSSTKZYGEUF50";
+const EURODOLLAR = "8945001XWFMRUTCAK575";
 
 let tmpDir: string;
 let dataDir: string;
@@ -122,6 +123,11 @@ describe("runIngest with L2 — first run", () => {
     });
     expect(checksOf(MONERIUM).levelReached).toBe("L2");
     expect(checksOf(PAXOS).levelReached).toBe("L2");
+    expect(checksOf(EURODOLLAR)).toMatchObject({
+      levels: { L1: "inactive", L2: "confirmed", L3: null },
+      levelReached: "L2",
+    });
+    expect(checksOf(CACEIS).levels).toEqual({ L1: "confirmed", L2: null, L3: null });
     expect(checksOf(PAYMENT_CORP)).toMatchObject({
       levelReached: "L1",
       l2: {

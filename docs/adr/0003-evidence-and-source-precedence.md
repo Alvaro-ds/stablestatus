@@ -180,6 +180,7 @@ _Amendment (2026-11-12, B6.3):_
 
 - **New evidence result `not_licensed`** (D3): the entity is in an official register, but not with a licence. Used for exempt e-money institutions (`PSD_EEMI`) in the EBA PSD2 register, which are registered under a waiver rather than authorised. It never reaches L2.
 - **`checks.json` gives a reason when L2 is not confirmed:** `exempt_institution` (with `not_licensed`), `no_automated_official_source` (credit institutions, which are not in the PSD2 register), `national_id_missing`, `ambiguous_match` and `source_unavailable` (all three with `not_checked`). Fixed public text for `exempt_institution` (D7): "Registered as an exempt e-money institution in the EBA PSD2 register; not counted as a licence (L2)".
+- **`checks.json` reports each level on its own** (D4): `levels: { L1, L2, L3 }`, each the result for that level or `null` without evidence, next to `levelReached` (the highest level confirmed by any source). A higher level never implies the lower ones: e.g. Eurodollar ApS has L2 `confirmed` (EBA) and L1 `inactive` (LEI lapsed in GLEIF).
 
 ---
 

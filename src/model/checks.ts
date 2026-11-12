@@ -16,6 +16,17 @@ export const L2ReasonSchema = z.enum([
 /** Latest cross-check state of one issuer. Derived; never edited by hand. */
 export const IssuerChecksSchema = z.object({
   lei: LeiSchema,
+  /**
+   * Result of each level on its own, or null without evidence. A higher level never
+   * implies the lower ones (e.g. L2 confirmed with L1 inactive for a lapsed LEI).
+   */
+  levels: z
+    .object({
+      L1: EvidenceResultSchema.nullable(),
+      L2: EvidenceResultSchema.nullable(),
+      L3: EvidenceResultSchema.nullable(),
+    })
+    .default({ L1: null, L2: null, L3: null }),
   /** Highest verification level reached, or null when none. */
   levelReached: CheckLevelSchema.nullable(),
   discrepancies: z.array(DiscrepancySchema),
