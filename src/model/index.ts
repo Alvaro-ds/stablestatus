@@ -54,3 +54,9 @@ export {
   type IssuerChecks,
   type ChecksFile,
 } from "./checks.js";
+export {
+  NationalIdEntrySchema,
+  NationalIdsFileSchema,
+  type NationalIdEntry,
+  type NationalIdsFile,
+} from "./national-ids.js";
