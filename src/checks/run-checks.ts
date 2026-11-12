@@ -7,6 +7,7 @@ import type {
   Evidence,
   Issuer,
   L2Reason,
+  RunRecord,
   SourceRun,
 } from "../model/index.js";
 import { computeDnbRecordsSha256, selectDnbRows, storeDnbExtract } from "../sources/dnb.js";
@@ -75,6 +76,51 @@ const DNB_HOME = "NL";
 
 function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
+}
+
+/**
+ * Rebuilds checks.json from the latest evidence per stream. `l2Reason` explains a missing
+ * L2 result for issuers that are not credit institutions (those are never in the PSD2 register).
+ */
+export function buildChecksFile(input: {
+  issuers: Issuer[];
+  latest: Map<string, Evidence>;
+  runs: Pick<RunRecord, "at" | "sources">[];
+  runAt: string;
+  l2Reason: (issuer: Issuer) => L2Reason | null;
+}): ChecksFile {
+  const lastChecked = (source: AutomatedSource) => sourceLastCheckedAt(input.runs, source);
+  const byLei = new Map<string, Evidence[]>();
+  for (const ev of input.latest.values()) {
+    byLei.set(ev.issuerLei, [...(byLei.get(ev.issuerLei) ?? []), ev]);
+  }
+  const issuerChecks = input.issuers
+    .map((issuer) => {
+      const evs = byLei.get(issuer.lei) ?? [];
+      const has = (source: AutomatedSource) => evs.some((e) => evidenceSource(e) === source);
+      return deriveIssuerChecks(
+        issuer,
+        {
+          l1: input.latest.get(`${issuer.lei}|L1|gleif`),
+          l2: evs.filter((e) => e.check === "L2"),
+          l3: evs.filter((e) => e.check === "L3"),
+          l2Reason: isCreditInstitution(issuer)
+            ? "no_automated_official_source"
+            : input.l2Reason(issuer),
+        },
+        {
+          gleif: has("gleif") ? lastChecked("gleif") : null,
+          eba: has("eba") ? lastChecked("eba") : null,
+          dnb: has("dnb") ? lastChecked("dnb") : null,
+        }
+      );
+    })
+    .sort((a, b) => a.lei.localeCompare(b.lei));
+  return ChecksFileSchema.parse({
+    schemaVersion: 1,
+    generatedAt: input.runAt,
+    issuers: issuerChecks,
+  });
 }
 
 /**
@@ -206,39 +252,13 @@ export async function runChecksStep(input: ChecksStepInput): Promise<ChecksStepR
     ...(dnbRun ? { dnb: dnbRun } : {}),
   };
   const runsNow = [...runs, { at: runAt, sources }];
-  const lastChecked = (source: AutomatedSource) => sourceLastCheckedAt(runsNow, source);
-  const byLei = new Map<string, Evidence[]>();
-  for (const ev of latest.values())
-    byLei.set(ev.issuerLei, [...(byLei.get(ev.issuerLei) ?? []), ev]);
-
-  const issuerChecks = issuers
-    .map((issuer) => {
-      const evs = byLei.get(issuer.lei) ?? [];
-      const l2 = evs.filter((e) => e.check === "L2");
-      const has = (source: AutomatedSource) => evs.some((e) => evidenceSource(e) === source);
-      const reason: L2Reason | null = isCreditInstitution(issuer)
-        ? "no_automated_official_source"
-        : (l2Reasons.get(issuer.lei) ?? (ebaRun?.status === "ok" ? null : "source_unavailable"));
-      return deriveIssuerChecks(
-        issuer,
-        {
-          l1: latestOf(issuer.lei, "L1", "gleif"),
-          l2,
-          l3: evs.filter((e) => e.check === "L3"),
-          l2Reason: reason,
-        },
-        {
-          gleif: has("gleif") ? lastChecked("gleif") : null,
-          eba: has("eba") ? lastChecked("eba") : null,
-          dnb: has("dnb") ? lastChecked("dnb") : null,
-        }
-      );
-    })
-    .sort((a, b) => a.lei.localeCompare(b.lei));
-  const checks = ChecksFileSchema.parse({
-    schemaVersion: 1,
-    generatedAt: runAt,
-    issuers: issuerChecks,
+  const checks = buildChecksFile({
+    issuers,
+    latest,
+    runs: runsNow,
+    runAt,
+    l2Reason: (issuer) =>
+      l2Reasons.get(issuer.lei) ?? (ebaRun?.status === "ok" ? null : "source_unavailable"),
   });
 
   const evidenceById = new Map([...allEvidence, ...newEvidence].map((e) => [e.id, e]));

@@ -10,6 +10,29 @@ Every source StableStatus reads, what it proves and under which terms. See ADR 0
 | DNB (De Nederlandsche Bank) | To be recorded                                                                                                                                                                                                                                       | L2: licence active, NL issuers (planned)                                                                                                                                                                          | Daily CSV/XML (planned, not enabled)                                                                                                                                                                               | To be recorded                                                                                                                                                         | Reuse terms pending review                                                                                                                                                                                                                                                                                                                                                                                                                               | —          |
 | ACPR (REGAFI)               | To be recorded                                                                                                                                                                                                                                       | L2: licence active, FR issuers (planned)                                                                                                                                                                          | REGAFI API, key as a GitHub secret (planned, not enabled)                                                                                                                                                          | To be recorded                                                                                                                                                         | Reuse terms pending review                                                                                                                                                                                                                                                                                                                                                                                                                               | —          |
 
+## Official domains for manual evidence
+
+`pnpm evidence:add` (see `docs/manual-evidence.md`) accepts a `sourceUrl` only on these domains or their subdomains, and only with the source type shown. The list is mirrored in `src/checks/manual.ts` and a test keeps both in sync. Checked on 2026-11-12 (every domain answers; `mfsa.mt` and `lb.lt` reject automated clients with HTTP 403, so they are manual only).
+
+| Domain                  | Source type    | Authority                                                       |
+| ----------------------- | -------------- | --------------------------------------------------------------- |
+| `eba.europa.eu`         | `eba_register` | European Banking Authority (EBA register pages on `euclid.`)    |
+| `acpr.banque-france.fr` | `nca_register` | ACPR (FR)                                                       |
+| `regafi.fr`             | `nca_register` | ACPR REGAFI register (FR). Manual checks only, no automated use |
+| `bafin.de`              | `nca_register` | BaFin (DE)                                                      |
+| `bank.lv`               | `nca_register` | Latvijas Banka (LV)                                             |
+| `bportugal.pt`          | `nca_register` | Banco de Portugal (PT)                                          |
+| `bsi.si`                | `nca_register` | Banka Slovenije (SI)                                            |
+| `cb.is`                 | `nca_register` | Central Bank of Iceland (IS)                                    |
+| `cnb.cz`                | `nca_register` | Czech National Bank (CZ). CAPTCHA: manual checks only           |
+| `cssf.lu`               | `nca_register` | CSSF (LU). robots.txt disallows automated access: manual only   |
+| `dnb.nl`                | `nca_register` | De Nederlandsche Bank (NL)                                      |
+| `finanssivalvonta.fi`   | `nca_register` | FIN-FSA (FI)                                                    |
+| `finanstilsynet.dk`     | `nca_register` | Finanstilsynet (DK)                                             |
+| `knf.gov.pl`            | `nca_register` | KNF (PL)                                                        |
+| `lb.lt`                 | `nca_register` | Bank of Lithuania (LT)                                          |
+| `mfsa.mt`               | `nca_register` | MFSA (MT)                                                       |
+
 Third-party sources (news, blogs, aggregators, LEI lookup sites) are leads only and are never listed here or stored in public data (ADR 0003 §D3).
 
 ---
