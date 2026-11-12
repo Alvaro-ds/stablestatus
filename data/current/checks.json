@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-12T15:06:43.553Z",
+  "issuers": [
+    {
+      "lei": "213800W1NGBLERUS6M39",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "2549003QDNZWASSSCY31",
+      "levelReached": "L1",
+      "discrepancies": [
+        {
+          "kind": "name_format",
+          "field": "name",
+          "esmaValue": "Monerium ehf",
+          "otherValue": "Monerium hf.",
+          "otherSourceType": "gleif",
+          "otherSourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "bdffe2f105d2f8dc20b1f063f83cf09ea6060de021e4bb76c5f4bd975f19642b"
+        }
+      ],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "254900MVWQXMF77YZP65",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "254900VUR90QF0G3T387",
+      "levelReached": "L1",
+      "discrepancies": [
+        {
+          "kind": "name_format",
+          "field": "name",
+          "esmaValue": "AIEU Services Limited S.A.",
+          "otherValue": "AIEU Services Limited",
+          "otherSourceType": "gleif",
+          "otherSourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "f88daaf77f6b4d75db6a40412cc1aefa77af57aca8bf1cb59fc60d4d1030ac63"
+        }
+      ],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "254900XFMACGD0L7AI73",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "2594008EL5UN8RIA8P23",
+      "levelReached": null,
+      "discrepancies": [
+        {
+          "kind": "name_mismatch",
+          "field": "name",
+          "esmaValue": "StaBillon sp. z o.o.",
+          "otherValue": "BILLON SOLUTIONS SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+          "otherSourceType": "gleif",
+          "otherSourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "c1d49a5a6e7d3bc5f668a1471511f21dbdfd0725d49ca3cf444894d7b493c339"
+        }
+      ],
+      "signals": [
+        {
+          "kind": "lei_lapsed",
+          "severity": "warning",
+          "observed": {
+            "registration.status": "LAPSED"
+          },
+          "sourceType": "gleif",
+          "sourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "c1d49a5a6e7d3bc5f668a1471511f21dbdfd0725d49ca3cf444894d7b493c339"
+        }
+      ],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "315700IJDQF91J9C8B68",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "3912007G8L8CD3HFIV26",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "48510062OP64BYKPNO22",
+      "levelReached": null,
+      "discrepancies": [
+        {
+          "kind": "name_mismatch",
+          "field": "name",
+          "esmaValue": "DINARO company for electronic money issuing and payment services Ltd.",
+          "otherValue": "PAYWISER družba za izdajo elektronskega denarja in plačilne storitve, d.o.o.",
+          "otherSourceType": "gleif",
+          "otherSourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "842df175fb9c86948a575217241dac6ae2b90b90222523ce264a35b1ed6ce1d1"
+        }
+      ],
+      "signals": [
+        {
+          "kind": "lei_lapsed",
+          "severity": "warning",
+          "observed": {
+            "registration.status": "LAPSED"
+          },
+          "sourceType": "gleif",
+          "sourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "842df175fb9c86948a575217241dac6ae2b90b90222523ce264a35b1ed6ce1d1"
+        }
+      ],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "549300V4H4USWZUCE073",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "6488GKH17O8XT1326F66",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "72450039GAIN4MNI4V12",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "7245008P1HPUPVM7XL94",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "724500GVWT7QULV8CR59",
+      "levelReached": null,
+      "discrepancies": [
+        {
+          "kind": "name_format",
+          "field": "name",
+          "esmaValue": "Fiat Republic Netherlands",
+          "otherValue": "Fiat Republic Netherlands B.V.",
+          "otherSourceType": "gleif",
+          "otherSourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "933d0f6ba0b7d8deb821a1cd9e8063b0411998656fa70b0f8dd97247be7d88cd"
+        }
+      ],
+      "signals": [
+        {
+          "kind": "lei_lapsed",
+          "severity": "warning",
+          "observed": {
+            "registration.status": "LAPSED"
+          },
+          "sourceType": "gleif",
+          "sourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "933d0f6ba0b7d8deb821a1cd9e8063b0411998656fa70b0f8dd97247be7d88cd"
+        }
+      ],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "724500LOOWQMIDXTS391",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "743700KYSSTKZYGEUF50",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "875500AX7AO0XVYSQD64",
+      "levelReached": null,
+      "discrepancies": [
+        {
+          "kind": "name_mismatch",
+          "field": "name",
+          "esmaValue": "Newrails, UAB",
+          "otherValue": "Ambr Payments UAB",
+          "otherSourceType": "gleif",
+          "otherSourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "40023c372d70a895dd3a8f10c7c698a8607b542ab43b7b5adf997f55041eec14"
+        }
+      ],
+      "signals": [
+        {
+          "kind": "lei_retired",
+          "severity": "critical",
+          "observed": {
+            "registration.status": "DUPLICATE",
+            "entity.status": "NULL"
+          },
+          "sourceType": "gleif",
+          "sourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "40023c372d70a895dd3a8f10c7c698a8607b542ab43b7b5adf997f55041eec14"
+        }
+      ],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "8945001XWFMRUTCAK575",
+      "levelReached": null,
+      "discrepancies": [],
+      "signals": [
+        {
+          "kind": "lei_lapsed",
+          "severity": "warning",
+          "observed": {
+            "registration.status": "LAPSED"
+          },
+          "sourceType": "gleif",
+          "sourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "dcc972449ab62fae69151e7b952f509d30c6882c4cd82cd22d5f618cb6e0d01d"
+        }
+      ],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "96950023SCR9X9F3L662",
+      "levelReached": "L1",
+      "discrepancies": [
+        {
+          "kind": "name_format",
+          "field": "name",
+          "esmaValue": "CACEIS BANK SA",
+          "otherValue": "CACEIS BANK",
+          "otherSourceType": "gleif",
+          "otherSourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "86b7f8bb1c17aa513c6e75c9bab7bbb5a027038459cb243c89f6e3d97da880bb"
+        }
+      ],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "9695002I9DJHZ3449O66",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "969500FX8K40ZDW4F377",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "969500OYUDADGZKCR583",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "969500SGAEBRXYUAJ739",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "984500A64C0EA64BC554",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "984500AA0OCA9CE0D796",
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    },
+    {
+      "lei": "984500DB91E5A48E7F26",
+      "levelReached": "L1",
+      "discrepancies": [
+        {
+          "kind": "name_mismatch",
+          "field": "name",
+          "esmaValue": "HEURO SAS",
+          "otherValue": "HARMONIIE",
+          "otherSourceType": "gleif",
+          "otherSourceUrl": "https://api.gleif.org/api/v1/lei-records?filter[lei]=213800W1NGBLERUS6M39,2549003QDNZWASSSCY31,254900MVWQXMF77YZP65,254900VUR90QF0G3T387,254900XFMACGD0L7AI73,2594008EL5UN8RIA8P23,315700IJDQF91J9C8B68,3912007G8L8CD3HFIV26,48510062OP64BYKPNO22,549300V4H4USWZUCE073,6488GKH17O8XT1326F66,72450039GAIN4MNI4V12,7245008P1HPUPVM7XL94,724500GVWT7QULV8CR59,724500LOOWQMIDXTS391,743700KYSSTKZYGEUF50,875500AX7AO0XVYSQD64,8945001XWFMRUTCAK575,96950023SCR9X9F3L662,9695002I9DJHZ3449O66,969500FX8K40ZDW4F377,969500OYUDADGZKCR583,969500SGAEBRXYUAJ739,984500A64C0EA64BC554,984500AA0OCA9CE0D796,984500DB91E5A48E7F26&page[size]=100",
+          "evidenceId": "432fcab80642ceaaaaeec03955bc64be28a81798f76996f1d710f8075627b972"
+        }
+      ],
+      "signals": [],
+      "lastCheckedAt": {
+        "gleif": "2026-11-12T15:06:43.553Z"
+      }
+    }
+  ]
+}

@@ -1,5 +1,19 @@
 # StableStatus Data Changelog
 
+- 2026-11-12 **discrepancy_added** [issuer] `2549003QDNZWASSSCY31` ESMA register: legal name "Monerium ehf". GLEIF: "Monerium hf.". Source: https://search.gleif.org/#/record/2549003QDNZWASSSCY31 (checked 2026-11-12). _(info)_
+- 2026-11-12 **discrepancy_added** [issuer] `254900VUR90QF0G3T387` ESMA register: legal name "AIEU Services Limited S.A.". GLEIF: "AIEU Services Limited". Source: https://search.gleif.org/#/record/254900VUR90QF0G3T387 (checked 2026-11-12). _(info)_
+- ⚠️ 2026-11-12 **signal_added** [issuer] `2594008EL5UN8RIA8P23` GLEIF: LEI registration status LAPSED (next renewal date 2026-01-16). Source: https://search.gleif.org/#/record/2594008EL5UN8RIA8P23 (checked 2026-11-12). _(warning)_
+- ⚠️ 2026-11-12 **discrepancy_added** [issuer] `2594008EL5UN8RIA8P23` ESMA register: legal name "StaBillon sp. z o.o.". GLEIF: "BILLON SOLUTIONS SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ". Source: https://search.gleif.org/#/record/2594008EL5UN8RIA8P23 (checked 2026-11-12). _(warning)_
+- ⚠️ 2026-11-12 **signal_added** [issuer] `48510062OP64BYKPNO22` GLEIF: LEI registration status LAPSED (next renewal date 2026-01-28). Source: https://search.gleif.org/#/record/48510062OP64BYKPNO22 (checked 2026-11-12). _(warning)_
+- ⚠️ 2026-11-12 **discrepancy_added** [issuer] `48510062OP64BYKPNO22` ESMA register: legal name "DINARO company for electronic money issuing and payment services Ltd.". GLEIF: "PAYWISER družba za izdajo elektronskega denarja in plačilne storitve, d.o.o.". Source: https://search.gleif.org/#/record/48510062OP64BYKPNO22 (checked 2026-11-12). _(warning)_
+- ⚠️ 2026-11-12 **signal_added** [issuer] `724500GVWT7QULV8CR59` GLEIF: LEI registration status LAPSED (next renewal date 2026-10-23). Source: https://search.gleif.org/#/record/724500GVWT7QULV8CR59 (checked 2026-11-12). _(warning)_
+- 2026-11-12 **discrepancy_added** [issuer] `724500GVWT7QULV8CR59` ESMA register: legal name "Fiat Republic Netherlands". GLEIF: "Fiat Republic Netherlands B.V.". Source: https://search.gleif.org/#/record/724500GVWT7QULV8CR59 (checked 2026-11-12). _(info)_
+- 🔴 2026-11-12 **signal_added** [issuer] `875500AX7AO0XVYSQD64` GLEIF: LEI registration status DUPLICATE; entity status NULL (next renewal date 2025-08-24). Source: https://search.gleif.org/#/record/875500AX7AO0XVYSQD64 (checked 2026-11-12). _(critical)_
+- ⚠️ 2026-11-12 **discrepancy_added** [issuer] `875500AX7AO0XVYSQD64` ESMA register: legal name "Newrails, UAB". GLEIF: "Ambr Payments UAB". Source: https://search.gleif.org/#/record/875500AX7AO0XVYSQD64 (checked 2026-11-12). _(warning)_
+- ⚠️ 2026-11-12 **signal_added** [issuer] `8945001XWFMRUTCAK575` GLEIF: LEI registration status LAPSED (next renewal date 2026-10-31). Source: https://search.gleif.org/#/record/8945001XWFMRUTCAK575 (checked 2026-11-12). _(warning)_
+- 2026-11-12 **discrepancy_added** [issuer] `96950023SCR9X9F3L662` ESMA register: legal name "CACEIS BANK SA". GLEIF: "CACEIS BANK". Source: https://search.gleif.org/#/record/96950023SCR9X9F3L662 (checked 2026-11-12). _(info)_
+- ⚠️ 2026-11-12 **discrepancy_added** [issuer] `984500DB91E5A48E7F26` ESMA register: legal name "HEURO SAS". GLEIF: "HARMONIIE". Source: https://search.gleif.org/#/record/984500DB91E5A48E7F26 (checked 2026-11-12). _(warning)_
+- 2026-11-12 **field_changed** [issuer] `724500LOOWQMIDXTS391` field=`quality` from=`[]` to=`["name_repeated_lines"]` _(info)_
 - 2026-11-11 **field_changed** [issuer] `72450039GAIN4MNI4V12` field=`website` from=`"https://weur.io"` to=`"https://aplauz.com"` _(info)_
 - ⚠️ 2026-11-11 **status_changed** [issuer] `7245008P1HPUPVM7XL94` field=`registerStatus` from=`"authorised"` to=`"authorisation_date_missing"` _(warning)_
 - 2026-11-11 **field_changed** [issuer] `7245008P1HPUPVM7XL94` field=`countryCode` from=`null` to=`"NL"` _(info)_
