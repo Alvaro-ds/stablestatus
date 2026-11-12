@@ -21,6 +21,7 @@ export const EvidenceResultSchema = z.enum([
   "confirmed",
   "not_found",
   "mismatch",
+  "not_licensed",
   "inactive",
   "not_checked",
 ]);

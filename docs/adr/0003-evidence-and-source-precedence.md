@@ -176,6 +176,11 @@ _Amendment (2026-11-11, B6.2):_
 - **New discrepancy kind `name_format` (info):** names are compared using the ESMA `displayName` (first non-empty line of `ae_lei_name`), ignoring case, accents (NFKD without diacritics), punctuation and whitespace. If they then differ only by legal forms from a closed list (SA, S.A., SAS, SCA, B.V., GmbH, Ltd, ehf, hf., UAB, SIA, sp. z o.o., Oy, ApS, SE, d.o.o.), the kind is `name_format` (info); otherwise `name_mismatch` (warning). Both values are kept, as for any discrepancy.
 - **One signal per issuer and kind (D2):** when several fields raise the same signal (e.g. `registration.status = DUPLICATE` and an `entity.status` other than `ACTIVE`), they are stored together in the signal's `observed`.
 
+_Amendment (2026-11-12, B6.3):_
+
+- **New evidence result `not_licensed`** (D3): the entity is in an official register, but not with a licence. Used for exempt e-money institutions (`PSD_EEMI`) in the EBA PSD2 register, which are registered under a waiver rather than authorised. It never reaches L2.
+- **`checks.json` gives a reason when L2 is not confirmed:** `exempt_institution` (with `not_licensed`), `no_automated_official_source` (credit institutions, which are not in the PSD2 register), `national_id_missing`, `ambiguous_match` and `source_unavailable` (all three with `not_checked`). Fixed public text for `exempt_institution` (D7): "Registered as an exempt e-money institution in the EBA PSD2 register; not counted as a licence (L2)".
+
 ---
 
 _StableStatus provides sourced information, not legal advice._

@@ -10,6 +10,7 @@ export const L2ReasonSchema = z.enum([
   "national_id_missing",
   "ambiguous_match",
   "source_unavailable",
+  "exempt_institution",
 ]);
 
 /** Latest cross-check state of one issuer. Derived; never edited by hand. */
@@ -24,8 +25,10 @@ export const IssuerChecksSchema = z.object({
     .object({
       result: EvidenceResultSchema,
       reason: L2ReasonSchema.nullable(),
+      /** Fixed public text for the reason, when it has one (ADR 0003 §D7). */
+      note: z.string().nullable().default(null),
     })
-    .default({ result: "not_checked", reason: null }),
+    .default({ result: "not_checked", reason: null, note: null }),
   /** Last run in which each source was actually checked (null if never). */
   lastCheckedAt: z.object({
     gleif: z.iso.datetime().nullable(),

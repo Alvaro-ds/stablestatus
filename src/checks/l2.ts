@@ -119,7 +119,7 @@ export function matchDnb(lei: string, records: DnbRecord[]): DnbRecord | undefin
 export function ebaResult(record: EbaRecord | undefined): EvidenceResult {
   if (!record) return "not_found";
   if (record.authDates.length % 2 === 0) return "inactive";
-  return record.entityType === "PSD_EMI" ? "confirmed" : "mismatch";
+  return record.entityType === "PSD_EMI" ? "confirmed" : "not_licensed";
 }
 
 export function dnbResult(record: DnbRecord | undefined, today: string): EvidenceResult {
@@ -236,17 +236,35 @@ export function deriveL2Signals(evidence: Evidence): Signal[] {
   ];
 }
 
-const RESULT_PRIORITY: EvidenceResult[] = ["confirmed", "inactive", "mismatch", "not_found"];
+const RESULT_PRIORITY: EvidenceResult[] = [
+  "confirmed",
+  "inactive",
+  "not_licensed",
+  "mismatch",
+  "not_found",
+];
+
+/** Fixed, neutral public text per reason (ADR 0003 §D7). */
+export const L2_REASON_NOTE: Partial<Record<L2Reason, string>> = {
+  exempt_institution:
+    "Registered as an exempt e-money institution in the EBA PSD2 register; not counted as a licence (L2)",
+};
 
 /**
  * Combined L2 result: one official source confirming is enough; otherwise the most
- * informative result. With no evidence, the result is not_checked with its reason.
+ * informative result. An exempt institution is not_licensed (exempt_institution). With no
+ * evidence, the result is not_checked with its reason.
  */
 export function summarizeL2(
   evidence: Evidence[],
   reason: L2Reason | null
-): { result: EvidenceResult; reason: L2Reason | null } {
+): { result: EvidenceResult; reason: L2Reason | null; note: string | null } {
   const results = new Set(evidence.map((e) => e.result));
   const best = RESULT_PRIORITY.find((r) => results.has(r));
-  return best ? { result: best, reason: null } : { result: "not_checked", reason };
+  const finalReason = best === "not_licensed" ? "exempt_institution" : best ? null : reason;
+  return {
+    result: best ?? "not_checked",
+    reason: finalReason,
+    note: finalReason ? (L2_REASON_NOTE[finalReason] ?? null) : null,
+  };
 }

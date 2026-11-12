@@ -192,11 +192,11 @@ describe("EBA evidence and signals", () => {
     });
   });
 
-  it("mismatch: an exempted EMI is registered, not licensed", () => {
+  it("not_licensed: an exempt EMI is registered, not licensed (Payment Corporation)", () => {
     const m = matchEba(issuer(PAYMENT_CORP), keysFor(PAYMENT_CORP), ebaRecords);
     if (m.kind === "unmatched") throw new Error("unmatched");
     expect(buildEbaEvidence(PAYMENT_CORP, m, ebaSnapshot)).toMatchObject({
-      result: "mismatch",
+      result: "not_licensed",
       observed: { EntityType: "PSD_EEMI" },
     });
   });
@@ -273,7 +273,7 @@ describe("summarizeL2", () => {
 
   it("one official confirmation is enough, even if another source says inactive", () => {
     const both = [ev("confirmed"), ev("inactive")];
-    expect(summarizeL2(both, null)).toEqual({ result: "confirmed", reason: null });
+    expect(summarizeL2(both, null)).toEqual({ result: "confirmed", reason: null, note: null });
     expect(both.flatMap(deriveL2Signals)).toHaveLength(1);
   });
 
@@ -281,7 +281,18 @@ describe("summarizeL2", () => {
     expect(summarizeL2([], "national_id_missing")).toEqual({
       result: "not_checked",
       reason: "national_id_missing",
+      note: null,
     });
+  });
+
+  it("an exempt institution is not_licensed with a fixed neutral note", () => {
+    const exempt = { ...ev("confirmed"), result: "not_licensed" as const };
+    expect(summarizeL2([exempt], null)).toEqual({
+      result: "not_licensed",
+      reason: "exempt_institution",
+      note: "Registered as an exempt e-money institution in the EBA PSD2 register; not counted as a licence (L2)",
+    });
+    expect(summarizeL2([exempt, ev("confirmed")], null).result).toBe("confirmed");
   });
 
   it("banks: no automated official source", () => {

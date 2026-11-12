@@ -124,7 +124,11 @@ describe("runIngest with L2 — first run", () => {
     expect(checksOf(PAXOS).levelReached).toBe("L2");
     expect(checksOf(PAYMENT_CORP)).toMatchObject({
       levelReached: "L1",
-      l2: { result: "mismatch" },
+      l2: {
+        result: "not_licensed",
+        reason: "exempt_institution",
+        note: "Registered as an exempt e-money institution in the EBA PSD2 register; not counted as a licence (L2)",
+      },
     });
     expect(checksOf(BRIDGE)).toMatchObject({
       l2: { result: "not_checked", reason: "national_id_missing" },
