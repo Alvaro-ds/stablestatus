@@ -5,6 +5,7 @@ import type {
   Evidence,
   EvidenceResult,
   Issuer,
+  L2Reason,
   NationalIdEntry,
   Signal,
   SignalKind,
@@ -18,10 +19,6 @@ export interface L2Snapshot {
   retrievedAt: string;
   contentSha256: string;
 }
-
-/** Why an issuer has no L2 result from a source. */
-export type L2Reason =
-  "no_automated_official_source" | "national_id_missing" | "ambiguous_match" | "source_unavailable";
 
 /** IDs that may identify an issuer in a register without LEIs. Never a name. */
 export interface IdentityKeys {
@@ -210,7 +207,11 @@ export function deriveL2Signals(evidence: Evidence): Signal[] {
   const o = evidence.observed;
   let kind: SignalKind;
   let observed: Record<string, string | null>;
-  if (evidence.sourceType === "eba_register") {
+  if (evidence.method === "manual") {
+    if (Object.keys(o).length === 0) return [];
+    kind = "nca_licence_inactive";
+    observed = o;
+  } else if (evidence.sourceType === "eba_register") {
     kind = "nca_licence_withdrawn";
     observed = { ENT_AUT: o["ENT_AUT"] ?? null };
   } else if (o["Einddatum"]) {

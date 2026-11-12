@@ -7,11 +7,11 @@ import {
   buildL1Evidence,
   deriveGleifDiscrepancies,
   deriveGleifSignals,
-  deriveIssuerChecks,
   l1Result,
   normalizeName,
   stripLegalForms,
 } from "../../src/checks/gleif-l1.js";
+import { deriveIssuerChecks } from "../../src/checks/derive.js";
 import { parseEsmaCsv } from "../../src/esma/parse.js";
 import { computeSha256 } from "../../src/esma/store.js";
 import { EvidenceSchema, IssuerChecksSchema } from "../../src/model/index.js";
@@ -41,6 +41,9 @@ const issuers = normalizeEmtwp(
   "2026-11-11",
   new Date("2026-11-11T14:19:31.574Z")
 ).issuers;
+
+const l1Only = (l1: ReturnType<typeof buildL1Evidence>) => ({ l1, l2: [], l3: [], l2Reason: null });
+const at = (gleif: string) => ({ gleif, eba: null, dnb: null });
 
 const snapshot = {
   sourceUrl: buildGleifUrl(records.map((r) => r.lei)),
@@ -93,7 +96,7 @@ describe("L1 with the real GLEIF fixture", () => {
     const ev = evidenceFor(STABLR);
     expect(ev.result).toBe("confirmed");
     expect(deriveGleifSignals(ev)).toEqual([]);
-    expect(deriveIssuerChecks(issuer(STABLR), ev, snapshot.retrievedAt).levelReached).toBe("L1");
+    expect(deriveIssuerChecks(issuer(STABLR), l1Only(ev), at(snapshot.retrievedAt)).levelReached).toBe("L1");
   });
 
   it("stores registeredAs as nationalId and matches by LEI", () => {
@@ -106,7 +109,7 @@ describe("L1 with the real GLEIF fixture", () => {
 
   it("every ESMA issuer yields schema-valid checks", () => {
     for (const i of issuers) {
-      const checks = deriveIssuerChecks(i, evidenceFor(i.lei), snapshot.retrievedAt);
+      const checks = deriveIssuerChecks(i, l1Only(evidenceFor(i.lei)), at(snapshot.retrievedAt));
       expect(IssuerChecksSchema.safeParse(checks).success).toBe(true);
     }
   });

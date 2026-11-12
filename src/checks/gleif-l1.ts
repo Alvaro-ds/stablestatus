@@ -6,7 +6,6 @@ import type {
   Evidence,
   EvidenceResult,
   Issuer,
-  IssuerChecks,
   Signal,
   SignalKind,
 } from "../model/index.js";
@@ -184,19 +183,4 @@ export function deriveGleifDiscrepancies(issuer: Issuer, evidence: Evidence): Di
   }
 
   return discrepancies;
-}
-
-/** Derives one issuer's checks from its latest GLEIF L1 evidence. */
-export function deriveIssuerChecks(
-  issuer: Issuer,
-  evidence: Evidence | undefined,
-  gleifLastCheckedAt: string | null
-): IssuerChecks {
-  return {
-    lei: issuer.lei,
-    levelReached: evidence?.result === "confirmed" ? "L1" : null,
-    discrepancies: evidence ? deriveGleifDiscrepancies(issuer, evidence) : [],
-    signals: evidence ? deriveGleifSignals(evidence) : [],
-    lastCheckedAt: { gleif: gleifLastCheckedAt },
-  };
 }

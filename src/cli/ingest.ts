@@ -20,9 +20,16 @@ import { IssuerSchema, WhitePaperSchema, MetaSchema } from "../model/index.js";
 import { ChangeEventSchema } from "../model/change-event.js";
 import { RunRecordSchema } from "../model/run.js";
 import { detectRunContext } from "../lib/run-context.js";
-import { runGleifStep } from "../checks/run-gleif.js";
+import { runChecksStep } from "../checks/run-checks.js";
+import { fetchDnbRegister } from "../sources/dnb.js";
+import { fetchEbaRegister } from "../sources/eba.js";
 import { fetchGleifRecords } from "../sources/gleif.js";
-import type { GleifFetcher, GleifStepResult } from "../checks/run-gleif.js";
+import type {
+  ChecksStepResult,
+  DnbFetcher,
+  EbaFetcher,
+  GleifFetcher,
+} from "../checks/run-checks.js";
 import type { RunContext } from "../lib/run-context.js";
 import type { NormalizeResult } from "../normalize/index.js";
 import type { SourceSnapshot } from "../model/index.js";
@@ -45,6 +52,9 @@ export interface IngestOptions {
   fetch?: (url: string) => Promise<Buffer>;
   /** GLEIF L1 check. When absent (e.g. historical --from-file loads) GLEIF is not queried. */
   gleif?: GleifFetcher;
+  /** L2 checks (EBA, DNB). Only run together with GLEIF. */
+  eba?: EbaFetcher;
+  dnb?: DnbFetcher;
 }
 
 export interface IngestResult {
@@ -95,13 +105,13 @@ function recordRun(
   emtwpSha256: string,
   artzzSha256: string | null,
   at: string,
-  gleif: GleifStepResult | null
+  checks: ChecksStepResult | null
 ): void {
   const counts = {
     events: events.length,
     critical: events.filter((e) => e.severity === "critical").length,
   };
-  const sources = gleif ? { sources: { gleif: gleif.sourceRun } } : {};
+  const sources = checks ? { sources: checks.sources } : {};
   const summary = {
     at,
     status: "ok",
@@ -109,7 +119,7 @@ function recordRun(
     emtwpSha256,
     artzzSha256,
     ...sources,
-    ...(gleif ? { sourceAlerts: gleif.alert ? ["gleif"] : [] } : {}),
+    ...(checks ? { sourceAlerts: checks.sourceAlerts } : {}),
   };
   writeFileSync(join(dataDir, "last-run.json"), JSON.stringify(summary, null, 2) + "\n", "utf8");
 
@@ -240,16 +250,18 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
     });
   }
 
-  // --- Step 5b: GLEIF L1 checks (never fails the ingest) ---
+  // --- Step 5b: GLEIF L1, then DNB and EBA L2 checks (a source failure never fails the ingest) ---
   const runAt = (options.now ?? new Date()).toISOString();
   const gleif = options.gleif
-    ? await runGleifStep({
+    ? await runChecksStep({
         issuers: nextState.issuers,
         dataDir,
         date,
         runAt,
         esmaSha256: sha256,
-        fetch: options.gleif,
+        gleif: options.gleif,
+        ...(options.eba ? { eba: options.eba } : {}),
+        ...(options.dnb ? { dnb: options.dnb } : {}),
         log,
       })
     : null;
@@ -371,7 +383,11 @@ if (isMain) {
   if (args.fromFile !== undefined) ingestOpts.fromFile = args.fromFile;
   if (args.date !== undefined) ingestOpts.date = args.date;
   if (args.fetchedAt !== undefined) ingestOpts.fetchedAt = args.fetchedAt;
-  if (args.fromFile === undefined) ingestOpts.gleif = (leis) => fetchGleifRecords(leis);
+  if (args.fromFile === undefined) {
+    ingestOpts.gleif = (leis) => fetchGleifRecords(leis);
+    ingestOpts.eba = () => fetchEbaRegister();
+    ingestOpts.dnb = () => fetchDnbRegister();
+  }
 
   runIngest(ingestOpts)
     .then((result) => {

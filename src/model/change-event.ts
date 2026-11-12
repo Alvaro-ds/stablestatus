@@ -31,7 +31,7 @@ export const ChangeEventSchema = z.object({
   to: z.unknown().optional(),
   severity: SeveritySchema,
   /** Source that produced the event. Absent on events written before B6 (all ESMA). */
-  source: z.enum(["esma", "gleif"]).optional(),
+  source: z.enum(["esma", "gleif", "eba", "dnb", "manual"]).optional(),
   /** Neutral, template-generated description shown in the changelog. */
   message: z.string().optional(),
   snapshotSha256: z.string().regex(/^[0-9a-f]{64}$/),

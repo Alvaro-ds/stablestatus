@@ -51,6 +51,8 @@ export {
 export {
   IssuerChecksSchema,
   ChecksFileSchema,
+  L2ReasonSchema,
+  type L2Reason,
   type IssuerChecks,
   type ChecksFile,
 } from "./checks.js";

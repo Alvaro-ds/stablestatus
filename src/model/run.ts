@@ -35,7 +35,13 @@ export const RunRecordSchema = z.object({
   events: z.number().int().min(0),
   critical: z.number().int().min(0),
   /** Secondary sources checked in this run. Absent on runs before B6. */
-  sources: z.object({ gleif: SourceRunSchema }).optional(),
+  sources: z
+    .object({
+      gleif: SourceRunSchema,
+      eba: SourceRunSchema.optional(),
+      dnb: SourceRunSchema.optional(),
+    })
+    .optional(),
 });
 
 export type SourceRun = z.infer<typeof SourceRunSchema>;
