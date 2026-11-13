@@ -20,7 +20,7 @@ Legal code: https://creativecommons.org/licenses/by/4.0/legalcode
 - `data/raw/*/manifest.json` (daily manifests with source URLs and hashes)
 - `CHANGELOG-data.md`
 
-**Original third-party files** in `data/raw/` (ESMA CSV files, GLEIF API responses, EBA and DNB register extracts) are redistributed unmodified under the terms of each source (section 4). They are **not** relicensed under CC BY 4.0.
+**Original third-party files and filtered extracts of them** in `data/raw/` (ESMA CSV files, GLEIF API responses, EBA and DNB register extracts reduced to the tracked issuers) are redistributed under the terms of each source (section 4). They are **not** relicensed under CC BY 4.0.
 
 **Not included in this dataset:** contract addresses, on-chain token mapping, per-token trust levels and issuer confirmations of addresses.
 

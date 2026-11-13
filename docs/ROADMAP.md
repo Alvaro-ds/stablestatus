@@ -27,7 +27,7 @@ Any schema change in the ESMA CSV causes the workflow to fail with a clear error
 Map each authorised issuer to its deployed stablecoin contracts on every
 relevant chain (EVM chains via viem, Solana via @solana/web3.js). Assign a
 trust level (`verified`, `probable`, `bridged`, `imitation`) to each address.
-Publish the first versioned contract list in `data/`.
+The contract list is published by the private StableStatus service, not in this repository.
 
 **Exit gate:** Contract list v1 is published before **8 January 2027**.
 This is the critical customer-facing deadline.
