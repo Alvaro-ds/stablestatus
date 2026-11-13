@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-13T14:32:54.066Z",
+  "generatedAt": "2026-11-13T20:40:45.527Z",
   "issuers": [
     {
       "lei": "213800W1NGBLERUS6M39",
@@ -8,7 +8,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -27,7 +27,7 @@
       ],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -36,7 +36,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -55,7 +55,7 @@
       ],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -64,7 +64,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -94,7 +94,7 @@
         }
       ],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -103,7 +103,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -112,7 +112,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -142,7 +142,7 @@
         }
       ],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -151,7 +151,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -160,7 +160,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -169,7 +169,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -178,7 +178,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -208,7 +208,7 @@
         }
       ],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -217,7 +217,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -226,7 +226,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -257,7 +257,7 @@
         }
       ],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -277,7 +277,7 @@
         }
       ],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -296,7 +296,7 @@
       ],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -305,7 +305,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -314,7 +314,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -323,7 +323,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -332,7 +332,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -341,7 +341,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -350,7 +350,7 @@
       "discrepancies": [],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     },
     {
@@ -369,7 +369,7 @@
       ],
       "signals": [],
       "lastCheckedAt": {
-        "gleif": "2026-11-13T14:32:54.066Z"
+        "gleif": "2026-11-13T20:40:45.527Z"
       }
     }
   ]
