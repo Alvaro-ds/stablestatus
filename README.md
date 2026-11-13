@@ -4,15 +4,22 @@
 
 ---
 
-StableStatus is an open dataset and API that maps every stablecoin contract —
-by chain and address, including bridged and wrapped versions — to its regulatory
-status under the EU's Markets in Crypto-Assets Regulation (MiCA): whether it
-is an authorised EMT or ART, who issues it (LEI), which national authority
-supervises it, the white paper URL, and the ESMA DTI/FFG codes from the interim
-MiCA register.
+StableStatus tracks the regulatory status of stablecoin issuers under the EU's
+Markets in Crypto-Assets Regulation (MiCA): whether an issuer has an authorised
+EMT or ART, its LEI, which national authority supervises it, its white papers,
+and the ESMA DTI/FFG codes from the interim MiCA register.
 
 **Target users:** exchanges, wallets, and other Crypto-Asset Service Providers
-(CASPs) that need per-contract compliance data to meet MiCA obligations.
+(CASPs) that need sourced MiCA status data.
+
+---
+
+## What's open
+
+This repository contains the ingest pipeline and the public issuer-level data:
+ESMA, GLEIF, EBA and DNB data, L1/L2 checks, evidence, change history and run log.
+Contract mapping (addresses per chain, per-token trust levels) and the API are
+not part of this repository.
 
 ---
 
@@ -47,27 +54,14 @@ contracts. Four gaps make it insufficient on its own:
 
 ## Public Roadmap
 
-| Version | Description                                      | Target                |
-| ------- | ------------------------------------------------ | --------------------- |
-| v0      | Issuer list from ESMA register (EMT + ART)       | Nov 2026              |
-| v1      | Verified contract addresses per issuer and chain | **Before 8 Jan 2027** |
-| v1.1    | REST API + SDK                                   | Jan 2027              |
-| v1.2    | Web dashboard                                    | Jan 2027              |
+| Version | Description                                | Target                               |
+| ------- | ------------------------------------------ | ------------------------------------ |
+| v0      | Issuer list from ESMA register (EMT + ART) | Nov 2026                             |
+| v1      | Contract addresses per issuer and chain    | Planned, not part of this repository |
+| v1.1    | REST API + SDK                             | Planned, not part of this repository |
+| v1.2    | Web dashboard                              | Planned, not part of this repository |
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for the full phased roadmap.
-
----
-
-## Trust Model
-
-Each contract address carries one of four trust levels:
-
-| Level       | Meaning                                                                                    |
-| ----------- | ------------------------------------------------------------------------------------------ |
-| `verified`  | Issuer's official source confirms the address **and** on-chain data matches                |
-| `probable`  | On-chain data matches the issuer profile, but issuer confirmation is pending               |
-| `bridged`   | A third-party bridged/wrapped version; the original issuer's MiCA obligations do not apply |
-| `imitation` | Uses the same ticker as an authorised token but belongs to a different issuer              |
 
 ---
 
@@ -101,15 +95,17 @@ Caveats: GitHub may delay scheduled runs by several minutes, and it disables sch
 
 ## Data Sources & Licenses
 
-| Source                                                                                                                                         | Used for                                                  |
-| ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| [ESMA Interim MiCA Register](https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica) | Authorisation status, issuer LEI, white papers, DTI codes |
-| [DTI Foundation](https://dtif.org)                                                                                                             | Digital Token Identifier codes                            |
-| Public blockchain RPC / explorers                                                                                                              | Contract addresses, on-chain verification                 |
-| Issuer official sources                                                                                                                        | Address confirmation for `verified` level                 |
+| Source                                                                                                                                         | Used for                                                       |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| [ESMA Interim MiCA Register](https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica) | Authorisation status, issuer LEI, white papers, DTI codes      |
+| [GLEIF LEI data](https://www.gleif.org/en/meta/lei-data-terms-of-use)                                                                          | LEI status, legal name and national registration ID (L1 check) |
+| [EBA Register under PSD2](https://euclid.eba.europa.eu/register/pir/registerDownload)                                                          | E-money institution licence status (L2 check)                  |
+| [DNB public register](https://www.dnb.nl/en-GB/registerdownload/csv/WFTEG)                                                                     | E-money institution licence status for NL issuers (L2 check)   |
+| DTI codes as published in the ESMA register                                                                                                    | Digital Token Identifier codes                                 |
 
 - **Code** — [MIT License](LICENSE)
-- **Data** (`data/`) — [CC BY 4.0](LICENSE-DATA.md), with mandatory ESMA and DTI Foundation attributions
+- **Data produced by StableStatus** — [CC BY 4.0](LICENSE-DATA.md), with source attributions (ESMA, GLEIF, EBA, DNB)
+- **Original files in `data/raw/`** — under the terms of each source (see [LICENSE-DATA.md](LICENSE-DATA.md))
 - **Disclaimer** — [DISCLAIMER.md](DISCLAIMER.md)
 
 Data derived from ESMA material is published in accordance with ESMA's reuse
