@@ -2,6 +2,8 @@
   "name": "stablestatus",
   "version": "0.1.0",
   "description": "Open dataset mapping stablecoin contracts to their MiCA status",
+  "license": "MIT",
+  "author": "Álvaro Dapena Salinas",
   "type": "module",
   "engines": {
     "node": ">=24"
