@@ -80,7 +80,7 @@ The EBA register has no LEI field, so the daily ingest finds an issuer there by 
 Where to find the ID, by authority (checked on 2026-11-15):
 
 - **CSSF (LU)**: eDesk lists one entity per licence. The e-money institution entry (`W…`) shows no LEI; the e-money token issuer entry (`N…`) of the same company does. The search results page shows both rows together.
-- **BaFin (DE)**: the EBA ID is the BaFin `BaK-Nr.` shown on the company database page.
+- **BaFin (DE)**: the EBA ID is the BaFin `Bak Nr.` shown on the company database page.
 - **KNF (PL)**: the EBA ID is the `NIP` shown in e-RUP, next to the `KRS`.
 - **ACPR (FR)**: `ENT_NAT_REF_COD` is the SIREN and the `EntityCode` suffix is the REGAFI `id_referentiel`.
 
