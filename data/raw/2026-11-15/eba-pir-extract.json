@@ -1,8 +1,8 @@
 {
-  "sourceUrl": "https://euclid.eba.europa.eu/register/downloads/PSDMD/20261115/download-PSDMD-202611150800.zip",
-  "retrievedAt": "2026-11-15T15:38:44.197Z",
-  "contentSha256": "592a83092d35e9549cac88f56ae5de04e5718a44ae12f4c8897c61d7192f5f6b",
-  "recordsSha256": "a14f287fd57fa93f49d342ce0786a8521fc661ef0e3a5c3cf7dcb3bc3ecf8518",
+  "sourceUrl": "https://euclid.eba.europa.eu/register/downloads/PSDMD/20261115/download-PSDMD-202611151600.zip",
+  "retrievedAt": "2026-11-15T17:23:09.206Z",
+  "contentSha256": "f8bc90ecc8ac97ef899b6c95ec49cd64861ea894b16a982395a732814d407a60",
+  "recordsSha256": "3d494f7931197f464bf4aa175d22aa6115440a9b1c1b5d4c3d40869aaefbb25a",
   "records": [
     {
       "CA_OwnerID": "IS_CBI",
@@ -1286,6 +1286,129 @@
       "__EBA_EntityVersion": "20251030194242795"
     },
     {
+      "CA_OwnerID": "DE_BAFIN",
+      "EntityCode": "DE_BAFIN!163815",
+      "EntityType": "PSD_EMI",
+      "Properties": [
+        {
+          "ENT_AUT": [
+            "2025-07-01"
+          ]
+        },
+        {
+          "ENT_NAT_REF_COD": "163815"
+        },
+        {
+          "ENT_NAM": "AllUnity GmbH"
+        },
+        {
+          "ENT_ADD": "Sandweg 94 | 60316 Frankfurt"
+        },
+        {
+          "ENT_TOW_CIT_RES": "Frankfurt"
+        },
+        {
+          "ENT_POS_COD": "60316"
+        },
+        {
+          "ENT_COU_RES": "DE"
+        }
+      ],
+      "Services": [
+        {
+          "DE": "ES_010"
+        },
+        {
+          "AT": "ES_010"
+        },
+        {
+          "BE": "ES_010"
+        },
+        {
+          "BG": "ES_010"
+        },
+        {
+          "CY": "ES_010"
+        },
+        {
+          "CZ": "ES_010"
+        },
+        {
+          "DK": "ES_010"
+        },
+        {
+          "SI": "ES_010"
+        },
+        {
+          "SK": "ES_010"
+        },
+        {
+          "MT": "ES_010"
+        },
+        {
+          "NL": "ES_010"
+        },
+        {
+          "PL": "ES_010"
+        },
+        {
+          "PT": "ES_010"
+        },
+        {
+          "RO": "ES_010"
+        },
+        {
+          "SE": "ES_010"
+        },
+        {
+          "HU": "ES_010"
+        },
+        {
+          "IE": "ES_010"
+        },
+        {
+          "IT": "ES_010"
+        },
+        {
+          "LT": "ES_010"
+        },
+        {
+          "LU": "ES_010"
+        },
+        {
+          "LV": "ES_010"
+        },
+        {
+          "EE": "ES_010"
+        },
+        {
+          "ES": "ES_010"
+        },
+        {
+          "FI": "ES_010"
+        },
+        {
+          "FR": "ES_010"
+        },
+        {
+          "GR": "ES_010"
+        },
+        {
+          "HR": "ES_010"
+        },
+        {
+          "IS": "ES_010"
+        },
+        {
+          "LI": "ES_010"
+        },
+        {
+          "NO": "ES_010"
+        }
+      ],
+      "__EBA_EntityVersion": "20260921190044488"
+    },
+    {
       "CA_OwnerID": "FI_FIN-FSA",
       "EntityCode": "FI_FIN_FSA!32368862",
       "EntityType": "PSD_EMI",
@@ -2092,6 +2215,436 @@
         }
       ],
       "__EBA_EntityVersion": "20260715192657643"
+    },
+    {
+      "CA_OwnerID": "LU_CSSF",
+      "EntityCode": "LU_CSSF!W00000009",
+      "EntityType": "PSD_EMI",
+      "Properties": [
+        {
+          "ENT_AUT": [
+            "2018-12-21"
+          ]
+        },
+        {
+          "ENT_NAT_REF_COD": "W00000009"
+        },
+        {
+          "ENT_NAM": "AIEU Services Limited S.A."
+        },
+        {
+          "ENT_NAM_COM": "AIEU Services Limited S.A."
+        },
+        {
+          "ENT_ADD": "9, rue du Laboratoire"
+        },
+        {
+          "ENT_TOW_CIT_RES": "Luxembourg"
+        },
+        {
+          "ENT_POS_COD": "L-1911"
+        },
+        {
+          "ENT_COU_RES": "LU"
+        }
+      ],
+      "Services": [
+        {
+          "AT": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "BE": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "BG": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "HR": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "CY": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "CZ": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "DK": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "EE": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "FI": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "FR": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "DE": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "GR": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "HU": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "IS": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "IE": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "IT": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "LV": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "LI": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "LT": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "MT": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "NL": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "NO": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "PL": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "PT": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "RO": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "SK": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "SI": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "ES": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "SE": [
+            "ES_010",
+            "PS_05B"
+          ]
+        },
+        {
+          "LU": [
+            "ES_010",
+            "PS_05B",
+            "PS_060"
+          ]
+        }
+      ],
+      "__EBA_EntityVersion": "20251127141114073"
+    },
+    {
+      "CA_OwnerID": "LU_CSSF",
+      "EntityCode": "LU_CSSF!W00000024",
+      "EntityType": "PSD_EMI",
+      "Properties": [
+        {
+          "ENT_AUT": [
+            "2026-06-29"
+          ]
+        },
+        {
+          "ENT_NAT_REF_COD": "W00000024"
+        },
+        {
+          "ENT_NAM": "Bridge Building S.A."
+        },
+        {
+          "ENT_ADD": "33, Boulevard Prince Henri"
+        },
+        {
+          "ENT_TOW_CIT_RES": "Luxembourg"
+        },
+        {
+          "ENT_POS_COD": "L-1724"
+        },
+        {
+          "ENT_COU_RES": "LU"
+        }
+      ],
+      "Services": [
+        {
+          "LU": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "AT": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "BE": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "BG": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "CY": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "CZ": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "DE": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "PL": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "PT": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "RO": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "SE": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "SI": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "SK": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "LT": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "LV": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "MT": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "NL": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "NO": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "HR": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "HU": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "IE": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "IS": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "IT": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "LI": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "DK": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "EE": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "ES": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "FI": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "FR": [
+            "ES_010",
+            "PS_03C"
+          ]
+        },
+        {
+          "GR": [
+            "ES_010",
+            "PS_03C"
+          ]
+        }
+      ],
+      "__EBA_EntityVersion": "20260814073900510"
     },
     {
       "CA_OwnerID": "LV_LV",
@@ -3541,6 +4094,49 @@
         }
       ],
       "__EBA_EntityVersion": "20261029200436325"
+    },
+    {
+      "CA_OwnerID": "PL_PFSA",
+      "EntityCode": "PL_PFSA!5272811301",
+      "EntityType": "PSD_EMI",
+      "Properties": [
+        {
+          "ENT_AUT": [
+            "2020-04-09"
+          ]
+        },
+        {
+          "ENT_NAT_REF_COD": "5272811301"
+        },
+        {
+          "ENT_NAM": "STABILLON SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ (d. Billon Solutions spółka z ograniczoną odpowiedzialnością)"
+        },
+        {
+          "ENT_ADD": "ALEJE JEROZOLIMSKIE 123A, WARSZAWA, 02-017, PL"
+        },
+        {
+          "ENT_TOW_CIT_RES": "WARSZAWA"
+        },
+        {
+          "ENT_POS_COD": "02-017"
+        },
+        {
+          "ENT_COU_RES": "PL"
+        }
+      ],
+      "Services": [
+        {
+          "PL": [
+            "ES_010",
+            "PS_010",
+            "PS_020",
+            "PS_03B",
+            "PS_03C",
+            "PS_05A"
+          ]
+        }
+      ],
+      "__EBA_EntityVersion": "20260402143638049"
     },
     {
       "CA_OwnerID": "SI_BS",
