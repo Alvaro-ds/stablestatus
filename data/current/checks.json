@@ -1,10 +1,6 @@
 {
   "schemaVersion": 1,
-<<<<<<< HEAD
   "generatedAt": "2026-11-15T15:38:39.472Z",
-=======
-  "generatedAt": "2026-11-15T17:11:57.295Z",
->>>>>>> feat/b6-l2-eba-dnb
   "issuers": [
     {
       "lei": "213800W1NGBLERUS6M39",
@@ -22,11 +18,7 @@
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
->>>>>>> feat/b6-l2-eba-dnb
         "eba": null,
         "dnb": null
       }
@@ -35,17 +27,10 @@
       "lei": "2549003QDNZWASSSCY31",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
       "levelReached": "L2",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
->>>>>>> feat/b6-l2-eba-dnb
       "discrepancies": [
         {
           "kind": "name_format",
@@ -59,22 +44,13 @@
       ],
       "signals": [],
       "l2": {
-<<<<<<< HEAD
         "result": "confirmed",
-=======
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     },
@@ -82,21 +58,6 @@
       "lei": "254900MVWQXMF77YZP65",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
-        "reason": "national_id_missing",
-        "note": null
-      },
-      "lastCheckedAt": {
-        "gleif": "2026-11-15T15:38:39.472Z",
-=======
         "L2": "confirmed",
         "L3": "confirmed"
       },
@@ -109,8 +70,7 @@
         "note": null
       },
       "lastCheckedAt": {
-        "gleif": "2026-11-15T13:54:50.902Z",
->>>>>>> feat/b6-l2-eba-dnb
+        "gleif": "2026-11-15T15:38:39.472Z",
         "eba": null,
         "dnb": null
       }
@@ -119,17 +79,10 @@
       "lei": "254900VUR90QF0G3T387",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-=======
         "L2": "confirmed",
         "L3": "confirmed"
       },
       "levelReached": "L3",
->>>>>>> feat/b6-l2-eba-dnb
       "discrepancies": [
         {
           "kind": "name_format",
@@ -143,21 +96,12 @@
       ],
       "signals": [],
       "l2": {
-<<<<<<< HEAD
-        "result": "not_checked",
-        "reason": "national_id_missing",
-        "note": null
-      },
-      "lastCheckedAt": {
-        "gleif": "2026-11-15T15:38:39.472Z",
-=======
         "result": "confirmed",
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-        "gleif": "2026-11-15T13:54:50.902Z",
->>>>>>> feat/b6-l2-eba-dnb
+        "gleif": "2026-11-15T15:38:39.472Z",
         "eba": null,
         "dnb": null
       }
@@ -166,7 +110,6 @@
       "lei": "254900XFMACGD0L7AI73",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
@@ -175,27 +118,12 @@
       "signals": [],
       "l2": {
         "result": "confirmed",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     },
@@ -203,17 +131,10 @@
       "lei": "2594008EL5UN8RIA8P23",
       "levels": {
         "L1": "inactive",
-<<<<<<< HEAD
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": null,
-=======
         "L2": "confirmed",
         "L3": null
       },
       "levelReached": "L2",
->>>>>>> feat/b6-l2-eba-dnb
       "discrepancies": [
         {
           "kind": "name_mismatch",
@@ -238,21 +159,12 @@
         }
       ],
       "l2": {
-<<<<<<< HEAD
-        "result": "not_checked",
-        "reason": "national_id_missing",
-        "note": null
-      },
-      "lastCheckedAt": {
-        "gleif": "2026-11-15T15:38:39.472Z",
-=======
         "result": "confirmed",
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-        "gleif": "2026-11-15T13:54:50.902Z",
->>>>>>> feat/b6-l2-eba-dnb
+        "gleif": "2026-11-15T15:38:39.472Z",
         "eba": null,
         "dnb": null
       }
@@ -261,18 +173,13 @@
       "lei": "315700IJDQF91J9C8B68",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "not_licensed",
-=======
-        "L2": null,
->>>>>>> feat/b6-l2-eba-dnb
         "L3": null
       },
       "levelReached": "L1",
       "discrepancies": [],
       "signals": [],
       "l2": {
-<<<<<<< HEAD
         "result": "not_licensed",
         "reason": "exempt_institution",
         "note": "Registered as an exempt e-money institution in the EBA PSD2 register; not counted as a licence (L2)"
@@ -280,15 +187,6 @@
       "lastCheckedAt": {
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "result": "not_checked",
-        "reason": null,
-        "note": null
-      },
-      "lastCheckedAt": {
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     },
@@ -296,21 +194,6 @@
       "lei": "3912007G8L8CD3HFIV26",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
-        "reason": "national_id_missing",
-        "note": null
-      },
-      "lastCheckedAt": {
-        "gleif": "2026-11-15T15:38:39.472Z",
-=======
         "L2": "confirmed",
         "L3": "confirmed"
       },
@@ -323,8 +206,7 @@
         "note": null
       },
       "lastCheckedAt": {
-        "gleif": "2026-11-15T13:54:50.902Z",
->>>>>>> feat/b6-l2-eba-dnb
+        "gleif": "2026-11-15T15:38:39.472Z",
         "eba": null,
         "dnb": null
       }
@@ -333,17 +215,10 @@
       "lei": "48510062OP64BYKPNO22",
       "levels": {
         "L1": "inactive",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
       "levelReached": "L2",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": null,
->>>>>>> feat/b6-l2-eba-dnb
       "discrepancies": [
         {
           "kind": "name_mismatch",
@@ -368,22 +243,13 @@
         }
       ],
       "l2": {
-<<<<<<< HEAD
         "result": "confirmed",
-=======
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     },
@@ -403,11 +269,7 @@
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
->>>>>>> feat/b6-l2-eba-dnb
         "eba": null,
         "dnb": null
       }
@@ -416,7 +278,6 @@
       "lei": "6488GKH17O8XT1326F66",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
@@ -425,27 +286,12 @@
       "signals": [],
       "l2": {
         "result": "confirmed",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     },
@@ -453,7 +299,6 @@
       "lei": "72450039GAIN4MNI4V12",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
@@ -462,36 +307,19 @@
       "signals": [],
       "l2": {
         "result": "confirmed",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
         "dnb": "2026-11-15T15:38:39.472Z"
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
-        "dnb": null
->>>>>>> feat/b6-l2-eba-dnb
       }
     },
     {
       "lei": "7245008P1HPUPVM7XL94",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
@@ -500,46 +328,23 @@
       "signals": [],
       "l2": {
         "result": "confirmed",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
         "dnb": "2026-11-15T15:38:39.472Z"
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
-        "dnb": null
->>>>>>> feat/b6-l2-eba-dnb
       }
     },
     {
       "lei": "724500GVWT7QULV8CR59",
       "levels": {
         "L1": "inactive",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
       "levelReached": "L2",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": null,
->>>>>>> feat/b6-l2-eba-dnb
       "discrepancies": [
         {
           "kind": "name_format",
@@ -564,31 +369,20 @@
         }
       ],
       "l2": {
-<<<<<<< HEAD
         "result": "confirmed",
-=======
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
         "dnb": "2026-11-15T15:38:39.472Z"
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
-        "dnb": null
->>>>>>> feat/b6-l2-eba-dnb
       }
     },
     {
       "lei": "724500LOOWQMIDXTS391",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
@@ -597,36 +391,19 @@
       "signals": [],
       "l2": {
         "result": "confirmed",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
         "dnb": "2026-11-15T15:38:39.472Z"
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
-        "dnb": null
->>>>>>> feat/b6-l2-eba-dnb
       }
     },
     {
       "lei": "743700KYSSTKZYGEUF50",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
@@ -635,27 +412,12 @@
       "signals": [],
       "l2": {
         "result": "confirmed",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     },
@@ -663,17 +425,10 @@
       "lei": "875500AX7AO0XVYSQD64",
       "levels": {
         "L1": "inactive",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
       "levelReached": "L2",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": null,
->>>>>>> feat/b6-l2-eba-dnb
       "discrepancies": [
         {
           "kind": "name_mismatch",
@@ -699,22 +454,13 @@
         }
       ],
       "l2": {
-<<<<<<< HEAD
         "result": "confirmed",
-=======
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     },
@@ -722,17 +468,10 @@
       "lei": "8945001XWFMRUTCAK575",
       "levels": {
         "L1": "inactive",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
       "levelReached": "L2",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": null,
->>>>>>> feat/b6-l2-eba-dnb
       "discrepancies": [],
       "signals": [
         {
@@ -747,22 +486,13 @@
         }
       ],
       "l2": {
-<<<<<<< HEAD
         "result": "confirmed",
-=======
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     },
@@ -792,11 +522,7 @@
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
->>>>>>> feat/b6-l2-eba-dnb
         "eba": null,
         "dnb": null
       }
@@ -817,11 +543,7 @@
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
->>>>>>> feat/b6-l2-eba-dnb
         "eba": null,
         "dnb": null
       }
@@ -830,21 +552,6 @@
       "lei": "969500FX8K40ZDW4F377",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
-        "reason": "national_id_missing",
-        "note": null
-      },
-      "lastCheckedAt": {
-        "gleif": "2026-11-15T15:38:39.472Z",
-=======
         "L2": "confirmed",
         "L3": "confirmed"
       },
@@ -857,8 +564,7 @@
         "note": null
       },
       "lastCheckedAt": {
-        "gleif": "2026-11-15T13:54:50.902Z",
->>>>>>> feat/b6-l2-eba-dnb
+        "gleif": "2026-11-15T15:38:39.472Z",
         "eba": null,
         "dnb": null
       }
@@ -867,7 +573,6 @@
       "lei": "969500OYUDADGZKCR583",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
@@ -876,27 +581,12 @@
       "signals": [],
       "l2": {
         "result": "confirmed",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     },
@@ -904,7 +594,6 @@
       "lei": "969500SGAEBRXYUAJ739",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
@@ -913,27 +602,12 @@
       "signals": [],
       "l2": {
         "result": "confirmed",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     },
@@ -941,7 +615,6 @@
       "lei": "984500A64C0EA64BC554",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
@@ -950,27 +623,12 @@
       "signals": [],
       "l2": {
         "result": "confirmed",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     },
@@ -978,7 +636,6 @@
       "lei": "984500AA0OCA9CE0D796",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
@@ -987,27 +644,12 @@
       "signals": [],
       "l2": {
         "result": "confirmed",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
-      "discrepancies": [],
-      "signals": [],
-      "l2": {
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     },
@@ -1015,17 +657,10 @@
       "lei": "984500DB91E5A48E7F26",
       "levels": {
         "L1": "confirmed",
-<<<<<<< HEAD
         "L2": "confirmed",
         "L3": null
       },
       "levelReached": "L2",
-=======
-        "L2": null,
-        "L3": null
-      },
-      "levelReached": "L1",
->>>>>>> feat/b6-l2-eba-dnb
       "discrepancies": [
         {
           "kind": "name_mismatch",
@@ -1039,22 +674,13 @@
       ],
       "signals": [],
       "l2": {
-<<<<<<< HEAD
         "result": "confirmed",
-=======
-        "result": "not_checked",
->>>>>>> feat/b6-l2-eba-dnb
         "reason": null,
         "note": null
       },
       "lastCheckedAt": {
-<<<<<<< HEAD
         "gleif": "2026-11-15T15:38:39.472Z",
         "eba": "2026-11-15T15:38:39.472Z",
-=======
-        "gleif": "2026-11-15T13:54:50.902Z",
-        "eba": null,
->>>>>>> feat/b6-l2-eba-dnb
         "dnb": null
       }
     }
