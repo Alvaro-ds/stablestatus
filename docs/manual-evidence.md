@@ -77,6 +77,17 @@ The EBA register has no LEI field, so the daily ingest finds an issuer there by 
 
 `caOwnerId` is the EBA code of the authority (`LU_CSSF`, `DE_BAFIN`, `PL_PFSA`, `FR_ACPR`…). Never take the ID from a search by name in the EBA register: confirm it on a page that also shows the LEI or the company registration number.
 
+Where to find the ID, by authority (checked on 2026-11-15):
+
+- **CSSF (LU)**: eDesk lists one entity per licence. The e-money institution entry (`W…`) shows no LEI; the e-money token issuer entry (`N…`) of the same company does. The search results page shows both rows together.
+- **BaFin (DE)**: the EBA ID is the BaFin `Bak Nr.` shown on the company database page.
+- **KNF (PL)**: the EBA ID is the `NIP` shown in e-RUP, next to the `KRS`.
+- **ACPR (FR)**: `ENT_NAT_REF_COD` is the SIREN and the `EntityCode` suffix is the REGAFI `id_referentiel`.
+
+### Known data error: Société Générale - Forge
+
+The EBA lists SG-Forge (LEI `969500FX8K40ZDW4F377`) as `FR_ACPR!737174`, with that same code in `ENT_NAT_REF_COD` instead of its SIREN. REGAFI lists the company once, as `id_referentiel` 93046 (SIREN 882696628, CIB 15883), holding both its investment firm and e-money institution licences. The ID 737174 does not appear in any REGAFI dataset or in the Wayback Machine (checked 2026-11-15), so it cannot be confirmed in an official national register and is not added to `national-ids.json`. The issuer's L2 and L3 come from manual REGAFI evidence instead; the EBA check stays unmatched for it.
+
 ---
 
 _StableStatus provides sourced information, not legal advice._
