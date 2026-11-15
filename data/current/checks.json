@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15T16:39:41.677Z",
+  "generatedAt": "2026-11-15T16:56:13.015Z",
   "issuers": [
     {
       "lei": "213800W1NGBLERUS6M39",
@@ -553,9 +553,9 @@
       "levels": {
         "L1": "confirmed",
         "L2": "confirmed",
-        "L3": null
+        "L3": "confirmed"
       },
-      "levelReached": "L2",
+      "levelReached": "L3",
       "discrepancies": [],
       "signals": [],
       "l2": {
