@@ -52,6 +52,8 @@ jobs:
 
       - run: pnpm changelog
 
+      - run: pnpm data:validate
+
       - name: Commit data changes
         id: commit
         env:
@@ -99,8 +101,10 @@ jobs:
           fi
           events=$(jq -r '.events' data/last-run.json)
           day=$(jq -r '.at[0:10]' data/last-run.json)
+          sources=$(tail -n "$events" data/changes.jsonl \
+            | jq -r 'select(.severity=="critical") | .source // "esma"' | sort -u | paste -sd,)
           gh label create critical-change --color B60205 \
-            --description "Critical change in the ESMA register" 2>/dev/null || true
+            --description "Critical change detected in an official source" 2>/dev/null || true
           {
             echo "The daily ingest on $day detected $critical critical change(s)."
             echo
@@ -111,14 +115,40 @@ jobs:
             echo "~~~~"
             sed -n '/^---$/,$p' CHANGELOG-data.md
           } > "$RUNNER_TEMP/issue-body.md"
-          gh issue create --title "Critical change in ESMA register ($day)" \
+          gh issue create --title "Critical change detected ($sources) ($day)" \
             --label critical-change --body-file "$RUNNER_TEMP/issue-body.md"
+
+      - name: Alert on unchecked sources
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if [ "$(jq -r '.sourceAlerts | length' data/last-run.json)" -eq 0 ]; then
+            echo "All sources checked recently."
+            exit 0
+          fi
+          list=$(jq -r '.sourceAlerts | join(", ")' data/last-run.json)
+          echo "Source(s) not checked for 3 consecutive days: $list" > "$RUNNER_TEMP/source-alert.md"
+          gh label create ingest-failure --color D93F0B \
+            --description "The daily ESMA ingest failed" 2>/dev/null || true
+          number=$(gh issue list --label ingest-failure --state open \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body-file "$RUNNER_TEMP/source-alert.md"
+          else
+            gh issue create --title "Daily ingest failed" --label ingest-failure \
+              --body-file "$RUNNER_TEMP/source-alert.md"
+          fi
 
       - name: Close failure issue on recovery
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
+          if [ "$(jq -r '.sourceAlerts | length' data/last-run.json)" -gt 0 ]; then
+            echo "Sources still unchecked; keeping the failure issue open."
+            exit 0
+          fi
           number=$(gh issue list --label ingest-failure --state open \
             --json number --jq '.[0].number // empty')
           if [ -n "$number" ]; then
