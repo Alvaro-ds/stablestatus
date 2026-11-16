@@ -20,6 +20,7 @@
     "changelog": "pnpm build && node dist/cli/changelog.js",
     "gate:check": "pnpm build && node dist/cli/gate-check.js",
     "evidence:add": "pnpm build && node dist/cli/evidence-add.js",
+    "data:validate": "pnpm build && node dist/cli/validate-data.js",
     "generate-variants": "node --experimental-strip-types tests/scripts/generate-variants.ts"
   },
   "packageManager": "pnpm@12.16.1",

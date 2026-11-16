@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-16T15:42:33.766Z",
+  "issuers": [
+    {
+      "lei": "213800W1NGBLERUS6M39",
+      "levels": {
+        "L1": "confirmed",
+        "L2": null,
+        "L3": null
+      },
+      "levelReached": "L1",
+      "discrepancies": [],
+      "signals": [],
+      "l2": {
+        "result": "not_checked",
+        "reason": "no_automated_official_source",
+        "note": null
+      },
+      "lastCheckedAt": {
+        "gleif": "2026-11-16T15:42:33.766Z",
+        "eba": null,
+        "dnb": null
+      }
+    }
+  ]
+}
