@@ -20,6 +20,8 @@ import { IssuerSchema, WhitePaperSchema, MetaSchema } from "../model/index.js";
 import { ChangeEventSchema } from "../model/change-event.js";
 import { RunRecordSchema } from "../model/run.js";
 import { detectRunContext } from "../lib/run-context.js";
+import { chainEntry } from "../integrity/chain.js";
+import { readStateFiles } from "../integrity/files.js";
 import { runChecksStep } from "../checks/run-checks.js";
 import { fetchDnbRegister } from "../sources/dnb.js";
 import { fetchEbaRegister } from "../sources/eba.js";
@@ -98,7 +100,7 @@ function loadPreviousState(currentDir: string, changesPath: string): NormalizeRe
   }
 }
 
-function recordRun(
+async function recordRun(
   dataDir: string,
   context: RunContext,
   events: ChangeEvent[],
@@ -106,7 +108,7 @@ function recordRun(
   artzzSha256: string | null,
   at: string,
   checks: ChecksStepResult | null
-): void {
+): Promise<void> {
   const counts = {
     events: events.length,
     critical: events.filter((e) => e.severity === "critical").length,
@@ -131,7 +133,10 @@ function recordRun(
     ...counts,
     ...sources,
   });
-  appendFileSync(join(dataDir, "runs.jsonl"), JSON.stringify(run) + "\n", "utf8");
+  const runsPath = join(dataDir, "runs.jsonl");
+  const runsBytes = existsSync(runsPath) ? readFileSync(runsPath) : new Uint8Array();
+  const entry = RunRecordSchema.parse(await chainEntry(runsBytes, run, readStateFiles(dataDir)));
+  appendFileSync(runsPath, JSON.stringify(entry) + "\n", "utf8");
 }
 
 // ---------------------------------------------------------------------------
@@ -316,7 +321,7 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
   const artzzSha256 = artzzSnapshot?.sha256 ?? null;
   if (allEvents.length === 0) {
     log("No structural changes. Manifest updated.");
-    recordRun(dataDir, runContext, [], sha256, artzzSha256, runAt, gleif);
+    await recordRun(dataDir, runContext, [], sha256, artzzSha256, runAt, gleif);
     return { skipped: true, reason: "no_events", events: [] };
   }
 
@@ -325,7 +330,7 @@ export async function runIngest(options: IngestOptions): Promise<IngestResult> {
   // --- Step 10: Regenerate CHANGELOG-data.md ---
   await regenerateChangelog(changelogPath, changesPath);
 
-  recordRun(dataDir, runContext, allEvents, sha256, artzzSha256, runAt, gleif);
+  await recordRun(dataDir, runContext, allEvents, sha256, artzzSha256, runAt, gleif);
 
   log(`Done. ${nextState.issuers.length} issuers, ${nextState.whitepapers.length} whitepapers.`);
 

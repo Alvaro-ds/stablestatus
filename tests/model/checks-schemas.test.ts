@@ -146,3 +146,38 @@ describe("ChangeEventSchema and RunRecordSchema extensions", () => {
     ).toBe(true);
   });
 });
+
+describe("RunRecordSchema integrity fields", () => {
+  const RUN = {
+    at: "2026-11-17T05:00:00.000Z",
+    runId: null,
+    emtwpSha256: SHA,
+    artzzSha256: null,
+    events: 0,
+    critical: 0,
+  };
+  const CHAIN = {
+    prevEntrySha256: SHA,
+    stateSha256: SHA,
+    stateFiles: [{ path: "data/changes.jsonl", sha256: SHA }],
+    entrySha256: SHA,
+  };
+
+  it("accepts old lines without chain fields", () => {
+    expect(RunRecordSchema.safeParse(RUN).success).toBe(true);
+  });
+
+  it("accepts a chained line and keeps its fields", () => {
+    const parsed = RunRecordSchema.parse({ ...RUN, ...CHAIN, chainGenesis: true });
+    expect(parsed).toMatchObject({ ...CHAIN, chainGenesis: true });
+  });
+
+  it.each(["prevEntrySha256", "stateSha256", "stateFiles"])(
+    "requires %s when entrySha256 is present",
+    (field) => {
+      const line: Record<string, unknown> = { ...RUN, ...CHAIN };
+      delete line[field];
+      expect(RunRecordSchema.safeParse(line).success).toBe(false);
+    }
+  );
+});
