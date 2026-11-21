@@ -1,9 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { mkdtempSync, rmSync, existsSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
+import { createHash } from "node:crypto";
+
 import { runIngest } from "../../src/cli/ingest.js";
+import { splitLines, verifyChain } from "../../src/integrity/chain.js";
+import { readStateFiles } from "../../src/integrity/files.js";
 import { ESMA_URLS } from "../../src/esma/constants.js";
 
 const BASE_CSV = join(import.meta.dirname, "..", "fixtures", "esma", "EMTWP_2026-10-30.csv");
@@ -483,6 +487,34 @@ describe("runIngest — runner, trigger and runs.jsonl", () => {
     });
     expect(runs[1]!["critical"]).toBeGreaterThan(0);
     expect(runs[1]!["emtwpSha256"]).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it("chains each new line to the previous one and to the published state", async () => {
+    const oldLine =
+      '{"at":"2026-11-06T05:00:00.000Z","runId":null,"emtwpSha256":"' +
+      "a".repeat(64) +
+      '","artzzSha256":null,"events":0,"critical":0}\n';
+    mkdirSync(dataDir, { recursive: true });
+    writeFileSync(join(dataDir, "runs.jsonl"), oldLine, "utf8");
+    await runIngest(opts(BASE_CSV));
+    await runIngest(opts(WITHDRAWAL_CSV));
+
+    const lines = splitLines(readFileSync(join(dataDir, "runs.jsonl"), "utf8"));
+    const runs = lines.map((l) => JSON.parse(l) as Record<string, unknown>);
+    expect(runs).toHaveLength(3);
+    expect(runs[1]).toMatchObject({
+      chainGenesis: true,
+      prevEntrySha256: createHash("sha256").update(oldLine).digest("hex"),
+    });
+    expect(runs[2]!["prevEntrySha256"]).toBe(runs[1]!["entrySha256"]);
+    expect(runs[2]!["chainGenesis"]).toBeUndefined();
+    expect((runs[2]!["stateFiles"] as Array<{ path: string }>).map((f) => f.path)).toEqual([
+      "data/changes.jsonl",
+      "data/current/issuers.json",
+      "data/current/meta.json",
+      "data/current/whitepapers.json",
+    ]);
+    expect(await verifyChain(lines, readStateFiles(dataDir))).toEqual({ ok: true });
   });
 
   it("does not append to runs.jsonl when the run fails", async () => {
