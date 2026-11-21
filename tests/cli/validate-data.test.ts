@@ -136,3 +136,33 @@ describe("validateData", () => {
     ]);
   });
 });
+
+describe("validateData with manual evidence records in runs.jsonl", () => {
+  const manual = (at: string) =>
+    JSON.stringify({
+      kind: "manual_evidence",
+      at,
+      evidenceIds: ["d".repeat(64)],
+      events: 0,
+      critical: 0,
+      stateFiles: [],
+      stateSha256: "d".repeat(64),
+      prevEntrySha256: "d".repeat(64),
+      entrySha256: "d".repeat(64),
+    }) + "\n";
+
+  it("accepts a manual evidence line after the last run", () => {
+    appendFileSync(path("data/runs.jsonl"), manual("2099-01-01T00:00:00.000Z"));
+    expect(validateData(root)).toEqual([]);
+  });
+
+  it("reports a manual evidence line dated before the previous run", () => {
+    appendFileSync(path("data/runs.jsonl"), manual("2020-01-01T00:00:00.000Z"));
+    const errors = validateData(root);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({
+      file: "data/runs.jsonl",
+      line: lines("data/runs.jsonl").length,
+    });
+  });
+});

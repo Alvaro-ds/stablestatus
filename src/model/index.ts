@@ -17,10 +17,15 @@ export {
   RunnerSchema,
   TriggerSchema,
   RunRecordSchema,
+  IngestRunRecordSchema,
+  ManualEvidenceRunRecordSchema,
   SourceRunSchema,
+  isIngestRun,
   type Runner,
   type Trigger,
   type RunRecord,
+  type IngestRunRecord,
+  type ManualEvidenceRunRecord,
   type SourceRun,
 } from "./run.js";
 export {

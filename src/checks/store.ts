@@ -5,8 +5,9 @@ import {
   EvidenceSchema,
   NationalIdsFileSchema,
   RunRecordSchema,
+  isIngestRun,
 } from "../model/index.js";
-import type { Evidence, IssuerChecks, NationalIdEntry, RunRecord } from "../model/index.js";
+import type { Evidence, IngestRunRecord, IssuerChecks, NationalIdEntry } from "../model/index.js";
 import { DNB_CSV_URL } from "../sources/dnb.js";
 
 /** Consecutive days without a successful check before a source is listed in sourceAlerts. */
@@ -31,8 +32,11 @@ export function readEvidence(path: string): Evidence[] {
   return readLines(path).map((l) => EvidenceSchema.parse(l));
 }
 
-export function readRuns(path: string): RunRecord[] {
-  return readLines(path).map((l) => RunRecordSchema.parse(l));
+/** Ingest lines of runs.jsonl; manual evidence lines have no sources and are left out. */
+export function readRuns(path: string): IngestRunRecord[] {
+  return readLines(path)
+    .map((l) => RunRecordSchema.parse(l))
+    .filter(isIngestRun);
 }
 
 export function readChecks(path: string): IssuerChecks[] {
@@ -82,7 +86,7 @@ export function sameObservation(prev: Evidence | undefined, next: Evidence): boo
 
 /** `at` of the last run where `source` was checked successfully, or null. */
 export function sourceLastCheckedAt(
-  runs: Pick<RunRecord, "at" | "sources">[],
+  runs: Pick<IngestRunRecord, "at" | "sources">[],
   source: AutomatedSource
 ): string | null {
   for (let i = runs.length - 1; i >= 0; i--) {
@@ -96,7 +100,7 @@ export function sourceLastCheckedAt(
  * in not_checked. Runs that did not check the source (before it existed, file loads) are ignored.
  */
 export function sourceNeedsAlert(
-  runs: Pick<RunRecord, "at" | "sources">[],
+  runs: Pick<IngestRunRecord, "at" | "sources">[],
   source: AutomatedSource
 ): boolean {
   const lastPerDay = new Map<string, string>();

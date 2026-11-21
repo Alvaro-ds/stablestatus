@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, it, expect } from "vitest";
 
 import {
@@ -6,6 +9,7 @@ import {
   DiscrepancySchema,
   EvidenceSchema,
   RunRecordSchema,
+  isIngestRun,
   SignalSchema,
 } from "../../src/model/index.js";
 
@@ -180,4 +184,48 @@ describe("RunRecordSchema integrity fields", () => {
       expect(RunRecordSchema.safeParse(line).success).toBe(false);
     }
   );
+});
+
+describe("RunRecordSchema manual evidence records", () => {
+  const MANUAL = {
+    kind: "manual_evidence",
+    at: "2026-11-21T10:00:00.000Z",
+    evidenceIds: [SHA],
+    events: 1,
+    critical: 0,
+    stateFiles: [{ path: "data/changes.jsonl", sha256: SHA }],
+    stateSha256: SHA,
+    prevEntrySha256: SHA,
+    entrySha256: SHA,
+  };
+
+  it("accepts a manual evidence line and keeps its kind", () => {
+    const parsed = RunRecordSchema.parse(MANUAL);
+    expect(parsed).toMatchObject({ kind: "manual_evidence", evidenceIds: [SHA] });
+    expect(isIngestRun(parsed)).toBe(false);
+  });
+
+  it.each(["evidenceIds", "prevEntrySha256", "stateSha256", "stateFiles", "entrySha256"])(
+    "requires %s",
+    (field) => {
+      const line: Record<string, unknown> = { ...MANUAL };
+      delete line[field];
+      expect(RunRecordSchema.safeParse(line).success).toBe(false);
+    }
+  );
+
+  it("rejects an empty evidenceIds and an unknown kind", () => {
+    expect(RunRecordSchema.safeParse({ ...MANUAL, evidenceIds: [] }).success).toBe(false);
+    expect(RunRecordSchema.safeParse({ ...MANUAL, kind: "other" }).success).toBe(false);
+  });
+
+  it("still validates every line of data/runs.jsonl as an ingest run", () => {
+    const text = readFileSync(join(import.meta.dirname, "..", "..", "data", "runs.jsonl"), "utf8");
+    const lines = text.split("\n").filter((l) => l.trim());
+    expect(lines.length).toBeGreaterThan(0);
+    for (const line of lines) {
+      const parsed = RunRecordSchema.parse(JSON.parse(line));
+      expect(isIngestRun(parsed)).toBe(true);
+    }
+  });
 });

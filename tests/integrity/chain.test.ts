@@ -128,3 +128,35 @@ describe("verifyChain", () => {
     expect(await verifyChain([OLD_LINES[0]!, "{oops"])).toMatchObject({ ok: false, line: 2 });
   });
 });
+
+describe("verifyChain with manual evidence records", () => {
+  const manual = {
+    kind: "manual_evidence",
+    at: "2026-11-21T10:00:00.000Z",
+    evidenceIds: ["e".repeat(64)],
+    events: 0,
+    critical: 0,
+  };
+  const text = (lines: string[]) => enc(lines.map((l) => l + "\n").join(""));
+
+  it("accepts a manual line between two ingest runs, chained the same way", async () => {
+    const first = await buildChain([], 1, FILES);
+    const withManual = [...first, JSON.stringify(await chainEntry(text(first), manual, FILES))];
+    const lines = await buildChain(withManual, 1, FILES);
+    expect(await verifyChain(lines, FILES)).toEqual({ ok: true });
+    const parsed = lines.map((l) => JSON.parse(l) as Record<string, unknown>);
+    expect(parsed[2]?.["prevEntrySha256"]).toBe(parsed[1]?.["entrySha256"]);
+  });
+
+  it("detects a fork: two lines appended on the same previous line (a merge)", async () => {
+    const base = await buildChain([], 1, FILES);
+    const ours = JSON.stringify(await chainEntry(text(base), manual, FILES));
+    const theirs = JSON.stringify(await chainEntry(text(base), run(5), FILES));
+    expect(JSON.parse(ours).prevEntrySha256).toBe(JSON.parse(theirs).prevEntrySha256);
+    expect(await verifyChain([...base, theirs, ours])).toEqual({
+      ok: false,
+      line: 3,
+      reason: "prevEntrySha256 does not match",
+    });
+  });
+});

@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { runIngest } from "../../src/cli/ingest.js";
 import type { DnbFetcher, EbaFetcher } from "../../src/checks/run-checks.js";
 import { computeSha256 } from "../../src/esma/store.js";
-import { ChecksFileSchema, EvidenceSchema, RunRecordSchema } from "../../src/model/index.js";
+import { ChecksFileSchema, EvidenceSchema, IngestRunRecordSchema } from "../../src/model/index.js";
 import { DNB_CSV_URL, parseDnbCsv } from "../../src/sources/dnb.js";
 import { parseEbaRegister, readEbaZip } from "../../src/sources/eba.js";
 import type { EbaEntity } from "../../src/sources/eba.js";
@@ -101,7 +101,7 @@ function lines(path: string): unknown[] {
 
 const evidence = () =>
   lines(join(dataDir, "evidence", "evidence.jsonl")).map((l) => EvidenceSchema.parse(l));
-const runs = () => lines(join(dataDir, "runs.jsonl")).map((l) => RunRecordSchema.parse(l));
+const runs = () => lines(join(dataDir, "runs.jsonl")).map((l) => IngestRunRecordSchema.parse(l));
 const lastRun = () => JSON.parse(readFileSync(join(dataDir, "last-run.json"), "utf8"));
 const checksOf = (lei: string) =>
   ChecksFileSchema.parse(

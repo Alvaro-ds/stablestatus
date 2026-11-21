@@ -18,7 +18,7 @@ import { regenerateChangelog } from "../diff/changelog.js";
 import { ESMA_URLS } from "../esma/constants.js";
 import { IssuerSchema, WhitePaperSchema, MetaSchema } from "../model/index.js";
 import { ChangeEventSchema } from "../model/change-event.js";
-import { RunRecordSchema } from "../model/run.js";
+import { IngestRunRecordSchema } from "../model/run.js";
 import { detectRunContext } from "../lib/run-context.js";
 import { chainEntry } from "../integrity/chain.js";
 import { readStateFiles } from "../integrity/files.js";
@@ -125,7 +125,7 @@ async function recordRun(
   };
   writeFileSync(join(dataDir, "last-run.json"), JSON.stringify(summary, null, 2) + "\n", "utf8");
 
-  const run = RunRecordSchema.parse({
+  const run = IngestRunRecordSchema.parse({
     at,
     ...context,
     emtwpSha256,
@@ -135,7 +135,9 @@ async function recordRun(
   });
   const runsPath = join(dataDir, "runs.jsonl");
   const runsBytes = existsSync(runsPath) ? readFileSync(runsPath) : new Uint8Array();
-  const entry = RunRecordSchema.parse(await chainEntry(runsBytes, run, readStateFiles(dataDir)));
+  const entry = IngestRunRecordSchema.parse(
+    await chainEntry(runsBytes, run, readStateFiles(dataDir))
+  );
   appendFileSync(runsPath, JSON.stringify(entry) + "\n", "utf8");
 }
 

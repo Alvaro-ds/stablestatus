@@ -1,15 +1,24 @@
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import {
+  appendFileSync,
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { runIngest } from "../../src/cli/ingest.js";
+import { chainEntry, verifyChain } from "../../src/integrity/chain.js";
+import { readStateFiles } from "../../src/integrity/files.js";
 import { computeSha256 } from "../../src/esma/store.js";
 import {
   ChecksFileSchema,
   EvidenceSchema,
-  RunRecordSchema,
+  IngestRunRecordSchema,
   type ChangeEvent,
 } from "../../src/model/index.js";
 import {
@@ -90,7 +99,7 @@ function lines(path: string): unknown[] {
 }
 
 const evidencePath = () => join(dataDir, "evidence", "evidence.jsonl");
-const runs = () => lines(join(dataDir, "runs.jsonl")).map((l) => RunRecordSchema.parse(l));
+const runs = () => lines(join(dataDir, "runs.jsonl")).map((l) => IngestRunRecordSchema.parse(l));
 const lastRun = () => JSON.parse(readFileSync(join(dataDir, "last-run.json"), "utf8"));
 const checks = () =>
   ChecksFileSchema.parse(JSON.parse(readFileSync(join(dataDir, "current", "checks.json"), "utf8")));
@@ -234,5 +243,32 @@ describe("runIngest with GLEIF — failures", () => {
     });
     expect(runs()[0]?.sources).toBeUndefined();
     expect(existsSync(join(dataDir, "current", "checks.json"))).toBe(false);
+  });
+});
+
+describe("runIngest after a manual evidence record", () => {
+  it("chains onto it and ignores it for source checks", async () => {
+    await run("2026-11-11", gleifFrom(GLEIF_BUF));
+    const runsPath = join(dataDir, "runs.jsonl");
+    const manual = {
+      kind: "manual_evidence",
+      at: "2026-11-11T18:00:00.000Z",
+      evidenceIds: ["f".repeat(64)],
+      events: 0,
+      critical: 0,
+    };
+    const entry = await chainEntry(readFileSync(runsPath), manual, readStateFiles(dataDir));
+    appendFileSync(runsPath, JSON.stringify(entry) + "\n");
+
+    await run("2026-11-12", failing);
+
+    const all = readFileSync(runsPath, "utf8").trimEnd().split("\n");
+    expect(all).toHaveLength(3);
+    expect(JSON.parse(all[2]!).prevEntrySha256).toBe(entry["entrySha256"]);
+    expect(await verifyChain(all, readStateFiles(dataDir))).toEqual({ ok: true });
+    expect(checks().issuers.find((c) => c.lei === STABLR)?.lastCheckedAt.gleif).toBe(
+      "2026-11-11T12:00:00.000Z"
+    );
+    expect(lastRun().sourceAlerts).toEqual([]);
   });
 });

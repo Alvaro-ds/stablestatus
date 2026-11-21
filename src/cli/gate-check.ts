@@ -6,8 +6,8 @@ import { parseEsmaCsv } from "../esma/parse.js";
 import { computeSha256 } from "../esma/store.js";
 import { ESMA_URLS } from "../esma/constants.js";
 import { dedupeRows } from "../normalize/dedupe.js";
-import { ManifestSchema, MetaSchema, RunRecordSchema } from "../model/index.js";
-import type { Manifest, RunRecord } from "../model/index.js";
+import { isIngestRun, ManifestSchema, MetaSchema, RunRecordSchema } from "../model/index.js";
+import type { IngestRunRecord, Manifest, RunRecord } from "../model/index.js";
 
 const DATE_DIR_RE = /^\d{4}-\d{2}-\d{2}$/;
 const REQUIRED_STREAK = 7;
@@ -22,7 +22,9 @@ export interface GateReport {
   todayPending: boolean;
   missing: string[];
   /** Manual, local or unlabelled runs: informational only, never counted. */
-  otherRuns: Array<Pick<RunRecord, "at" | "runner" | "trigger">>;
+  otherRuns: Array<Pick<IngestRunRecord, "at" | "runner" | "trigger">>;
+  /** Manual evidence lines of runs.jsonl: informational only, never counted. */
+  manualEvidenceRecords: number;
   counts: { match: boolean; expected: Counts | null; actual: Counts | null };
   ok: boolean;
 }
@@ -63,7 +65,7 @@ function loadRuns(dataDir: string): RunRecord[] {
     });
 }
 
-function isScheduled(run: RunRecord): boolean {
+function isScheduled(run: IngestRunRecord): boolean {
   return run.runner === "github-actions" && run.trigger === "schedule";
 }
 
@@ -99,7 +101,8 @@ function countsFromMeta(dataDir: string): Counts | null {
 export function checkGate(dataDir: string, today: string): GateReport {
   const rawDir = join(dataDir, "raw");
   const manifests = loadManifests(rawDir);
-  const runs = loadRuns(dataDir);
+  const allRuns = loadRuns(dataDir);
+  const runs = allRuns.filter(isIngestRun);
   const scheduledDays = new Set(runs.filter(isScheduled).map((r) => r.at.slice(0, 10)));
   const otherRuns = runs
     .filter((r) => !isScheduled(r))
@@ -132,6 +135,7 @@ export function checkGate(dataDir: string, today: string): GateReport {
     todayPending,
     missing,
     otherRuns,
+    manualEvidenceRecords: allRuns.length - runs.length,
     counts: { match, expected, actual },
     ok: streak >= REQUIRED_STREAK && match,
   };
@@ -158,6 +162,7 @@ if (isMain) {
       `Counts (EMTWP deduped vs meta.json): ${JSON.stringify(expected)} vs ${JSON.stringify(actual)} → ${match ? "match" : "MISMATCH"}`
     );
     console.log(report.ok ? "Gate: PASSED" : "Gate: NOT PASSED");
+    console.log(`Manual evidence records: ${report.manualEvidenceRecords} (not counted)`);
     process.exit(report.ok ? 0 : 1);
   } catch (err: unknown) {
     console.error("Fatal error:", err instanceof Error ? err.message : String(err));

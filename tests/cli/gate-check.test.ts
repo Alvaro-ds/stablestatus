@@ -193,3 +193,43 @@ describe("checkGate — counts", () => {
     expect(report.ok).toBe(false);
   });
 });
+
+function addManualEvidenceRecord(at: string): void {
+  const sha = "b".repeat(64);
+  const line = {
+    kind: "manual_evidence",
+    at,
+    evidenceIds: [sha],
+    events: 0,
+    critical: 0,
+    stateFiles: [{ path: "data/changes.jsonl", sha256: sha }],
+    stateSha256: sha,
+    prevEntrySha256: sha,
+    entrySha256: sha,
+  };
+  appendFileSync(join(dataDir, "runs.jsonl"), JSON.stringify(line) + "\n");
+}
+
+describe("checkGate — manual evidence records", () => {
+  beforeEach(() => {
+    addManifest(TODAY, true);
+    writeMeta(25, 48);
+  });
+
+  it("never counts them as runs and reports how many there are", () => {
+    scheduledDays(14, 19);
+    addManualEvidenceRecord("2026-11-19T18:00:00.000Z");
+    addManualEvidenceRecord("2026-11-20T09:00:00.000Z");
+    const report = checkGate(dataDir, TODAY);
+    expect(report.streak).toBe(6);
+    expect(report.todayPending).toBe(true);
+    expect(report.otherRuns).toEqual([]);
+    expect(report.manualEvidenceRecords).toBe(2);
+    expect(report.ok).toBe(false);
+  });
+
+  it("reports zero when there are none", () => {
+    scheduledDays(14, 20);
+    expect(checkGate(dataDir, TODAY).manualEvidenceRecords).toBe(0);
+  });
+});

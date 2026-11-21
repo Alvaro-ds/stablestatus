@@ -7,7 +7,7 @@ import type {
   Evidence,
   Issuer,
   L2Reason,
-  RunRecord,
+  IngestRunRecord,
   SourceRun,
 } from "../model/index.js";
 import { computeDnbRecordsSha256, selectDnbRows, storeDnbExtract } from "../sources/dnb.js";
@@ -85,7 +85,7 @@ function errorMessage(err: unknown): string {
 export function buildChecksFile(input: {
   issuers: Issuer[];
   latest: Map<string, Evidence>;
-  runs: Pick<RunRecord, "at" | "sources">[];
+  runs: Pick<IngestRunRecord, "at" | "sources">[];
   runAt: string;
   l2Reason: (issuer: Issuer) => L2Reason | null;
 }): ChecksFile {
