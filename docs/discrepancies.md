@@ -57,7 +57,7 @@ How a signal differs from a discrepancy:
 | `liquidation_announced`  | A liquidation is announced in an official source                                                                  | critical | No: defined, not generated yet                       |
 | `insolvency_proceedings` | Insolvency proceedings are opened, according to an official source                                                | critical | No: defined, not generated yet                       |
 
-Every signal with severity `critical` opens a `critical-change` alert (a GitHub issue in this repository) on the day it first appears. `lei_lapsed` does not.
+The `critical-change` alert (a GitHub issue in this repository) is opened by the daily ingest workflow, so it is opened only when a critical signal first appears in an ingest run; `lei_lapsed` never opens it. A critical signal raised by manual evidence is recorded in `data/changes.jsonl` and in the integrity chain, but does not open the issue automatically.
 
 ## Where to see it
 
