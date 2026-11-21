@@ -82,6 +82,8 @@ Where the data lives:
 | `data/raw/YYYY-MM-DD/` | Daily manifest with hashes; raw CSVs when they change   |
 | `CHANGELOG-data.md`    | Human-readable changelog generated from `changes.jsonl` |
 
+The discrepancies and signals in `data/current/checks.json` are explained in [docs/discrepancies.md](docs/discrepancies.md).
+
 Alerts are GitHub issues, so maintainers get them by email:
 
 - `ingest-failure`: opened when the run fails (later failures add a comment) and closed automatically on the next successful run.

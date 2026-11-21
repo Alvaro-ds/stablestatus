@@ -20,6 +20,14 @@ snapshot to `data/`. Produce the first public issuer list (EMT + ART).
 Any schema change in the ESMA CSV causes the workflow to fail with a clear error
 (never silently publishes corrupt data).
 
+**Status (2026-11-21):** Exit gate passed on 15 Nov 2026. Cross-checks against
+official sources are done: GLEIF (L1), the EBA register, DNB and manual checks
+with national competent authorities (L2/L3), with 25 of 26 issuers at L2 or
+higher. The integrity chain is in place ([ADR 0005](adr/0005-integrity-record-format.md)).
+
+**Pending improvement:** automate the ACPR REGAFI register, once its reuse terms
+have been reviewed.
+
 ---
 
 ## Phase 2 — On-Chain Mapping & Contract List v1 (7 Dec 2026 – 3 Jan 2027)
