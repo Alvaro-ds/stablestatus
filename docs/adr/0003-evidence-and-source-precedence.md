@@ -28,7 +28,9 @@ Clients must be able to verify every claim themselves, and StableStatus must sta
 Discrepancy kinds:
 
 - `date_mismatch`
+- `name_format` (added by the 2026-11-11 amendment, B6.2)
 - `name_mismatch`
+- `country_mismatch` (added by the 2026-11-11 amendment, B6.2)
 - `authority_mismatch`
 - `status_mismatch`
 - `missing_in_nca`
