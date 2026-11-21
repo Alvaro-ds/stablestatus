@@ -219,13 +219,14 @@ describe("RunRecordSchema manual evidence records", () => {
     expect(RunRecordSchema.safeParse({ ...MANUAL, kind: "other" }).success).toBe(false);
   });
 
-  it("still validates every line of data/runs.jsonl as an ingest run", () => {
+  it("validates every line of data/runs.jsonl", () => {
     const text = readFileSync(join(import.meta.dirname, "..", "..", "data", "runs.jsonl"), "utf8");
     const lines = text.split("\n").filter((l) => l.trim());
     expect(lines.length).toBeGreaterThan(0);
     for (const line of lines) {
-      const parsed = RunRecordSchema.parse(JSON.parse(line));
-      expect(isIngestRun(parsed)).toBe(true);
+      const raw = JSON.parse(line);
+      const parsed = RunRecordSchema.parse(raw);
+      if (!("kind" in raw)) expect(isIngestRun(parsed)).toBe(true);
     }
   });
 });
