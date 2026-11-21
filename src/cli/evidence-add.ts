@@ -14,7 +14,9 @@ import { buildManualEvidence } from "../checks/manual.js";
 import { buildChecksFile } from "../checks/run-checks.js";
 import { latestEvidence, readChecks, readEvidence, readRuns } from "../checks/store.js";
 import { regenerateChangelog } from "../diff/changelog.js";
-import { ChangeEventSchema, IssuerSchema } from "../model/index.js";
+import { chainEntry, splitLines, verifyChain } from "../integrity/chain.js";
+import { readStateFiles } from "../integrity/files.js";
+import { ChangeEventSchema, IssuerSchema, ManualEvidenceRunRecordSchema } from "../model/index.js";
 import type { ChangeEvent, Evidence } from "../model/index.js";
 
 export interface AddEvidenceOptions {
@@ -24,15 +26,38 @@ export interface AddEvidenceOptions {
   now?: Date;
 }
 
+const readOrEmpty = (path: string) => (existsSync(path) ? readFileSync(path, "utf8") : "");
+
 /**
  * Appends one manual evidence line to data/evidence/evidence.jsonl, rebuilds checks.json
- * from the evidence on disk and appends any resulting change events.
+ * from the evidence on disk, appends any resulting change events and chains the new
+ * published state in data/runs.jsonl with a manual_evidence line (ADR 0005).
+ *
+ * Order: verify the current chain, validate the input and compute every new file and the
+ * chained line in memory; only then write evidence.jsonl, changes.jsonl and checks.json
+ * (each to a .tmp file, then renamed) and, last, append the line to runs.jsonl. Any error
+ * before the first rename leaves data/ untouched. If the process dies after a rename but
+ * before the append, integrity:verify fails on the last line; restore data/ with git and
+ * run the command again.
  */
 export async function addManualEvidence(
   options: AddEvidenceOptions
 ): Promise<{ evidence: Evidence; events: ChangeEvent[] }> {
   const { dataDir } = options;
   const now = options.now ?? new Date();
+
+  const runsPath = join(dataDir, "runs.jsonl");
+  const runsBytes = existsSync(runsPath) ? readFileSync(runsPath) : new Uint8Array();
+  const current = await verifyChain(
+    splitLines(new TextDecoder().decode(runsBytes)),
+    readStateFiles(dataDir)
+  );
+  if (!current.ok) {
+    throw new Error(
+      `integrity:verify already fails on the current data (runs.jsonl:${current.line}: ${current.reason}). Fix it before adding evidence.`
+    );
+  }
+
   const evidence = buildManualEvidence(options.input, now);
 
   const issuersPath = join(dataDir, "current", "issuers.json");
@@ -68,13 +93,35 @@ export async function addManualEvidence(
   );
   for (const event of events) ChangeEventSchema.parse(event);
 
-  const tmp = `${checksPath}.tmp`;
-  writeFileSync(tmp, JSON.stringify(checks, null, 2), "utf8");
-  mkdirSync(join(dataDir, "evidence"), { recursive: true });
-  appendFileSync(evidencePath, JSON.stringify(evidence) + "\n", "utf8");
   const changesPath = join(dataDir, "changes.jsonl");
-  for (const event of events) appendFileSync(changesPath, JSON.stringify(event) + "\n", "utf8");
-  renameSync(tmp, checksPath);
+  const writes = new Map<string, string>([
+    ["evidence/evidence.jsonl", readOrEmpty(evidencePath) + JSON.stringify(evidence) + "\n"],
+    ["current/checks.json", JSON.stringify(checks, null, 2)],
+  ]);
+  if (events.length > 0) {
+    const lines = events.map((e) => JSON.stringify(e) + "\n").join("");
+    writes.set("changes.jsonl", readOrEmpty(changesPath) + lines);
+  }
+  const files = readStateFiles(dataDir);
+  for (const [rel, text] of writes) files[`data/${rel}`] = new TextEncoder().encode(text);
+  const entry = ManualEvidenceRunRecordSchema.parse(
+    await chainEntry(
+      runsBytes,
+      {
+        kind: "manual_evidence",
+        at: now.toISOString(),
+        evidenceIds: [evidence.id],
+        events: events.length,
+        critical: events.filter((e) => e.severity === "critical").length,
+      },
+      files
+    )
+  );
+
+  mkdirSync(join(dataDir, "evidence"), { recursive: true });
+  for (const [rel, text] of writes) writeFileSync(join(dataDir, `${rel}.tmp`), text, "utf8");
+  for (const rel of writes.keys()) renameSync(join(dataDir, `${rel}.tmp`), join(dataDir, rel));
+  appendFileSync(runsPath, JSON.stringify(entry) + "\n", "utf8");
   if (events.length > 0) await regenerateChangelog(options.changelogPath, changesPath);
 
   return { evidence, events };
@@ -141,6 +188,7 @@ if (isMain) {
     .then(({ evidence, events }) => {
       console.log(`Evidence ${evidence.id} added (${evidence.check}, ${evidence.result}).`);
       console.log(`checks.json rebuilt; ${events.length} change event(s).`);
+      console.log("runs.jsonl: manual_evidence record chained.");
     })
     .catch((err: unknown) => {
       console.error("Error:", err instanceof Error ? err.message : String(err));

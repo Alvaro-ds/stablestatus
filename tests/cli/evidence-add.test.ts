@@ -1,4 +1,11 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  appendFileSync,
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -8,7 +15,9 @@ import { OFFICIAL_DOMAINS, buildManualEvidence, officialDomain } from "../../src
 import { addManualEvidence, parseEvidenceArgs } from "../../src/cli/evidence-add.js";
 import { runIngest } from "../../src/cli/ingest.js";
 import { computeSha256 } from "../../src/esma/store.js";
-import { ChecksFileSchema, EvidenceSchema } from "../../src/model/index.js";
+import { ChecksFileSchema, EvidenceSchema, RunRecordSchema } from "../../src/model/index.js";
+import { splitLines, verifyChain } from "../../src/integrity/chain.js";
+import { readStateFiles } from "../../src/integrity/files.js";
 import {
   buildGleifUrl,
   computeRecordsSha256,
@@ -185,5 +194,77 @@ describe("addManualEvidence", () => {
     await expect(
       addManualEvidence({ dataDir, changelogPath: changelogPath(), input: VALID, now: NOW })
     ).rejects.toThrow(/already recorded/);
+  });
+});
+
+describe("addManualEvidence — integrity chain (ADR 0005)", () => {
+  let tmpDir: string;
+  let dataDir: string;
+  const changelogPath = () => join(tmpDir, "CHANGELOG-data.md");
+  const runsPath = () => join(dataDir, "runs.jsonl");
+  const runLines = () => splitLines(readFileSync(runsPath(), "utf8"));
+  const verify = () => verifyChain(runLines(), readStateFiles(dataDir));
+  const add = (input: object, now: Date) =>
+    addManualEvidence({ dataDir, changelogPath: changelogPath(), input, now });
+
+  beforeEach(async () => {
+    tmpDir = mkdtempSync(join(tmpdir(), "stablestatus-evidence-chain-"));
+    dataDir = join(tmpDir, "data");
+    await runIngest({
+      fromFile: join(FIXTURES, "esma", "EMTWP_2026-11-11.csv"),
+      fetchedAt: "2026-11-11T05:00:00Z",
+      date: "2026-11-12",
+      dataDir,
+      changelogPath: changelogPath(),
+      now: new Date("2026-11-12T12:00:00Z"),
+      log: () => {},
+    });
+  });
+  afterEach(() => rmSync(tmpDir, { recursive: true, force: true }));
+
+  it("appends a chained manual_evidence line, so integrity:verify passes", async () => {
+    const { evidence, events } = await add(
+      { ...VALID, check: "L2", result: "inactive", observed: { Status: "Withdrawn" } },
+      NOW
+    );
+    expect(await verify()).toEqual({ ok: true });
+    const lines = runLines();
+    expect(lines).toHaveLength(2);
+    const last = RunRecordSchema.parse(JSON.parse(lines[1]!));
+    expect(last).toMatchObject({
+      kind: "manual_evidence",
+      at: NOW.toISOString(),
+      evidenceIds: [evidence.id],
+      events: events.length,
+      critical: 1,
+      prevEntrySha256: JSON.parse(lines[0]!).entrySha256,
+    });
+  });
+
+  it("two evidences in a row make two valid links", async () => {
+    await add(VALID, NOW);
+    await add({ ...VALID, retrievedAt: "2026-11-12T11:00:00Z" }, new Date("2026-11-12T19:00:00Z"));
+    const lines = runLines().map((l) => JSON.parse(l) as Record<string, unknown>);
+    expect(lines).toHaveLength(3);
+    expect(lines[2]?.["prevEntrySha256"]).toBe(lines[1]?.["entrySha256"]);
+    expect(await verify()).toEqual({ ok: true });
+  });
+
+  it("a duplicate evidence adds no line", async () => {
+    await add(VALID, NOW);
+    const before = readFileSync(runsPath());
+    await expect(add(VALID, NOW)).rejects.toThrow(/already recorded/);
+    expect(readFileSync(runsPath())).toEqual(before);
+  });
+
+  it("refuses to chain on top of a broken state and writes nothing", async () => {
+    appendFileSync(join(dataDir, "changes.jsonl"), "{}\n");
+    const snapshot = () =>
+      ["runs.jsonl", "changes.jsonl", "current/checks.json", "evidence/evidence.jsonl"].map((f) =>
+        existsSync(join(dataDir, f)) ? readFileSync(join(dataDir, f), "utf8") : null
+      );
+    const before = snapshot();
+    await expect(add(VALID, NOW)).rejects.toThrow(/integrity:verify/);
+    expect(snapshot()).toEqual(before);
   });
 });
