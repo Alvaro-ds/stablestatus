@@ -110,6 +110,56 @@ If a line has `entrySha256`, then `prevEntrySha256`, `stateSha256` and
 - A repository ruleset on `main` blocks force pushes and branch deletion
   (admins can bypass).
 
+## Amendment (2026-11-21): manual evidence records
+
+**Why.** `pnpm evidence:add` changes three files covered by `stateSha256`
+(`data/evidence/evidence.jsonl`, `data/current/checks.json` and, when there are
+events, `data/changes.jsonl`) but did not append to `runs.jsonl`. After a manual
+check, `integrity:verify` failed, and the change stayed outside the chain until
+the next ingest, whose line would have covered it as if the ingest had made it.
+Rule: **every change to the published state is a line in the chain.**
+
+**Format.** `evidence:add` appends one line per evidence, chained exactly like an
+ingest line (D2–D4):
+
+```json
+{
+  "kind": "manual_evidence",
+  "at": "2026-11-21T10:00:00.000Z",
+  "evidenceIds": ["<id of the evidence added>"],
+  "events": 1,
+  "critical": 1,
+  "stateFiles": [{ "path": "data/changes.jsonl", "sha256": "…" }],
+  "stateSha256": "…",
+  "prevEntrySha256": "…",
+  "entrySha256": "…"
+}
+```
+
+- `at` is when the command ran, not the evidence's `retrievedAt`.
+- `kind` tells it apart; ingest lines keep having no `kind`. `RunRecordSchema` is
+  the union of both, so every existing line still validates unchanged.
+- All chain fields are required on this kind.
+
+**Order.** `evidence:add` first runs the verifier on the current data and stops
+with exit code 1 if it fails, so nothing is chained on top of a broken state.
+It then computes every new file and the line in memory, writes the three files
+(`.tmp` + rename) and appends the line last. If it dies between the renames and
+the append, the verifier fails on the last line; restore `data/` with Git and
+run it again.
+
+**Not a run.** A manual evidence line counts for no gate and no source check:
+`gate:check` ignores it (it only prints how many there are), and
+`sourceLastCheckedAt` / `sourceNeedsAlert` never see it because it has no
+`sources`. `data:validate` still requires `at` to never decrease across all
+lines.
+
+**Forks.** If two people append on the same previous line and the branches are
+merged, both lines share a `prevEntrySha256`. The verifier rejects the second
+one (`prevEntrySha256 does not match`), so `integrity:verify` in CI catches the
+fork; `data:validate` does not repeat that check. See
+[`docs/manual-evidence.md`](../manual-evidence.md) for how to avoid it.
+
 ---
 
 _StableStatus provides sourced information, not legal advice._

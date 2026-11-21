@@ -54,7 +54,62 @@ Every field can also be given as a flag, which overrides the file: `--result ina
 | `observed`    | The fields as the page shows them, copied literally. At least one                                       |
 | `result`      | `confirmed`, `inactive`, `mismatch` or `not_found`. `inactive` raises a critical `nca_licence_inactive` |
 
-The command validates the input, appends one line to `data/evidence/evidence.jsonl` with `method: "manual"`, rebuilds `data/current/checks.json` and appends any change event to `data/changes.jsonl`. It rejects URLs outside the official domains, unknown issuers and duplicates. Review the diff and commit it as usual.
+The command validates the input, appends one line to `data/evidence/evidence.jsonl` with `method: "manual"`, rebuilds `data/current/checks.json`, appends any change event to `data/changes.jsonl` and, last, appends a chained `manual_evidence` line to `data/runs.jsonl` ([ADR 0005](adr/0005-integrity-record-format.md#amendment-2026-11-21-manual-evidence-records)). It rejects URLs outside the official domains, unknown issuers and duplicates, and it refuses to run (exit code 1) if `integrity:verify` already fails on the current data.
+
+## 4. Commit and push
+
+The daily ingest bot also appends to `data/runs.jsonl`. Keep the window between pulling and pushing as short as possible:
+
+1. Pull right before you start:
+
+   ```powershell
+   git switch main
+   git pull --ff-only
+   ```
+
+2. Run `pnpm evidence:add` (step 3) for each JSON file.
+3. Check the data before committing. Both must pass:
+
+   ```powershell
+   pnpm data:validate
+   pnpm integrity:verify
+   ```
+
+4. Commit and push right away:
+
+   ```powershell
+   git add data CHANGELOG-data.md
+   git commit -m "chore(data): add manual evidence"
+   git push
+   ```
+
+### If the push is rejected
+
+The bot committed in between. **Do not merge or pull with a merge.** A merge would fork the chain: your `manual_evidence` line and the bot's line would both point to the same `prevEntrySha256`, and `integrity:verify` would fail in CI. Instead, discard your local data commits, update from `origin/main` and run `evidence:add` again with the same JSON files.
+
+> **Before resetting:** `git reset --hard` discards every local commit and uncommitted change on the branch. Your evidence JSON files and PDFs live outside the repository, so they are not lost. Check with `git status` that there are no other local changes, and with `git log` that the only local commits are the data commits from this procedure. If there is anything else, stop and save it first.
+
+```powershell
+git fetch origin
+git status
+git log --oneline origin/main..HEAD
+git reset --hard origin/main
+pnpm evidence:add --file .\evidence.json
+pnpm data:validate
+pnpm integrity:verify
+git add data CHANGELOG-data.md
+git commit -m "chore(data): add manual evidence"
+git push
+```
+
+`git log --oneline origin/main..HEAD` lists the local commits that the reset will discard; it must show only your data commits.
+
+**From Sourcetree:**
+
+1. Click **Fetch** (toolbar) to update `origin/main`.
+2. Open **File Status**: it must show no uncommitted changes. In **History**, the commits above `origin/main` must be only your data commits.
+3. In **History**, right-click the commit labelled `origin/main` → **Reset current branch to this commit** → mode **Hard - discard all working copy changes** → **OK**.
+4. Run `pnpm evidence:add`, `pnpm data:validate` and `pnpm integrity:verify` in a terminal, then commit the changes in `data/` and `CHANGELOG-data.md` and click **Push**.
 
 ## National IDs for the EBA register
 
