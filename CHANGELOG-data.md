@@ -1,5 +1,9 @@
 # StableStatus Data Changelog
 
+- 2026-11-27 **field_changed** [whitepaper] `969500OYUDADGZKCR583:254f586bccce` field=`wpLastUpdate` from=`"2025-12-24"` to=`"2026-11-13"` _(info)_
+- 2026-11-27 **field_changed** [whitepaper] `969500OYUDADGZKCR583:254f586bccce` field=`dtis` from=`["FJM594L0V","FMXXP963M","FZQ4WZNHC","T1J8XQBSD"]` to=`["8K83WVJ1T","CFNRB0HTD","FJM594L0V","FMXXP963M","FZQ4WZNHC","KMQM5KCQP","T1J8XQBSD","X12LK0QH6","ZKVM4CD31"]` _(info)_
+- 2026-11-27 **field_changed** [whitepaper] `969500OYUDADGZKCR583:959a8a9155e7` field=`wpLastUpdate` from=`"2026-09-15"` to=`"2026-11-13"` _(info)_
+- 2026-11-27 **field_changed** [whitepaper] `969500OYUDADGZKCR583:959a8a9155e7` field=`dtis` from=`["2ZTG3NNVB","45J6XJX7H","4ZSZS1F4F","54VFN74B3","56V43DKZ3","5R3XFPZSM","6BGZTT6GF","6TNZQDKZK","7NZRGQZ87","898NNTPZJ","9F3G4V14R","CK9PW1MFH","CP6817N4B","DWBBXD2F1","DWCZ3239L","FXZLG37L6","GGM...` to=`["2ZTG3NNVB","45J6XJX7H","4ZSZS1F4F","54VFN74B3","56V43DKZ3","5R3XFPZSM","6BGZTT6GF","6TNZQDKZK","7NZRGQZ87","898NNTPZJ","94LB7WBTF","9F3G4V14R","CK9PW1MFH","CP6817N4B","CPL3P8BXX","DRWQ6LCDD","DWB...` _(info)_
 - 2026-11-12 **discrepancy_added** [issuer] `2549003QDNZWASSSCY31` ESMA register: legal name "Monerium ehf". GLEIF: "Monerium hf.". Source: https://search.gleif.org/#/record/2549003QDNZWASSSCY31 (checked 2026-11-12). _(info)_
 - 2026-11-12 **discrepancy_added** [issuer] `254900VUR90QF0G3T387` ESMA register: legal name "AIEU Services Limited S.A.". GLEIF: "AIEU Services Limited". Source: https://search.gleif.org/#/record/254900VUR90QF0G3T387 (checked 2026-11-12). _(info)_
 - ⚠️ 2026-11-12 **signal_added** [issuer] `2594008EL5UN8RIA8P23` GLEIF: LEI registration status LAPSED (next renewal date 2026-01-16). Source: https://search.gleif.org/#/record/2594008EL5UN8RIA8P23 (checked 2026-11-12). _(warning)_
