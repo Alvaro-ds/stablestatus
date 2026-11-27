@@ -4,7 +4,7 @@
   "files": [
     {
       "url": "https://www.esma.europa.eu/sites/default/files/2024-12/EMTWP.csv",
-      "fetchedAt": "2026-11-27T16:37:59.534Z",
+      "fetchedAt": "2026-11-27T22:20:49.000Z",
       "sha256": "b3cab1c1e4c54e22615a486969bed5c91445a93664f49ca51e9e6cd60b593fa2",
       "sizeBytes": 18356,
       "rowCount": 51,
@@ -14,7 +14,7 @@
     },
     {
       "url": "https://www.esma.europa.eu/sites/default/files/2024-12/ARTZZ.csv",
-      "fetchedAt": "2026-11-27T16:37:59.534Z",
+      "fetchedAt": "2026-11-27T22:20:49.000Z",
       "sha256": "fa1ef4da123e3d49642c69f90a81a88f6c2cc2a0b9471b2108e4dfc635ca7c67",
       "sizeBytes": 276,
       "rowCount": 0,
